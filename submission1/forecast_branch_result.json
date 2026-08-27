@@ -1,0 +1,146 @@
+{
+  "branch": "forecast-deferred-maintenance",
+  "purpose": "deferred maintenance what-if, destructive, discarded after use",
+  "branch_host": "ep-blue-firefly-d27r6m9h.database.us-east-1.cloud.databricks.com",
+  "main_host": "ep-empty-poetry-d2h5n6t2.database.us-east-1.cloud.databricks.com",
+  "baseline": [
+    {
+      "status": "CLOSED",
+      "jobs": 13,
+      "downtime_minutes": 4868
+    },
+    {
+      "status": "IN_PROGRESS",
+      "jobs": 5,
+      "downtime_minutes": 0
+    },
+    {
+      "status": "ON_HOLD",
+      "jobs": 2,
+      "downtime_minutes": 0
+    },
+    {
+      "status": "OPEN",
+      "jobs": 2,
+      "downtime_minutes": 0
+    }
+  ],
+  "escalation_model": {
+    "mean_closed_downtime_minutes": 374.5,
+    "worst_closed_downtime_minutes": 765.0,
+    "escalation_factor": 2.04,
+    "derivation": "worst observed closed downtime divided by mean closed downtime, used to project what a deferred job costs if it runs to failure"
+  },
+  "scenario": {
+    "open_jobs_deferred": 9,
+    "deferral_days": 30,
+    "escalation_applied": 2.04,
+    "destructive_writes": "UPDATE on every non-closed work order plus one note each. Only possible because this branch is disposable."
+  },
+  "forecast": [
+    {
+      "status": "CLOSED",
+      "jobs": 13,
+      "downtime_minutes": 4868
+    },
+    {
+      "status": "OPEN",
+      "jobs": 9,
+      "downtime_minutes": 6876
+    }
+  ],
+  "forecast_by_asset": [
+    {
+      "asset_id": "CRU-PCR01",
+      "failure_mode": "pressure",
+      "priority": "CRITICAL",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "STK-STK01",
+      "failure_mode": "mass_flow",
+      "priority": "HIGH",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "CV-CV001",
+      "failure_mode": "mass_flow",
+      "priority": "HIGH",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "CV-CV008",
+      "failure_mode": "motor_current",
+      "priority": "HIGH",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "CV-CV006",
+      "failure_mode": "belt_speed",
+      "priority": "HIGH",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "CV-CV007",
+      "failure_mode": "motor_current",
+      "priority": "CRITICAL",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "CV-CV005",
+      "failure_mode": "motor_current",
+      "priority": "HIGH",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "ROM-BIN01",
+      "failure_mode": "level",
+      "priority": "CRITICAL",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    },
+    {
+      "asset_id": "SCR-SCN01",
+      "failure_mode": "rotational_speed",
+      "priority": "HIGH",
+      "projected_downtime_minutes": 764,
+      "projected_downtime_hours": 12.7
+    }
+  ],
+  "conclusion": {
+    "baseline_total_downtime_minutes": 4868,
+    "forecast_total_downtime_minutes": 11744,
+    "delta_minutes": 6876,
+    "delta_hours": 114.6,
+    "answer": "Deferring all 9 open jobs by 30 days is projected to add 114.6 hours of unplanned downtime, because caught-early work escalates by 2.04x when it runs to failure instead."
+  },
+  "main_unchanged_after_scenario": [
+    {
+      "status": "CLOSED",
+      "jobs": 13,
+      "downtime_minutes": 4868
+    },
+    {
+      "status": "IN_PROGRESS",
+      "jobs": 5,
+      "downtime_minutes": 0
+    },
+    {
+      "status": "ON_HOLD",
+      "jobs": 2,
+      "downtime_minutes": 0
+    },
+    {
+      "status": "OPEN",
+      "jobs": 2,
+      "downtime_minutes": 0
+    }
+  ]
+}

@@ -23,6 +23,16 @@ without breaking anything. Same for training data, read
 `jack_freeman_catalog.tech_summit_scada_build.vw_vibration_features`, not the seed table. Do not create or modify the four frozen `dim_*` tables, lane A's bronze or seed
 tables, the two `vw_*` seam views, lane C's `stub_*` tables, or the Lakebase project.
 
+**Step 0.** Before you build anything, confirm with lane A that both seed tables are
+final. Your `_1m` tables are streaming reads, and if lane A regenerates a seed after you
+have started, your stream breaks and recovering costs a full refresh, which destroys
+streaming state. Seam 1 is also a planned full refresh for you, so expect that one.
+
+De-duplicate CDF rows yourself with `dropDuplicates` on `event_id` plus a watermark on
+`source_ts`. Do NOT ask for the dedup to be pushed into `vw_tag_reading`: a window
+function there makes the view unreadable by a streaming query, which would break you at
+seam 1 with no fix from your side.
+
 **Step 1.** Build the analytics pipeline as a Lakeflow Declarative Pipeline reading
 `vw_tag_reading`, producing the tables in section B of the DDL with exactly those
 columns. The `_1m` tables are one minute tumbling window aggregates over a streaming

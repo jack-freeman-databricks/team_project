@@ -289,3 +289,32 @@ not `rms`, `temperature`, `motor_current`. The four trend features
 a bearing failure is a trajectory, not an absolute value, and without them the model
 will not beat a plain RMS threshold. `hours_since_maintenance` must be generated too,
 since it cannot be derived after the fact.
+
+## What breaks in B and C when lane A changes the data
+
+One schema means lanes B and C read tables lane A owns. Whether that hurts depends
+entirely on whether the reader is batch or streaming.
+
+* **Lane C is nearly immune.** The app reads in batch on a refresh loop, so a data
+  change just means different numbers on screen.
+* **Lane B's `_1m` tables are streaming reads**, and a streaming read cannot survive a
+  destructive change to its source.
+
+| Lane A action | Lane B |
+|---|---|
+| Appending rows | safe |
+| `CREATE OR REPLACE TABLE tag_reading_seed` | breaks the stream, needs a full refresh |
+| `CREATE OR REPLACE VIEW vw_tag_reading` at seam 1 | breaks the stream, but this is planned |
+| `CREATE OR REPLACE` on a `dim_*` table | may fail the batch side of a broadcast join mid-run; they are frozen for this reason |
+
+Working rules:
+
+1. **Lane A finalises both seed tables before lane B starts streaming.** This is why the
+   seeds are lane A's step 1. Regenerating at 10am costs nothing; at 2pm it costs lane B
+   a full refresh, and a full refresh destroys streaming state.
+2. If lane A must regenerate later, lane A **says so out loud** and lane B full-refreshes.
+   Silent regeneration looks exactly like a pipeline bug and will cost an hour of hunting.
+3. Seam 1 is a planned full refresh for lane B. Budget it rather than being surprised.
+4. `jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading` must stay a plain filter with no
+   window function, or lane B cannot stream from it at all. See the note in
+   `contract/ddl_uc.sql` section A.3.

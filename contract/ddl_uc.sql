@@ -10,7 +10,6 @@
 --           and a hand-created table of the same name will conflict.
 -- SECTION C is created by Lakebase CDF. DO NOT run it either.
 --
--- Replace <user_a>, <user_b>, <user_c> before running section A.
 -- All three lanes share ONE schema; see the ownership map in contract/naming.md.
 -- =====================================================================
 
@@ -32,9 +31,25 @@
 CREATE VOLUME IF NOT EXISTS jack_freeman_catalog.tech_summit_scada_build.landing
   COMMENT 'CSV seeds and file-based landing for the synthetic generator';
 
-GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `<user_a>`;
-GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `<user_b>`;
-GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `<user_c>`;
+-- All three get the same working set. Differentiated grants (lane C read-only)
+-- were in an earlier draft, but with one shared schema they give false comfort:
+-- the table ownership map in contract/naming.md is the actual boundary, and
+-- blocking someone mid-build costs more than the marginal protection buys.
+
+GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `chris.dorrington@databricks.com`;
+GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `jack.freeman@databricks.com`;
+GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `adrian.tompkins@databricks.com`;
+
+GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL
+  ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `chris.dorrington@databricks.com`;
+GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL
+  ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `jack.freeman@databricks.com`;
+GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL
+  ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `adrian.tompkins@databricks.com`;
+
+GRANT READ VOLUME, WRITE VOLUME ON VOLUME jack_freeman_catalog.tech_summit_scada_build.landing TO `chris.dorrington@databricks.com`;
+GRANT READ VOLUME, WRITE VOLUME ON VOLUME jack_freeman_catalog.tech_summit_scada_build.landing TO `jack.freeman@databricks.com`;
+GRANT READ VOLUME, WRITE VOLUME ON VOLUME jack_freeman_catalog.tech_summit_scada_build.landing TO `adrian.tompkins@databricks.com`;
 GRANT USE SCHEMA, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL, SELECT, MODIFY
   ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `<user_a>`;
 GRANT USE SCHEMA, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL, SELECT, MODIFY
@@ -271,17 +286,26 @@ CREATE OR REPLACE VIEW jack_freeman_catalog.tech_summit_scada_build.vw_tag_readi
 SELECT event_id, tag_id, source_ts, value, value_text, quality, unit, seq, ingest_ts
 FROM jack_freeman_catalog.tech_summit_scada_build.tag_reading_seed;
 
--- After seam 1, replace the body with the live Lakebase CDF path. Each
--- Postgres UPDATE produces a preimage/postimage pair, so filter to postimage
--- and insert only, and de-duplicate on the Postgres LSN.
+-- After seam 1, replace the body with the live Lakebase CDF path below.
+--
+-- IT MUST STAY A PLAIN FILTER. An earlier draft de-duplicated here with
+-- ROW_NUMBER() OVER (PARTITION BY tag_id, seq ORDER BY _pg_lsn DESC), which
+-- cannot be read by a streaming query: Structured Streaming does not support
+-- non-time-based window functions on a streaming source. Lane B's _1m tables
+-- are streaming reads of this view, so a window function here would break them
+-- at seam 1 with no fix available from lane B's side.
+--
+-- De-duplication belongs in lane B's pipeline instead, where dropDuplicates
+-- with a watermark on source_ts is supported. In practice duplicates only
+-- arise if CDF re-snapshots a table, and event_id is unique per reading.
+--
+-- lb_tag_current_history is append-only, so it is a valid streaming source.
+-- Each Postgres UPDATE lands as a preimage/postimage pair, hence the filter.
 --
 -- CREATE OR REPLACE VIEW jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading AS
 -- SELECT event_id, tag_id, source_ts, value, value_text, quality, unit, seq, ingest_ts
--- FROM (
---   SELECT *, ROW_NUMBER() OVER (PARTITION BY tag_id, seq ORDER BY _pg_lsn DESC) AS rn
---   FROM jack_freeman_catalog.tech_summit_scada_build.lb_tag_current_history
---   WHERE _pg_change_type IN ('insert', 'update_postimage')
--- ) WHERE rn = 1;
+-- FROM jack_freeman_catalog.tech_summit_scada_build.lb_tag_current_history
+-- WHERE _pg_change_type IN ('insert', 'update_postimage');
 
 
 -- ---------------------------------------------------------------------

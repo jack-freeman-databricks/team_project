@@ -137,7 +137,19 @@ That is a better outcome than it sounds, and it changes the shape of lane A's wo
 | Auth | managed, runs as the query's identity | hand-rolled, and the token expires hourly |
 | Batching, retries, backpressure | built in | hand-rolled |
 | Compute | classic only, DBR 18+ | serverless fine |
-| Take it when | classic compute and the preview are available | they are not |
+| Take it when | the source is Kafka/Event Hubs | the source is Delta, i.e. always here |
+
+**In practice the fallback is the only option for pipeline 1, and not for the reason
+this contract originally gave.** The framing above was about compute availability, and
+that was wrong. The binding constraint is the SOURCE: real-time mode does not support
+Delta or file-based sources at all, only Kafka, MSK, Event Hubs and Kinesis. Lane A
+replays a Delta seed table, so `trigger(realTime=...)` is unavailable regardless of what
+compute exists and regardless of the native Lakebase sink supporting RTM. `foreachBatch`
+into Lakebase is mandatory, not a concession.
+
+RTM becomes reachable for this hop only if the generator publishes to Kafka or Event Hubs
+rather than to a Delta table. That is a generator change, not a compute or preview
+question. Credit to lane A for catching this in `lane-a/src/replay_to_lakebase.py`.
 
 Two queries, matching the whiteboard's two arrows out of pipeline 1:
 
@@ -198,10 +210,13 @@ repoints it at the live path at seam 1. Nothing downstream changes when it moves
 
 Two levels of fallback, take them early rather than late:
 
-1. **No classic compute or DBR 18, or the native sink preview is unavailable.** Build
-   pipeline 1 as a Lakeflow pipeline with `@dp.foreach_batch_sink` instead, per the
-   table above. Latency drops to low seconds, which no control room screen notices.
-   Remember the hourly token expiry on this path.
+1. **The source is a Delta table, so real-time mode is off the table.** This is the
+   normal case, not an exception: RTM supports only Kafka, MSK, Event Hubs and Kinesis
+   as sources. Use `foreachBatch` into Lakebase, which is what lane A built. Latency
+   lands in low seconds, which no control room screen notices. On this path the
+   Lakebase credential must be refreshed inside the handler, because it expires hourly
+   (the native sink would have managed that for us, but the native sink needs a
+   streaming source it cannot have here).
 2. **Lakebase or CDF do not come together at all.** Pipeline 1 writes a bronze
    streaming table straight to `jack_freeman_catalog.tech_summit_scada_build.tag_reading` and `vw_tag_reading` points
    there. Lakebase then becomes a UC-to-Lakebase synced table purely for the app's hot

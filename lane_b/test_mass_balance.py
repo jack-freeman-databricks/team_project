@@ -15,8 +15,10 @@ import json, re, subprocess, sys
 
 P   = "ironbark"
 S   = "jack_freeman_catalog.tech_summit_scada_build"
-FIX = f"{S}.scratch_b_fixture_reading"
-TOL = 5.0        # t/h; design closes exactly, so this only absorbs FP noise
+FIX = (sys.argv[1] if len(sys.argv) > 1 else f"{S}.scratch_b_fixture_reading")
+USE_FIXTURE = len(sys.argv) <= 1
+TOL = 5.0 if len(sys.argv) <= 1 else 60.0   # real data has instrument noise;
+                                            # 60 t/h is 2.4% of the 2500 t/h feed
 
 def q(sql, label=""):
     r = subprocess.run(["databricks","experimental","aitools","tools","query",sql,
@@ -34,8 +36,9 @@ def q(sql, label=""):
 # Every analog tag held at its design operating point for 5 minutes at 10 s.
 # Level tags stay constant, so accumulation is genuinely zero and any
 # accumulation term the SQL produces is a bug.
-print("building fixture at design values...")
-q(f"""
+if USE_FIXTURE:
+    print("building fixture at design values...")
+if USE_FIXTURE: q(f"""
 CREATE OR REPLACE TABLE {FIX} AS
 SELECT uuid() AS event_id, t.tag_id, ts.source_ts, t.nominal AS value,
        CAST(NULL AS STRING) AS value_text, 'GOOD' AS quality, t.unit,
@@ -47,6 +50,8 @@ CROSS JOIN (SELECT explode(sequence(
               INTERVAL 10 SECONDS)) AS source_ts) ts
 WHERE t.value_class = 'analog' AND t.nominal IS NOT NULL
 """, "fixture")
+else:
+    print(f"running against real data: {FIX}")
 n = q(f"SELECT COUNT(*) c, COUNT(DISTINCT tag_id) t FROM {FIX}")[0]
 print(f"  {int(n['c']):,} rows across {n['t']} tags\n")
 

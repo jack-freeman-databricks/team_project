@@ -63,10 +63,10 @@ Pipeline 1: standalone Structured Streaming, real-time mode
 Lakebase CDF (~15s flush)
         |
         v
-ironbark.raw.lb_tag_current_history
+jack_freeman_catalog.tech_summit_scada_build.lb_tag_current_history
         |
         v
-ironbark.analytics.vw_tag_reading   <-- THE SEAM. Lanes B and C read only this.
+jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading   <-- THE SEAM. Lanes B and C read only this.
         |
         v
 Pipeline 2: Lakeflow declarative pipeline
@@ -85,31 +85,34 @@ Databricks App (control room flowsheet)  +  AI layer
 
 ## The three lanes and two seams
 
+All objects live in `jack_freeman_catalog.tech_summit_scada_build`.
+
 | Lane | Owns | Writes to |
 |---|---|---|
-| A | generator, streaming ingest, Lakebase, CDF, alerting | `ironbark.raw`, Lakebase `plant` |
-| B | analytics tables, mass balance, PdM model | `ironbark.analytics`, `ironbark.ml` |
+| A | generator, streaming ingest, Lakebase, CDF, alerting | `jack_freeman_catalog.tech_summit_scada_build`, Lakebase `plant` |
+| B | analytics tables, mass balance, PdM model | `jack_freeman_catalog.tech_summit_scada_build`, `jack_freeman_catalog.tech_summit_scada_build` |
 | C | control room app, AI layer | nothing shared, reads only |
 
 The chain is linear, so the parallelism comes from two devices:
 
 * **Seed data.** Lane A's first task is two static seed tables, so lanes B and C have
   real data from minute one instead of waiting for the streaming spine.
-* **The seam view.** `ironbark.analytics.vw_tag_reading` starts pointed at the seed
+* **The seam view.** `jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading` starts pointed at the seed
   table and gets repointed at the live path. Nothing downstream changes when it moves.
 
 Two integration checkpoints, booked rather than left to the end:
 
 * **Seam 1**, late morning: lane A repoints `vw_tag_reading` at the live stream.
-* **Seam 2**, mid afternoon: lane C swaps from stub tables to `ironbark.analytics`.
+* **Seam 2**, mid afternoon: lane C swaps from stub tables to `jack_freeman_catalog.tech_summit_scada_build`.
 
 Every lane must be independently demoable by mid afternoon, so a failed integration
 costs us one panel rather than the whole demo.
 
 ## Conventions while we work
 
-* Own your schema. `ironbark.ref` is frozen after phase 0. Nobody writes outside
-  their lane's schemas, and everyone has an `ironbark.dev_*` scratch schema.
+* Everything is in ONE schema, so the table-ownership map in `contract/naming.md` is
+  the only thing stopping us overwriting each other. Read it. The four `dim_*` tables
+  are frozen after phase 0.
 * Prefix pipelines, jobs, endpoints and apps with your lane letter until after seam 2.
 * One branch per lane, merge every 90 minutes. Long-lived branches cost more than
   small conflicts on a one day build.

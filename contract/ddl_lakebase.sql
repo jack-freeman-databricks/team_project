@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS alert_outbox (
 ALTER TABLE alert_outbox REPLICA IDENTITY FULL;
 
 -- Note: Lakebase CDF skips empty tables until they hold at least one row, so
--- ironbark.raw.lb_alert_outbox_history will not exist until the first alert
+-- jack_freeman_catalog.tech_summit_scada_build.lb_alert_outbox_history will not exist until the first alert
 -- fires. That is expected, not a broken feed.
 
 CREATE INDEX IF NOT EXISTS ix_alert_open

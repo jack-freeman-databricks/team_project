@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate reference/dimension seed data for the Ironbark iron ore plant demo.
 
-Emits four CSVs that seed the Unity Catalog `ironbark.ref` schema:
+Emits four CSVs that seed the Unity Catalog `jack_freeman_catalog.tech_summit_scada_build` schema:
 
     dim_tag.csv             one row per SCADA tag (the tag register)
     dim_flowsheet_node.csv  unit operations that take part in the mass balance
@@ -393,10 +393,10 @@ write_csv(
 write_csv(
     "dim_rule.csv",
     [dict(zip(("rule_id", "rule_name", "scope_type", "scope_value", "rule_type",
-               "severity", "window_seconds", "message_template"), r))
+               "severity", "window_seconds", "message_template"), r), enabled=True)
      for r in RULES],
     ["rule_id", "rule_name", "scope_type", "scope_value", "rule_type",
-     "severity", "window_seconds", "message_template"],
+     "severity", "window_seconds", "message_template", "enabled"],
 )
 
 # Design mass balance check -- fails loudly if the arc tonnages don't close.

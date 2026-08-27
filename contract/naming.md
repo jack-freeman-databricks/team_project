@@ -11,28 +11,55 @@ the mass balance worth visualising.
 
 ## Unity Catalog naming
 
-| Object | Name | Owner |
-|---|---|---|
-| Catalog | `ironbark` | shared |
-| Reference / dimensions | `ironbark.ref` | phase 0, then frozen |
-| Bronze / landing | `ironbark.raw` | lane A |
-| Silver / analytical | `ironbark.analytics` | lane B |
-| ML features and scores | `ironbark.ml` | lane B |
-| Personal scratch | `ironbark.dev_<initials>` | one each |
-| Landing volume | `ironbark.raw.landing` | lane A |
-| Lakebase project | `ironbark-ops` | lane A |
-| Lakebase database / schema | `databricks_postgres` / `plant` | lane A |
+**Everything lives in one existing schema: `jack_freeman_catalog.tech_summit_scada_build`.**
+
+Two workspace facts forced this, both verified in phase 0:
+
+* Default Storage is enabled on the account and the metastore has no storage root,
+  so `CREATE CATALOG ironbark` fails outright. A catalog created through the UI would
+  sit on Default Storage, which Lakebase CDF does not support.
+* `jack_freeman_catalog` has an external S3 storage root, so it **is** CDF-compatible,
+  and `tech_summit_scada_build` already exists there and is empty.
+
+| Object | Name |
+|---|---|
+| Catalog | `jack_freeman_catalog` |
+| Schema (everything) | `tech_summit_scada_build` |
+| Landing volume | `jack_freeman_catalog.tech_summit_scada_build.landing` |
+| Lakebase project | `ironbark-ops` |
+| Lakebase database / schema | `databricks_postgres` / `plant` |
+| Registered model | `jack_freeman_catalog.tech_summit_scada_build.vibration_pdm` |
+| Serving endpoint | `ironbark-pdm` |
+| App | `ironbark-control-room` |
 
 Conventions:
 
-* `snake_case` for everything in UC. Tables are singular nouns except aggregates.
-* Dimension tables prefixed `dim_`. Views prefixed `vw_`.
-* Aggregate tables carry their grain as a suffix: `_1m`, `_10m`.
-* Tables created by Lakebase CDF arrive as `lb_<source_table>_history`. Do not rename.
-* Pipeline, job, endpoint and app names are prefixed with the owner's initials until
-  after seam 2, e.g. `cd_ironbark_ingest`. Drop the prefix at integration.
-* Registered model: `ironbark.ml.vibration_pdm`. Serving endpoint: `ironbark-pdm`.
-* App: `ironbark-control-room`.
+* `snake_case` throughout. Dimensions prefixed `dim_`, views `vw_`, Lakebase CDF
+  destinations arrive as `lb_<source_table>_history` (do not rename).
+* Aggregates carry their grain as a suffix: `_1m`, `_10m`.
+* Pipelines, jobs, endpoints and apps are prefixed with the owner's lane letter until
+  after seam 2, e.g. `a_ironbark_ingest`. Drop the prefix at integration.
+
+## Table ownership: the only thing stopping us overwriting each other
+
+There is **one schema**, so there is no schema-level boundary to protect us. This table
+is the boundary instead. Do not create, replace or drop anything outside your lane.
+
+| Object | Owner | Notes |
+|---|---|---|
+| `dim_tag`, `dim_flowsheet_node`, `dim_flowsheet_arc`, `dim_rule` | phase 0 | **Frozen.** Never `CREATE OR REPLACE` these. |
+| `landing` volume | phase 0 | |
+| `tag_reading_seed`, `vibration_features_seed` | lane A | Written once, then left alone. |
+| `tag_reading`, `lb_*_history` | lane A | Bronze and the CDF destinations. |
+| `vw_tag_reading` | lane A | The seam. Lane A repoints it; B and C only read it. |
+| `vw_vibration_features` | lane A | Second seam, for training. |
+| `tag_reading_1m`, `mass_flow_1m`, `mass_balance_node_1m`, `equipment_state_1m`, `desands_balance_1m` | lane B | Lakeflow owns these; do not hand-create. |
+| `alert`, `stockpile_state` | lane B | |
+| `vibration_features_10m`, `pdm_prediction`, `vibration_pdm` | lane B | |
+| `stub_*` | lane C | App stubs. Kept as a demo fallback, never deleted. |
+| `scratch_a_*`, `scratch_b_*` | A and B | Personal scratch. Nobody reads anyone else's. |
+
+Lane C writes nothing except alarm acknowledgements to Lakebase.
 
 ## Tag ID convention
 
@@ -162,7 +189,7 @@ How it behaves, all of which the analytics layer has to account for:
 
 ## The seam view
 
-`ironbark.analytics.vw_tag_reading` is the only thing lanes B and C read. It starts
+`jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading` is the only thing lanes B and C read. It starts
 pointed at the static seed table so both lanes can work from minute one, and lane A
 repoints it at the live path at seam 1. Nothing downstream changes when it moves.
 
@@ -175,7 +202,7 @@ Two levels of fallback, take them early rather than late:
    table above. Latency drops to low seconds, which no control room screen notices.
    Remember the hourly token expiry on this path.
 2. **Lakebase or CDF do not come together at all.** Pipeline 1 writes a bronze
-   streaming table straight to `ironbark.raw.tag_reading` and `vw_tag_reading` points
+   streaming table straight to `jack_freeman_catalog.tech_summit_scada_build.tag_reading` and `vw_tag_reading` points
    there. Lakebase then becomes a UC-to-Lakebase synced table purely for the app's hot
    reads, or drops out of the demo.
 
@@ -189,8 +216,8 @@ predictive maintenance model needs low-rate data over a long window. A single
 
 | Seed table | Horizon | Grain | Serves |
 |---|---|---|---|
-| `ironbark.raw.tag_reading_seed` | 24 hours | full rate (1 Hz, 10 Hz vibration) | lanes B and C: mass balance, flowsheet, app |
-| `ironbark.ml.vibration_features_seed` | 120 days | 10 minute | lane B: model training |
+| `jack_freeman_catalog.tech_summit_scada_build.tag_reading_seed` | 24 hours | full rate (1 Hz, 10 Hz vibration) | lanes B and C: mass balance, flowsheet, app |
+| `jack_freeman_catalog.tech_summit_scada_build.vibration_features_seed` | 120 days | 10 minute | lane B: model training |
 
 Both are static. Lane A writes them in phase 0 and then leaves them alone.
 
@@ -220,3 +247,45 @@ Rules for every injected event:
 Five positive events is a thin and heavily imbalanced training set. That is fine for
 a demo, but lane B should use class weighting and report precision and recall rather
 than accuracy, and should say out loud in the demo that this is synthetic.
+
+## Seed data must also contain faults, bad quality, and current timestamps
+
+The first build of the seed data was physically excellent (all weightometer arcs within
+0.2% of design, crest factor and kurtosis separating the failure classes cleanly) but
+missed three things that the demo needs. They are requirements, not nice-to-haves.
+
+**1. Limit excursions.** The first seed had **zero** breaches of `lo`/`hi`/`lo_lo`/`hi_hi`
+across 8.7 million analog rows, which leaves the rule engine, the alert POST and the
+app's alarm strip with nothing whatsoever to fire on. That is half the whiteboard
+undemoable. Inject, over the 24 hour window:
+
+* 15 to 25 **warning** excursions (between `lo`..`lo_lo` or `hi`..`hi_hi`), spread across
+  at least 8 different tags and several areas
+* 4 to 6 **trip** excursions (beyond `lo_lo`/`hi_hi`), including at least one crusher
+  pressure choke and one bin high level, since those have dedicated rules
+* each excursion lasting 30 seconds to 4 minutes, ramping in and out rather than
+  stepping, so `rate_of_change` rules have something real to detect
+* at least one sustained excursion in the final 30 minutes, so the app has a live alarm
+  on screen when the demo starts
+
+**2. Instrument quality.** The first seed was 100% `GOOD`, so rule R10 never fires,
+`good_pct` is always 100, and lane B's `INSUFFICIENT_DATA` branch is untestable. Aim for
+roughly 99.5% `GOOD`, with the remainder split across `BAD`, `UNCERTAIN` and `STALE`,
+including one tag that goes `STALE` for several minutes so the staleness rule fires and
+one node that drops to `INSUFFICIENT_DATA` in the mass balance.
+
+**3. Timestamps must be current.** The first seed was dated June 2024, roughly two years
+stale, which means anything using `current_timestamp()` (lane B's windowing, lane C's
+live tiles) sees an empty recent window. The generator must anchor the 24 hour window so
+it **ends at generation time**, and the 120 day vibration history must end where the 24
+hour window begins, so the two are contiguous.
+
+## Vibration feature columns: use the contract names
+
+The first build shortened three names and omitted ten columns. The contract names in
+section B of the DDL are authoritative: `rms_mm_s`, `bearing_temp_c`, `motor_current_a`,
+not `rms`, `temperature`, `motor_current`. The four trend features
+(`rms_delta_1h`, `rms_delta_24h`, `rms_slope_24h`, `rms_pct_of_baseline`) matter most:
+a bearing failure is a trajectory, not an absolute value, and without them the model
+will not beat a plain RMS threshold. `hours_since_maintenance` must be generated too,
+since it cannot be derived after the fact.

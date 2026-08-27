@@ -428,7 +428,7 @@ ul.tight li b{font-weight:600}
       </div>
       <div class="lane-body">
         <dl class="kv"><dt>Owns</dt><dd>Generator, ingest pipeline, Lakebase, rule engine and alerting</dd></dl>
-        <dl class="kv"><dt>Writes to</dt><dd><span class="mono">ironbark.raw</span>, Lakebase <span class="mono">plant</span></dd></dl>
+        <dl class="kv"><dt>Writes to</dt><dd><span class="mono">jack_freeman_catalog.tech_summit_scada_build</span>, Lakebase <span class="mono">plant</span></dd></dl>
         <dl class="kv"><dt>Risk</dt><dd>Highest. Three newer capabilities in one pipeline, so this lane owns the platform risk.</dd></dl>
         <div class="first"><strong>Do first</strong>Write both seed tables. Two people are blocked until they land, so this comes before any streaming work.</div>
       </div>
@@ -441,7 +441,7 @@ ul.tight li b{font-weight:600}
       </div>
       <div class="lane-body">
         <dl class="kv"><dt>Owns</dt><dd>Analytical tables, the mass balance, the predictive maintenance model</dd></dl>
-        <dl class="kv"><dt>Writes to</dt><dd><span class="mono">ironbark.analytics</span>, <span class="mono">ironbark.ml</span></dd></dl>
+        <dl class="kv"><dt>Writes to</dt><dd><span class="mono">jack_freeman_catalog.tech_summit_scada_build</span>, <span class="mono">jack_freeman_catalog.tech_summit_scada_build</span></dd></dl>
         <dl class="kv"><dt>Risk</dt><dd>Low. Reads one view, never <span class="mono">raw</span> directly, so the live stream can arrive whenever.</dd></dl>
         <div class="first"><strong>Do first</strong>The mass balance, driven entirely by the flowsheet topology tables. Nothing about the plant may be hardcoded.</div>
       </div>

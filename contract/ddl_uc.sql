@@ -11,6 +11,7 @@
 -- SECTION C is created by Lakebase CDF. DO NOT run it either.
 --
 -- Replace <user_a>, <user_b>, <user_c> before running section A.
+-- All three lanes share ONE schema; see the ownership map in contract/naming.md.
 -- =====================================================================
 
 
@@ -19,35 +20,30 @@
 --              hand-owned output tables.
 -- =====================================================================
 
-CREATE CATALOG IF NOT EXISTS ironbark
-  COMMENT 'Ironbark Resources iron ore crushing plant monitoring demo';
+-- The catalog and schema ALREADY EXIST and are not created here. Default Storage is
+-- enabled on this account and the metastore has no storage root, so a new catalog
+-- would land on Default Storage, which Lakebase CDF does not support.
+-- jack_freeman_catalog has an external S3 root, so it is CDF-compatible.
+--
+-- Everything below goes into the one existing schema. See the table ownership map in
+-- contract/naming.md: it is the only thing preventing three parallel sessions from
+-- overwriting each other, now that there is no schema boundary to do it.
 
-CREATE SCHEMA IF NOT EXISTS ironbark.ref       COMMENT 'Tag register, flowsheet topology, alarm rules. Frozen after phase 0.';
-CREATE SCHEMA IF NOT EXISTS ironbark.raw       COMMENT 'Bronze. Lane A owns.';
-CREATE SCHEMA IF NOT EXISTS ironbark.analytics COMMENT 'Silver. Lane B owns.';
-CREATE SCHEMA IF NOT EXISTS ironbark.ml        COMMENT 'Features, models, scores. Lane B owns.';
+CREATE VOLUME IF NOT EXISTS jack_freeman_catalog.tech_summit_scada_build.landing
+  COMMENT 'CSV seeds and file-based landing for the synthetic generator';
 
--- One scratch schema each so nobody experiments in the shared chain.
-CREATE SCHEMA IF NOT EXISTS ironbark.dev_a;
-CREATE SCHEMA IF NOT EXISTS ironbark.dev_b;
-CREATE SCHEMA IF NOT EXISTS ironbark.dev_c;
-
-CREATE VOLUME IF NOT EXISTS ironbark.raw.landing
-  COMMENT 'CSV seeds and any file-based landing for the synthetic generator';
-
-GRANT USE CATALOG, CREATE SCHEMA ON CATALOG ironbark TO `<user_a>`;
-GRANT USE CATALOG, CREATE SCHEMA ON CATALOG ironbark TO `<user_b>`;
-GRANT USE CATALOG, CREATE SCHEMA ON CATALOG ironbark TO `<user_c>`;
-GRANT ALL PRIVILEGES ON SCHEMA ironbark.ref       TO `<user_a>`;
-GRANT ALL PRIVILEGES ON SCHEMA ironbark.raw       TO `<user_a>`;
-GRANT ALL PRIVILEGES ON SCHEMA ironbark.analytics TO `<user_b>`;
-GRANT ALL PRIVILEGES ON SCHEMA ironbark.ml        TO `<user_b>`;
--- Lanes B and C read everything upstream of them.
-GRANT SELECT ON SCHEMA ironbark.ref       TO `<user_b>`;
-GRANT SELECT ON SCHEMA ironbark.ref       TO `<user_c>`;
-GRANT SELECT ON SCHEMA ironbark.raw       TO `<user_b>`;
-GRANT SELECT ON SCHEMA ironbark.analytics TO `<user_c>`;
-GRANT SELECT ON SCHEMA ironbark.ml        TO `<user_c>`;
+GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `<user_a>`;
+GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `<user_b>`;
+GRANT USE CATALOG ON CATALOG jack_freeman_catalog TO `<user_c>`;
+GRANT USE SCHEMA, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL, SELECT, MODIFY
+  ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `<user_a>`;
+GRANT USE SCHEMA, CREATE TABLE, CREATE VOLUME, CREATE FUNCTION, CREATE MODEL, SELECT, MODIFY
+  ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `<user_b>`;
+-- Lane C reads only, plus WRITE VOLUME so the app can stage assets if it needs to.
+GRANT USE SCHEMA, SELECT, CREATE TABLE ON SCHEMA jack_freeman_catalog.tech_summit_scada_build TO `<user_c>`;
+GRANT READ VOLUME, WRITE VOLUME ON VOLUME jack_freeman_catalog.tech_summit_scada_build.landing TO `<user_a>`;
+GRANT READ VOLUME ON VOLUME jack_freeman_catalog.tech_summit_scada_build.landing TO `<user_b>`;
+GRANT READ VOLUME ON VOLUME jack_freeman_catalog.tech_summit_scada_build.landing TO `<user_c>`;
 
 
 -- ---------------------------------------------------------------------
@@ -56,7 +52,7 @@ GRANT SELECT ON SCHEMA ironbark.ml        TO `<user_c>`;
 
 -- The tag register. Single source of truth for the generator's operating
 -- envelope, the rule engine's thresholds, and the app's tag metadata.
-CREATE OR REPLACE TABLE ironbark.ref.dim_tag (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.dim_tag (
   tag_id           STRING  NOT NULL COMMENT 'e.g. CRU-PCR01-VI01',
   asset_id         STRING  NOT NULL COMMENT 'e.g. CRU-PCR01',
   asset_name       STRING  NOT NULL,
@@ -80,7 +76,7 @@ CREATE OR REPLACE TABLE ironbark.ref.dim_tag (
   CONSTRAINT pk_dim_tag PRIMARY KEY (tag_id) RELY
 ) COMMENT 'Tag register. Regenerate via gen_reference_data.py, do not edit by hand.';
 
-CREATE OR REPLACE TABLE ironbark.ref.dim_flowsheet_node (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.dim_flowsheet_node (
   node_id             STRING  NOT NULL,
   node_name           STRING  NOT NULL,
   node_type           STRING  NOT NULL,
@@ -93,7 +89,7 @@ CREATE OR REPLACE TABLE ironbark.ref.dim_flowsheet_node (
   CONSTRAINT pk_node PRIMARY KEY (node_id) RELY
 ) COMMENT 'Unit operations in the mass balance. The app draws from this, nothing is hardcoded in the UI.';
 
-CREATE OR REPLACE TABLE ironbark.ref.dim_flowsheet_arc (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.dim_flowsheet_arc (
   arc_id         STRING  NOT NULL,
   from_node_id   STRING  NOT NULL,
   to_node_id     STRING  NOT NULL,
@@ -103,11 +99,11 @@ CREATE OR REPLACE TABLE ironbark.ref.dim_flowsheet_arc (
   measure_method STRING  NOT NULL COMMENT 'weightometer|slurry_flow_density|volume_flow|inferred',
   stream_type    STRING  NOT NULL COMMENT 'dry_solids|slurry|water',
   CONSTRAINT pk_arc PRIMARY KEY (arc_id) RELY,
-  CONSTRAINT fk_arc_from FOREIGN KEY (from_node_id) REFERENCES ironbark.ref.dim_flowsheet_node,
-  CONSTRAINT fk_arc_to   FOREIGN KEY (to_node_id)   REFERENCES ironbark.ref.dim_flowsheet_node
+  CONSTRAINT fk_arc_from FOREIGN KEY (from_node_id) REFERENCES jack_freeman_catalog.tech_summit_scada_build.dim_flowsheet_node,
+  CONSTRAINT fk_arc_to   FOREIGN KEY (to_node_id)   REFERENCES jack_freeman_catalog.tech_summit_scada_build.dim_flowsheet_node
 ) COMMENT 'Material streams between nodes and the tag measuring each.';
 
-CREATE OR REPLACE TABLE ironbark.ref.dim_rule (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.dim_rule (
   rule_id          STRING  NOT NULL,
   rule_name        STRING  NOT NULL,
   scope_type       STRING  NOT NULL COMMENT 'all|measure|asset_type|tag|node',
@@ -118,24 +114,88 @@ CREATE OR REPLACE TABLE ironbark.ref.dim_rule (
   message_template STRING  NOT NULL COMMENT 'python format string over tag/asset/value fields',
   enabled          BOOLEAN NOT NULL DEFAULT true,
   CONSTRAINT pk_rule PRIMARY KEY (rule_id) RELY
-) COMMENT 'Alarm rules as data, so the streaming rule engine is a broadcast join rather than hardcoded predicates.';
+)
+TBLPROPERTIES ('delta.feature.allowColumnDefaults' = 'supported')
+COMMENT 'Alarm rules as data, so the streaming rule engine is a broadcast join rather than hardcoded predicates.';
 
--- Load the four CSVs. Upload them to the landing volume first:
+-- Load the four CSVs. Upload them to the landing volume first. Note the explicit
+-- casts: CSV columns arrive as STRING and will NOT merge into DOUBLE/INT/BOOLEAN
+-- targets, and '' is loaded as NULL so the optional FK columns behave.
 --   databricks fs cp contract/dim_tag.csv \
---     dbfs:/Volumes/ironbark/raw/landing/ref/dim_tag.csv --profile <profile>
-COPY INTO ironbark.ref.dim_tag
-  FROM '/Volumes/ironbark/raw/landing/ref/dim_tag.csv'
-  FILEFORMAT = CSV FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
-  COPY_OPTIONS ('mergeSchema' = 'false');
-COPY INTO ironbark.ref.dim_flowsheet_node
-  FROM '/Volumes/ironbark/raw/landing/ref/dim_flowsheet_node.csv'
-  FILEFORMAT = CSV FORMAT_OPTIONS ('header' = 'true');
-COPY INTO ironbark.ref.dim_flowsheet_arc
-  FROM '/Volumes/ironbark/raw/landing/ref/dim_flowsheet_arc.csv'
-  FILEFORMAT = CSV FORMAT_OPTIONS ('header' = 'true');
-COPY INTO ironbark.ref.dim_rule
-  FROM '/Volumes/ironbark/raw/landing/ref/dim_rule.csv'
-  FILEFORMAT = CSV FORMAT_OPTIONS ('header' = 'true');
+--     dbfs:/Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/ref/dim_tag.csv --profile <profile>
+COPY INTO jack_freeman_catalog.tech_summit_scada_build.dim_tag
+  FROM (SELECT
+          tag_id,
+          asset_id,
+          asset_name,
+          asset_type,
+          area_code,
+          area_name,
+          measure,
+          instrument_type,
+          unit,
+          value_class,
+          CAST(NULLIF(sample_hz, '') AS DOUBLE) AS sample_hz,
+          CAST(NULLIF(nominal, '') AS DOUBLE) AS nominal,
+          CAST(NULLIF(lo_lo, '') AS DOUBLE) AS lo_lo,
+          CAST(NULLIF(lo, '') AS DOUBLE) AS lo,
+          CAST(NULLIF(hi, '') AS DOUBLE) AS hi,
+          CAST(NULLIF(hi_hi, '') AS DOUBLE) AS hi_hi,
+          CAST(NULLIF(is_mass_balance, '') AS BOOLEAN) AS is_mass_balance,
+          CAST(NULLIF(is_pdm, '') AS BOOLEAN) AS is_pdm,
+          NULLIF(enum_values, '') AS enum_values,
+          NULLIF(description, '') AS description
+        FROM '/Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/ref/dim_tag.csv')
+  FILEFORMAT = CSV
+  FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
+  COPY_OPTIONS ('force' = 'true');
+
+COPY INTO jack_freeman_catalog.tech_summit_scada_build.dim_flowsheet_node
+  FROM (SELECT
+          node_id,
+          node_name,
+          node_type,
+          area_code,
+          balance_role,
+          NULLIF(accumulation_tag_id, '') AS accumulation_tag_id,
+          CAST(NULLIF(capacity_t, '') AS DOUBLE) AS capacity_t,
+          CAST(NULLIF(layout_x, '') AS INT) AS layout_x,
+          CAST(NULLIF(layout_y, '') AS INT) AS layout_y
+        FROM '/Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/ref/dim_flowsheet_node.csv')
+  FILEFORMAT = CSV
+  FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
+  COPY_OPTIONS ('force' = 'true');
+
+COPY INTO jack_freeman_catalog.tech_summit_scada_build.dim_flowsheet_arc
+  FROM (SELECT
+          arc_id,
+          from_node_id,
+          to_node_id,
+          arc_name,
+          CAST(NULLIF(design_tph, '') AS DOUBLE) AS design_tph,
+          NULLIF(measure_tag_id, '') AS measure_tag_id,
+          measure_method,
+          stream_type
+        FROM '/Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/ref/dim_flowsheet_arc.csv')
+  FILEFORMAT = CSV
+  FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
+  COPY_OPTIONS ('force' = 'true');
+
+COPY INTO jack_freeman_catalog.tech_summit_scada_build.dim_rule
+  FROM (SELECT
+          rule_id,
+          rule_name,
+          scope_type,
+          NULLIF(scope_value, '') AS scope_value,
+          rule_type,
+          severity,
+          CAST(NULLIF(window_seconds, '') AS INT) AS window_seconds,
+          message_template,
+          CAST(NULLIF(enabled, '') AS BOOLEAN) AS enabled
+        FROM '/Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/ref/dim_rule.csv')
+  FILEFORMAT = CSV
+  FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
+  COPY_OPTIONS ('force' = 'true');
 
 
 -- ---------------------------------------------------------------------
@@ -146,7 +206,7 @@ COPY INTO ironbark.ref.dim_rule
 --      and what vw_tag_reading exposes. Agree it in phase 0 and freeze it:
 --      it is the single dependency between all three lanes.
 -- ---------------------------------------------------------------------
-CREATE OR REPLACE TABLE ironbark.raw.tag_reading_seed (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.tag_reading_seed (
   event_id   STRING    NOT NULL COMMENT 'uuid4, idempotency key',
   tag_id     STRING    NOT NULL,
   source_ts  TIMESTAMP NOT NULL COMMENT 'when the instrument sampled',
@@ -165,8 +225,8 @@ COMMENT 'Static 24h synthetic sample. Lane A populates in phase 0 so lanes B and
 -- train a predictive maintenance model, so lane A also generates 120 days of
 -- 10-minute vibration features directly, including the injected failure events
 -- described in contract/naming.md. Same columns as the SDP-managed
--- ironbark.ml.vibration_features_10m in section B.
-CREATE OR REPLACE TABLE ironbark.ml.vibration_features_seed (
+-- jack_freeman_catalog.tech_summit_scada_build.vibration_features_10m in section B.
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.vibration_features_seed (
   asset_id                STRING    NOT NULL,
   tag_id                  STRING    NOT NULL,
   window_start            TIMESTAMP NOT NULL,
@@ -194,12 +254,12 @@ COMMENT '120 days of synthetic 10-minute vibration features with injected failur
 
 -- Lane B trains against this view, not the table, so the live features can be
 -- unioned in later without changing the training or scoring code.
-CREATE OR REPLACE VIEW ironbark.ml.vw_vibration_features AS
-SELECT * FROM ironbark.ml.vibration_features_seed;
+CREATE OR REPLACE VIEW jack_freeman_catalog.tech_summit_scada_build.vw_vibration_features AS
+SELECT * FROM jack_freeman_catalog.tech_summit_scada_build.vibration_features_seed;
 -- After seam 2, extend to:
---   SELECT * FROM ironbark.ml.vibration_features_seed
+--   SELECT * FROM jack_freeman_catalog.tech_summit_scada_build.vibration_features_seed
 --   UNION ALL
---   SELECT * FROM ironbark.ml.vibration_features_10m;
+--   SELECT * FROM jack_freeman_catalog.tech_summit_scada_build.vibration_features_10m;
 
 -- ---------------------------------------------------------------------
 -- A.3  THE SEAM. The only table lanes B and C read.
@@ -207,19 +267,19 @@ SELECT * FROM ironbark.ml.vibration_features_seed;
 --      After seam 1: lane A swaps the body to the live path (see section C)
 --      and nothing downstream changes.
 -- ---------------------------------------------------------------------
-CREATE OR REPLACE VIEW ironbark.analytics.vw_tag_reading AS
+CREATE OR REPLACE VIEW jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading AS
 SELECT event_id, tag_id, source_ts, value, value_text, quality, unit, seq, ingest_ts
-FROM ironbark.raw.tag_reading_seed;
+FROM jack_freeman_catalog.tech_summit_scada_build.tag_reading_seed;
 
 -- After seam 1, replace the body with the live Lakebase CDF path. Each
 -- Postgres UPDATE produces a preimage/postimage pair, so filter to postimage
 -- and insert only, and de-duplicate on the Postgres LSN.
 --
--- CREATE OR REPLACE VIEW ironbark.analytics.vw_tag_reading AS
+-- CREATE OR REPLACE VIEW jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading AS
 -- SELECT event_id, tag_id, source_ts, value, value_text, quality, unit, seq, ingest_ts
 -- FROM (
 --   SELECT *, ROW_NUMBER() OVER (PARTITION BY tag_id, seq ORDER BY _pg_lsn DESC) AS rn
---   FROM ironbark.raw.lb_tag_current_history
+--   FROM jack_freeman_catalog.tech_summit_scada_build.lb_tag_current_history
 --   WHERE _pg_change_type IN ('insert', 'update_postimage')
 -- ) WHERE rn = 1;
 
@@ -231,7 +291,7 @@ FROM ironbark.raw.tag_reading_seed;
 
 -- Alerts. The foreach_batch_sink handler POSTs to the alerting endpoint and
 -- records the outcome here, so a failed POST is visible rather than lost.
-CREATE OR REPLACE TABLE ironbark.analytics.alert (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.alert (
   alert_id         STRING    NOT NULL,
   raised_at        TIMESTAMP NOT NULL,
   tag_id           STRING,
@@ -256,10 +316,11 @@ CREATE OR REPLACE TABLE ironbark.analytics.alert (
   CONSTRAINT pk_alert PRIMARY KEY (alert_id) RELY
 )
 CLUSTER BY (raised_at, severity)
-COMMENT 'Rule failures. Written by the pipeline sink handler; acknowledged from the app.';
+TBLPROPERTIES ('delta.feature.allowColumnDefaults' = 'supported')
+COMMENT 'Rule failures. Written by the pipeline sink handler, acknowledged from the app.';
 
 -- Stockpile state. Small, upserted, read live by the app.
-CREATE OR REPLACE TABLE ironbark.analytics.stockpile_state (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.stockpile_state (
   stockpile_id        STRING    NOT NULL,
   as_at               TIMESTAMP NOT NULL,
   is_stacking         BOOLEAN   NOT NULL COMMENT 'from the STK-STK01-ZI02 stacking indicator',
@@ -274,7 +335,7 @@ CREATE OR REPLACE TABLE ironbark.analytics.stockpile_state (
 
 -- Predictive maintenance scores. Written by both the batch scoring job and
 -- the app's real-time calls to the serving endpoint, distinguished by scoring_mode.
-CREATE OR REPLACE TABLE ironbark.ml.pdm_prediction (
+CREATE OR REPLACE TABLE jack_freeman_catalog.tech_summit_scada_build.pdm_prediction (
   prediction_id       STRING    NOT NULL,
   asset_id            STRING    NOT NULL,
   tag_id              STRING             COMMENT 'the vibration tag scored, where scoring is per sensor',
@@ -306,14 +367,14 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 -- (windows are append-only once closed), not materialized views.
 -- =====================================================================
 
--- ironbark.analytics.tag_reading_1m   ST, watermark on source_ts, 1 min tumbling
+-- jack_freeman_catalog.tech_summit_scada_build.tag_reading_1m   ST, watermark on source_ts, 1 min tumbling
 --   tag_id STRING, window_start TIMESTAMP, window_end TIMESTAMP,
 --   avg_value DOUBLE, min_value DOUBLE, max_value DOUBLE, stddev_value DOUBLE,
 --   first_value DOUBLE, last_value DOUBLE,
 --   sample_count BIGINT, good_count BIGINT, good_pct DOUBLE
 --   CLUSTER BY (tag_id, window_start)
 
--- ironbark.analytics.mass_flow_1m     one row per flowsheet arc per minute
+-- jack_freeman_catalog.tech_summit_scada_build.mass_flow_1m     one row per flowsheet arc per minute
 --   arc_id STRING, window_start TIMESTAMP, window_end TIMESTAMP,
 --   from_node_id STRING, to_node_id STRING, stream_type STRING,
 --   measure_method STRING,
@@ -323,7 +384,7 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 --   is_estimated BOOLEAN      -- true where measure_tag_id IS NULL (inferred arcs)
 --   CLUSTER BY (arc_id, window_start)
 
--- ironbark.analytics.mass_balance_node_1m   THE flowsheet table the app renders
+-- jack_freeman_catalog.tech_summit_scada_build.mass_balance_node_1m   THE flowsheet table the app renders
 --   node_id STRING, window_start TIMESTAMP, window_end TIMESTAMP,
 --   balance_role STRING,
 --   mass_in_tph DOUBLE, mass_out_tph DOUBLE,
@@ -336,14 +397,14 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 --   status STRING              -- BALANCED|DRIFT|ALARM|INSUFFICIENT_DATA
 --   CLUSTER BY (node_id, window_start)
 
--- ironbark.analytics.equipment_state_1m
+-- jack_freeman_catalog.tech_summit_scada_build.equipment_state_1m
 --   asset_id STRING, window_start TIMESTAMP, window_end TIMESTAMP,
 --   state STRING, run_seconds INT, stop_seconds INT, fault_seconds INT,
 --   availability_pct DOUBLE, avg_current_a DOUBLE, max_current_a DOUBLE,
 --   starts INT, throughput_tph DOUBLE
 --   CLUSTER BY (asset_id, window_start)
 
--- ironbark.analytics.desands_balance_1m     single row per minute
+-- jack_freeman_catalog.tech_summit_scada_build.desands_balance_1m     single row per minute
 --   window_start TIMESTAMP, window_end TIMESTAMP,
 --   feed_slurry_m3h DOUBLE, feed_density_tm3 DOUBLE, feed_solids_tph DOUBLE,
 --   overflow_slurry_m3h DOUBLE, overflow_density_tm3 DOUBLE, overflow_solids_tph DOUBLE,
@@ -352,7 +413,7 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 --   solids_recovery_pct DOUBLE, fines_reject_pct DOUBLE,
 --   solids_imbalance_tph DOUBLE, water_imbalance_m3h DOUBLE
 
--- ironbark.ml.vibration_features_10m        the ML feature table
+-- jack_freeman_catalog.tech_summit_scada_build.vibration_features_10m        the ML feature table
 --   asset_id STRING, tag_id STRING, window_start TIMESTAMP, window_end TIMESTAMP,
 --   rms_mm_s DOUBLE, peak_mm_s DOUBLE, crest_factor DOUBLE, kurtosis DOUBLE,
 --   stddev_mm_s DOUBLE, sample_count BIGINT,
@@ -372,7 +433,7 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 --              to have enabled the "Lakebase Change Data Feed" preview.
 -- =====================================================================
 --
--- ironbark.raw.lb_tag_current_history
+-- jack_freeman_catalog.tech_summit_scada_build.lb_tag_current_history
 --   all columns of the Lakebase `tag_current` table, plus CDC metadata:
 --     _pg_change_type STRING     insert|update_preimage|update_postimage|delete
 --     _pg_lsn         BIGINT     Postgres log sequence number, for ordering
@@ -384,11 +445,11 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 -- path's floor latency. The app's live tiles bypass it by reading Lakebase
 -- directly.
 --
--- Consumed through ironbark.analytics.vw_tag_reading (see A.3), which filters
+-- Consumed through jack_freeman_catalog.tech_summit_scada_build.vw_tag_reading (see A.3), which filters
 -- to insert + update_postimage. Do not read this table directly from lanes B or C.
 --
 -- Never enable Delta change data feed, a row filter, or a column mask on this
 -- table. Any of the three permanently stops CDF writing to it.
 --
--- ironbark.raw.lb_alert_outbox_history
+-- jack_freeman_catalog.tech_summit_scada_build.lb_alert_outbox_history
 --   will not exist until the first alert fires: CDF skips empty tables.

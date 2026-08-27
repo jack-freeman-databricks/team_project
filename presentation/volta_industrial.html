@@ -65,18 +65,18 @@
     }
 
     .eyebrow {
-      font-size: 12px;
+      font-size: 15px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     h1 {
       font-family: 'DM Sans', sans-serif;
       font-weight: 700;
-      font-size: 52px;
+      font-size: 56px;
       line-height: 1.15;
       letter-spacing: -0.01em;
       margin-bottom: 20px;
@@ -86,10 +86,10 @@
     h2 {
       font-family: 'DM Sans', sans-serif;
       font-weight: 700;
-      font-size: 44px;
-      line-height: 1.2;
+      font-size: 56px;
+      line-height: 1.15;
       letter-spacing: -0.01em;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
       color: var(--text);
     }
 
@@ -104,43 +104,61 @@
     }
 
     p {
-      font-size: 16px;
+      font-size: 17px;
       line-height: 1.6;
       color: var(--text-secondary);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .caption {
-      font-size: 13px;
+      font-size: 15px;
       color: var(--text-secondary);
       margin-top: 8px;
       font-style: italic;
     }
 
     .source-note {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-secondary);
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px solid var(--border);
     }
 
+    /* Hero number style */
+    .hero-number {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 84px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 0.95;
+      margin: 20px 0 40px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hero-sub {
+      font-size: 22px;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      max-width: 800px;
+    }
+
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin-top: 40px;
+      gap: 24px;
+      margin-top: 48px;
     }
 
     .stat-card {
       background: var(--surface-light);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 24px;
+      padding: 28px;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       font-weight: 600;
@@ -150,14 +168,14 @@
 
     .stat-value {
       font-family: 'DM Sans', sans-serif;
-      font-size: 32px;
+      font-size: 40px;
       font-weight: 700;
       color: var(--accent);
       font-variant-numeric: tabular-nums;
     }
 
     .stat-sub {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-secondary);
       margin-top: 8px;
     }
@@ -173,7 +191,7 @@
     .chart-side {
       display: flex;
       align-items: flex-end;
-      gap: 40px;
+      gap: 50px;
       justify-content: center;
     }
 
@@ -181,14 +199,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
     }
 
     .bar-visual {
-      width: 100px;
-      height: 200px;
+      width: 110px;
+      height: 220px;
       background: var(--surface-light);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
       display: flex;
@@ -207,14 +225,14 @@
 
     .bar-pct {
       font-family: 'DM Sans', sans-serif;
-      font-size: 36px;
+      font-size: 42px;
       font-weight: 700;
       color: var(--accent);
       font-variant-numeric: tabular-nums;
     }
 
     .bar-label {
-      font-size: 14px;
+      font-size: 16px;
       text-align: center;
       color: var(--text-secondary);
       line-height: 1.4;
@@ -228,10 +246,10 @@
 
     .metric-row {
       display: grid;
-      grid-template-columns: 200px 1fr;
+      grid-template-columns: 220px 1fr;
       gap: 20px;
       align-items: baseline;
-      padding: 12px 0;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -240,13 +258,13 @@
     }
 
     .metric-label {
-      font-size: 14px;
+      font-size: 16px;
       color: var(--text-secondary);
     }
 
     .metric-value {
       font-family: 'DM Sans', sans-serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--accent);
       font-variant-numeric: tabular-nums;
@@ -254,27 +272,92 @@
 
     .precision-box {
       background: var(--accent-pale);
-      border: 1px solid var(--accent-soft);
+      border: 1.5px solid var(--accent-soft);
       border-radius: 14px;
-      padding: 32px;
+      padding: 40px;
       margin-top: 40px;
     }
 
     .precision-box .metric-row {
       border-bottom: 1px solid rgba(255, 86, 70, 0.2);
+      padding: 16px 0;
     }
 
     .precision-box .metric-row:last-child {
       border-bottom: none;
     }
 
+    /* Sensor grid visualization */
+    .sensor-grid-visual {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-top: 40px;
+      margin-bottom: 24px;
+    }
+
+    .sensor-dot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      border: 2px solid;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .sensor-dot.flagged {
+      background: var(--accent-pale);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .sensor-dot.clear {
+      background: var(--surface-light);
+      border-color: var(--border);
+      color: var(--text-secondary);
+    }
+
+    .sensor-legend {
+      display: flex;
+      gap: 48px;
+      margin-top: 24px;
+      font-size: 16px;
+    }
+
+    .sensor-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sensor-legend-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid;
+    }
+
+    .sensor-legend-dot.flagged {
+      background: var(--accent-pale);
+      border-color: var(--accent);
+    }
+
+    .sensor-legend-dot.clear {
+      background: var(--surface-light);
+      border-color: var(--border);
+    }
+
     .chart-container {
       background: var(--surface-light);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 32px;
-      margin-top: 32px;
-      min-height: 320px;
+      padding: 40px;
+      margin-top: 40px;
+      min-height: 340px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -286,89 +369,27 @@
       width: 100%;
     }
 
-    .sensor-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      margin-top: 32px;
-    }
-
-    .sensor {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 60px;
-      height: 60px;
-      border-radius: 8px;
-      border: 2px solid var(--border);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    .sensor.flagged {
-      background: var(--accent-pale);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .sensor.clear {
-      background: var(--surface-light);
-      border-color: var(--border);
-      color: var(--text-secondary);
-    }
-
-    .sensor-legend {
-      display: flex;
-      gap: 32px;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-
-    .sensor-legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .sensor-legend-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      border: 2px solid currentColor;
-    }
-
-    .sensor-legend-dot.flagged {
-      background: var(--accent-pale);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .sensor-legend-dot.clear {
-      background: var(--surface-light);
-      border-color: var(--border);
-    }
-
     .card-row {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-top: 32px;
+      gap: 24px;
+      margin-top: 40px;
     }
 
     .card {
       background: var(--surface-light);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 24px;
+      padding: 28px;
     }
 
     .card h3 {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      font-size: 16px;
     }
 
     .card p {
-      font-size: 14px;
+      font-size: 16px;
       margin-bottom: 0;
     }
 
@@ -378,7 +399,7 @@
     }
 
     li {
-      font-size: 16px;
+      font-size: 17px;
       color: var(--text-secondary);
       margin-bottom: 14px;
       padding-left: 20px;
@@ -397,20 +418,20 @@
       background: var(--surface-light);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 28px;
-      margin-top: 32px;
+      padding: 32px;
+      margin-top: 36px;
     }
 
     .persona-name {
       font-family: 'DM Sans', sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 6px;
     }
 
     .persona-role {
-      font-size: 12px;
+      font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--text-secondary);
@@ -419,14 +440,14 @@
     }
 
     .persona-question {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 600;
       color: var(--text);
       margin-bottom: 8px;
     }
 
     .persona-answer {
-      font-size: 15px;
+      font-size: 17px;
       color: var(--text-secondary);
       line-height: 1.6;
     }
@@ -435,7 +456,7 @@
       position: fixed;
       top: 36px;
       right: 40px;
-      font-size: 13px;
+      font-size: 15px;
       color: var(--text-secondary);
       font-weight: 600;
       letter-spacing: 0.1em;
@@ -482,19 +503,13 @@
     }
 
     @media print {
-      /* A4 landscape is 297 x 210 mm. Geometry is set in mm, not vh, because vh
-         resolves against the rendering viewport rather than the page box: that is
-         why an earlier version fitted two slides per page and halved the deck.
-         Slides are also forced back to static block display, since page-break
-         properties are ignored on absolutely-positioned and flex children. */
+      /* A4 landscape is 297 x 210mm. Geometry in mm, not vh: vh resolves against
+         the rendering viewport, not the page box. Slides are forced to static
+         block display because page-break properties are ignored on
+         absolutely-positioned and flex children. Verified in-browser. */
       html, body { width: auto; height: auto; overflow: visible; background: #fff; }
-
-      .slides-container {
-        position: static !important;
-        display: block !important;
-        width: auto; height: auto;
-      }
-
+      .slides-container { position: static !important; display: block !important;
+                          width: auto; height: auto; }
       .slide {
         position: static !important;
         display: block !important;
@@ -502,26 +517,37 @@
         transition: none !important;
         pointer-events: none;
         width: 100%;
-        height: 209mm;            /* 1mm under the page, so rounding cannot spill */
+        height: 209mm;
         box-sizing: border-box;
-        padding: 14mm 18mm;
-        overflow: hidden;         /* clip rather than silently push to a new page */
+        padding: 9mm 16mm;
+        overflow: hidden;
         break-after: page;
         page-break-after: always;
         break-inside: avoid;
         page-break-inside: avoid;
       }
       .slide:last-child { break-after: auto; page-break-after: auto; }
-
       .slide-counter, .slide-nav { display: none !important; }
+
+      /* A4 landscape is only about 1123px wide, so the 1600px and 1200px
+         responsive breakpoints both fire in print and collapse the multi-column
+         grids to a single stacked column. That is what pushed cards off the page.
+         Restore the desktop layout for print explicitly. */
+      .stat-grid       { grid-template-columns: repeat(3, 1fr) !important; }
+      .card-row        { grid-template-columns: repeat(2, 1fr) !important; }
+      .comparison-grid { grid-template-columns: 1fr 1fr !important; }
+      .sensor-grid-visual { grid-template-columns: repeat(5, 1fr) !important; }
     }
 
-    @page { size: A4 landscape; margin: 0; }
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
 
     @media (max-width: 1600px) {
       .slide { padding: 60px 80px; }
-      h1 { font-size: 48px; }
-      h2 { font-size: 40px; }
+      h1, h2 { font-size: 48px; }
+      .hero-number { font-size: 76px; }
       .stat-grid { grid-template-columns: repeat(2, 1fr); }
       .card-row { grid-template-columns: 1fr; }
     }
@@ -541,22 +567,25 @@
   <section class="slide active">
     <div class="eyebrow">Databricks + Volta Industrial</div>
     <h1>Predictive Maintenance for Continuous Production</h1>
-    <p style="margin-top: 28px; font-size: 20px;">From reactive downtime to proactive line management. A working reference implementation on a continuous-process plant, with all numbers measured from real telemetry.</p>
+    <p style="margin-top: 28px; font-size: 18px; max-width: 700px;">From reactive downtime to proactive line management. A working reference implementation with all numbers measured from real telemetry.</p>
   </section>
 
-  <!-- Slide 2: The Problem -->
+  <!-- Slide 2: The Problem - REDESIGNED with hero number -->
   <section class="slide">
-    <h2>Unplanned Downtime Costs <span class="highlight">$33M</span> Per Year</h2>
+    <p style="font-size: 16px; margin: 0;">Annual cost of unplanned downtime</p>
+    <div class="hero-number">$33M</div>
+    <p class="hero-sub">1,500 hours per year across eight plants, at $22,000 per hour, plus expedited freight and SLA penalties.</p>
+    
     <div class="stat-grid">
       <div class="stat-card">
-        <div class="stat-label">Per Hour</div>
+        <div class="stat-label">Per Hour Lost</div>
         <div class="stat-value">$22K</div>
         <div class="stat-sub">Entire line output</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Hours Per Year</div>
         <div class="stat-value">1,500</div>
-        <div class="stat-sub">Across all eight plants</div>
+        <div class="stat-sub">All eight plants</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Plus Freight & SLA</div>
@@ -564,7 +593,6 @@
         <div class="stat-sub">Expedited parts, penalties</div>
       </div>
     </div>
-    <p style="margin-top: 40px;">One line stopping pulls technicians from other work, forces expedited freight, and often means missing customer commitments.</p>
   </section>
 
   <!-- Slide 3: Why Monitoring Fails -->
@@ -611,7 +639,7 @@
         <!-- RMS line (grey) -->
         <polyline points="80,290 220,285 360,280 500,250 640,200 780,140 950,80" fill="none" stroke="var(--line-3)" stroke-width="3.5" stroke-linecap="round"/>
 
-        <!-- Data points - larger -->
+        <!-- Data points -->
         <circle cx="80" cy="240" r="4.5" fill="var(--line-1)"/>
         <circle cx="220" cy="190" r="4.5" fill="var(--line-1)"/>
         <circle cx="360" cy="130" r="4.5" fill="var(--line-1)"/>
@@ -636,7 +664,7 @@
         <circle cx="780" cy="140" r="4.5" fill="var(--line-3)"/>
         <circle cx="950" cy="80" r="4.5" fill="var(--line-3)"/>
 
-        <!-- Axis labels - larger, clearer -->
+        <!-- Axis labels -->
         <text x="80" y="330" font-size="14" font-weight="600" fill="var(--text)">Baseline</text>
         <text x="220" y="330" font-size="14" font-weight="600" fill="var(--text)">30 days</text>
         <text x="445" y="330" font-size="14" font-weight="600" fill="var(--text)">Phase 1</text>
@@ -647,7 +675,7 @@
         <text x="15" y="170" font-size="13" fill="var(--text-secondary)" text-anchor="end" font-weight="500">Increasing</text>
         <text x="15" y="190" font-size="13" fill="var(--text-secondary)" text-anchor="end" font-weight="500">degradation</text>
 
-        <!-- Legend - larger, better positioned -->
+        <!-- Legend -->
         <circle cx="100" cy="355" r="4" fill="var(--line-1)"/>
         <text x="115" y="361" font-size="13" font-weight="600" fill="var(--text)">Kurtosis +48%</text>
 
@@ -672,7 +700,7 @@
       <li>120 days of historical condition-monitoring data for model training</li>
       <li>Live mass balance reconciling to 0.01% error on a 2,500-tonne-per-hour feed</li>
     </ul>
-    <p style="margin-top: 40px; font-size: 14px; color: var(--text-secondary);">This is a continuous-process plant (mining), not a discrete manufacturing line. The architecture transfers directly: same lakehouse structure, same serverless serving layer, same model training loop, same audit trail.</p>
+    <p style="margin-top: 40px; font-size: 16px; color: var(--text-secondary);">This is a continuous-process plant (mining), not a discrete manufacturing line. The architecture transfers directly: same lakehouse structure, same serverless serving layer, same model training loop, same audit trail.</p>
   </section>
 
   <!-- Slide 6: Early Detection -->
@@ -684,41 +712,62 @@
         <div class="card-row" style="margin-top: 0;">
           <div class="card" style="padding: 32px;">
             <h3>Our Model</h3>
-            <div style="font-size: 28px; margin: 16px 0; color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums;">95.8%</div>
-            <p style="font-size: 14px; margin: 0;">Catches degrading readings in the actionable window. F1 0.988, validated leave-one-asset-out.</p>
+            <div style="font-size: 32px; margin: 16px 0; color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums;">95.8%</div>
+            <p style="font-size: 16px; margin: 0;">Catches degrading readings in the actionable window. F1 0.988, validated leave-one-asset-out.</p>
           </div>
           <div class="card" style="padding: 32px;">
             <h3>RMS Threshold</h3>
-            <div style="font-size: 28px; margin: 16px 0; color: var(--accent-soft); font-weight: 700; font-variant-numeric: tabular-nums;">14.8%</div>
-            <p style="font-size: 14px; margin: 0;">Tuned to minimize false positives. For 3 of 4 failures, it saw nothing until the final 12 days.</p>
+            <div style="font-size: 32px; margin: 16px 0; color: var(--accent-soft); font-weight: 700; font-variant-numeric: tabular-nums;">14.8%</div>
+            <p style="font-size: 16px; margin: 0;">Tuned to minimize false positives. For 3 of 4 failures, it saw nothing until the final 12 days.</p>
           </div>
         </div>
       </div>
     </div>
-    <p style="margin-top: 32px; font-size: 14px; color: var(--text-secondary);">The difference is roughly 18 extra days to move a failure from unplanned emergency to scheduled maintenance, with the production plan intact.</p>
+    <p style="margin-top: 32px; font-size: 16px; color: var(--text-secondary);">The difference is roughly 18 extra days to move a failure from unplanned emergency to scheduled maintenance, with the production plan intact.</p>
   </section>
 
-  <!-- Slide 7: Model Precision -->
+  <!-- Slide 7: Model Precision - REDESIGNED with visual -->
   <section class="slide">
     <h2>Precision: <span class="highlight">Zero False Positives</span></h2>
     <p style="margin-top: 32px;">Batch scoring across all 15 vibration sensors over the 30-day window:</p>
-    <div class="precision-box">
-      <div class="metrics-stack">
-        <div class="metric-row">
-          <div class="metric-label">Sensors that actually failed</div>
-          <div class="metric-value">4 of 15</div>
-        </div>
-        <div class="metric-row">
-          <div class="metric-label">Model peaked above 0.7 on</div>
-          <div class="metric-value">exactly 4</div>
-        </div>
-        <div class="metric-row">
-          <div class="metric-label">Score on the other 11</div>
-          <div class="metric-value">0.000</div>
-        </div>
+    
+    <div class="sensor-grid-visual">
+      <div class="sensor-dot flagged">1</div>
+      <div class="sensor-dot flagged">2</div>
+      <div class="sensor-dot flagged">3</div>
+      <div class="sensor-dot flagged">4</div>
+      <div class="sensor-dot clear">5</div>
+      <div class="sensor-dot clear">6</div>
+      <div class="sensor-dot clear">7</div>
+      <div class="sensor-dot clear">8</div>
+      <div class="sensor-dot clear">9</div>
+      <div class="sensor-dot clear">10</div>
+      <div class="sensor-dot clear">11</div>
+      <div class="sensor-dot clear">12</div>
+      <div class="sensor-dot clear">13</div>
+      <div class="sensor-dot clear">14</div>
+      <div class="sensor-dot clear">15</div>
+    </div>
+    
+    <div class="sensor-legend">
+      <div class="sensor-legend-item">
+        <div class="sensor-legend-dot flagged"></div>
+        <span>Flagged (model detected): 4 sensors</span>
+      </div>
+      <div class="sensor-legend-item">
+        <div class="sensor-legend-dot clear"></div>
+        <span>Clear (no signal): 11 sensors</span>
       </div>
     </div>
-    <p style="margin-top: 32px;">A control room that cries wolf gets ignored. The model does not cry wolf. It caught what failed and saw nothing on what did not.</p>
+
+    <div class="precision-box" style="margin-top: 20px;">
+      <div class="metric-row">
+        <div class="metric-label">Model score</div>
+        <div class="metric-value">above 0.7 on exactly the 4 that failed, 0.000 on the other 11</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 18px; font-size: 17px; color: var(--text-secondary);">A control room that cries wolf gets ignored. The model does not cry wolf. It caught what failed and saw nothing on what did not.</p>
     <p class="source-note">Source: Ironbark Resources reference implementation, batch scoring on reference plant data</p>
   </section>
 
@@ -727,83 +776,84 @@
     <h2>How It Reaches the <span class="highlight">Floor</span></h2>
     <p style="margin-top: 32px;">Telemetry to action, with latency and audit at every layer:</p>
     <div class="chart-container">
-      <svg viewBox="0 0 1100 340" style="max-width: 100%; height: auto;">
+      <svg viewBox="0 0 1120 360" style="max-width: 100%; height: auto;">
         <!-- ROW 1: Ingestion pipeline -->
         <!-- Sensors box -->
-        <rect x="40" y="40" width="100" height="70" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="90" y="82" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Sensors</text>
+        <rect x="30" y="30" width="95" height="65" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
+        <text x="77" y="68" font-size="13" font-weight="600" fill="var(--text)" text-anchor="middle">Sensors</text>
 
         <!-- Arrow 1 -->
-        <line x1="140" y1="75" x2="190" y2="75" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="190,75 182,71 182,79" fill="var(--text-secondary)"/>
-        <text x="165" y="60" font-size="11" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Every 1s</text>
+        <line x1="125" y1="62" x2="168" y2="62" stroke="var(--text-secondary)" stroke-width="2.5"/>
+        <polygon points="168,62 160,58 160,66" fill="var(--text-secondary)"/>
+        <text x="146" y="48" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Every 1s</text>
 
         <!-- Streaming Ingest box -->
-        <rect x="190" y="40" width="110" height="70" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="245" y="75" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Streaming</text>
-        <text x="245" y="95" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Ingest</text>
+        <rect x="168" y="30" width="108" height="65" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
+        <text x="222" y="58" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Streaming</text>
+        <text x="222" y="73" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Ingest</text>
 
         <!-- Arrow 2 -->
-        <line x1="300" y1="75" x2="350" y2="75" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="350,75 342,71 342,79" fill="var(--text-secondary)"/>
+        <line x1="276" y1="62" x2="319" y2="62" stroke="var(--text-secondary)" stroke-width="2.5"/>
+        <polygon points="319,62 311,58 311,66" fill="var(--text-secondary)"/>
 
         <!-- Lakehouse box - highlighted -->
-        <rect x="350" y="40" width="110" height="70" fill="var(--accent-pale)" stroke="var(--accent)" stroke-width="2.5" rx="8"/>
-        <text x="405" y="82" font-size="14" font-weight="700" fill="var(--accent)" text-anchor="middle">Lakehouse</text>
+        <rect x="319" y="30" width="108" height="65" fill="var(--accent-pale)" stroke="var(--accent)" stroke-width="2.5" rx="8"/>
+        <text x="373" y="68" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="middle">Lakehouse</text>
 
-        <!-- Arrow 3: Down and Right to Model Score -->
-        <line x1="405" y1="110" x2="405" y2="145" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="405,145 401,137 409,137" fill="var(--text-secondary)"/>
-        <text x="340" y="130" font-size="11" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Train models</text>
+        <!-- Arrow 3: Down to Model Score -->
+        <line x1="373" y1="95" x2="373" y2="135" stroke="var(--text-secondary)" stroke-width="2.5"/>
+        <polygon points="373,135 369,127 377,127" fill="var(--text-secondary)"/>
+        <text x="310" y="118" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Train models</text>
 
         <!-- ROW 2: Real-time serving -->
         <!-- Model Score box -->
-        <rect x="320" y="145" width="130" height="80" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="385" y="180" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Model Score</text>
-        <text x="385" y="200" font-size="13" fill="var(--text-secondary)" text-anchor="middle">(Serverless)</text>
-        <text x="385" y="218" font-size="12" fill="var(--text-secondary)" text-anchor="middle">Real-time</text>
+        <rect x="300" y="135" width="125" height="75" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
+        <text x="362" y="162" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Model Score</text>
+        <text x="362" y="178" font-size="11" fill="var(--text-secondary)" text-anchor="middle">(Serverless)</text>
+        <text x="362" y="193" font-size="10" fill="var(--text-secondary)" text-anchor="middle">Real-time</text>
 
         <!-- Arrow 4 -->
-        <line x1="450" y1="185" x2="510" y2="185" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="510,185 502,181 502,189" fill="var(--text-secondary)"/>
-        <text x="480" y="170" font-size="11" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Sub-second</text>
+        <line x1="425" y1="172" x2="475" y2="172" stroke="var(--text-secondary)" stroke-width="2.5"/>
+        <polygon points="475,172 467,168 467,176" fill="var(--text-secondary)"/>
+        <text x="450" y="158" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Sub-sec</text>
 
-        <!-- Serverless Postgres box -->
-        <rect x="510" y="145" width="130" height="80" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="575" y="180" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Serverless</text>
-        <text x="575" y="200" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Postgres</text>
-        <text x="575" y="218" font-size="12" fill="var(--text-secondary)" text-anchor="middle">Live reads</text>
+        <!-- Lakebase box -->
+        <rect x="475" y="135" width="125" height="75" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
+        <text x="537" y="162" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Lakebase</text>
+        <text x="537" y="178" font-size="11" fill="var(--text-secondary)" text-anchor="middle">(Serverless SQL)</text>
+        <text x="537" y="193" font-size="10" fill="var(--text-secondary)" text-anchor="middle">Live reads</text>
 
         <!-- Arrow 5 -->
-        <line x1="640" y1="185" x2="700" y2="185" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="700,185 692,181 692,189" fill="var(--text-secondary)"/>
-        <text x="670" y="170" font-size="11" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Sub-second</text>
+        <line x1="600" y1="172" x2="650" y2="172" stroke="var(--text-secondary)" stroke-width="2.5"/>
+        <polygon points="650,172 642,168 642,176" fill="var(--text-secondary)"/>
+        <text x="625" y="158" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Sub-sec</text>
 
         <!-- Floor App box -->
-        <rect x="700" y="145" width="110" height="80" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="755" y="185" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Floor</text>
-        <text x="755" y="205" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">App</text>
+        <rect x="650" y="135" width="105" height="75" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
+        <text x="702" y="168" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Floor</text>
+        <text x="702" y="183" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">App</text>
 
         <!-- Arrow 6: To Maintenance Assistant -->
-        <line x1="755" y1="145" x2="825" y2="95" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="825,95 820,103 832,100" fill="var(--text-secondary)"/>
+        <line x1="702" y1="135" x2="765" y2="77" stroke="var(--text-secondary)" stroke-width="2.5"/>
+        <polygon points="765,77 760,85 772,82" fill="var(--text-secondary)"/>
 
         <!-- Maintenance Assistant box -->
-        <rect x="800" y="40" width="130" height="70" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="865" y="75" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Maintenance</text>
-        <text x="865" y="95" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">Assistant</text>
+        <rect x="740" y="30" width="125" height="65" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
+        <text x="802" y="58" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Maintenance</text>
+        <text x="802" y="73" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Assistant</text>
 
-        <!-- Change feed: Dashed arrow back -->
-        <line x1="575" y1="145" x2="405" y2="110" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="6,3"/>
-        <polygon points="405,110 410,119 400,114" fill="var(--text-secondary)"/>
-        <text x="485" y="120" font-size="11" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Change feed ~15s</text>
+        <!-- Change feed: Dashed arrow back to Lakehouse, no overlap -->
+        <line x1="537" y1="135" x2="445" y2="95" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="5,3"/>
+        <polygon points="445,95 451,104 441,101" fill="var(--text-secondary)"/>
+        <text x="495" y="105" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Change feed</text>
+        <text x="495" y="118" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">~15s audit</text>
 
         <!-- ROW 3: Governance -->
         <!-- Unity Catalog box -->
-        <rect x="40" y="250" width="880" height="80" fill="var(--accent-pale)" stroke="var(--accent-soft)" stroke-width="1.5" rx="8"/>
-        <text x="55" y="275" font-size="14" font-weight="700" fill="var(--accent)" text-anchor="start">Unity Catalog Governance</text>
-        <text x="55" y="302" font-size="12" fill="var(--text-secondary)">• All data, models, and access governed in one place</text>
-        <text x="55" y="322" font-size="12" fill="var(--text-secondary)">• Audit trail captures every state change for compliance</text>
+        <rect x="30" y="265" width="835" height="80" fill="var(--accent-pale)" stroke="var(--accent-soft)" stroke-width="1.5" rx="8"/>
+        <text x="48" y="290" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="start">Unity Catalog Governance</text>
+        <text x="48" y="315" font-size="11" fill="var(--text-secondary)">• All data, models, and access governed in one place</text>
+        <text x="48" y="335" font-size="11" fill="var(--text-secondary)">• Audit trail captures every state change for compliance</text>
       </svg>
     </div>
     <p class="caption">From sensors to floor: streaming ingest, lakehouse, serverless scoring, live Postgres, floor app. Change feed audits every state change back into the lakehouse. Governance spans all layers.</p>
@@ -819,8 +869,8 @@
         <div class="persona-question">Did a plant manager make a different call this shift?</div>
       </div>
     </div>
-    <p style="margin-top: 32px;"><strong>Yes.</strong> In the reference build, the model flagged three bearing defects and a screen failure with 18+ days to spare. Real maintenance was scheduled. Real plant managers had options they did not have before.</p>
-    <p style="margin-top: 20px; font-size: 14px; color: var(--text-secondary);">That is the job: move failures from after-the-fact emergencies to planned work that fits the production calendar.</p>
+    <p style="margin-top: 32px; font-size: 17px;"><strong>Yes.</strong> In the reference build, the model flagged three bearing defects and a screen failure with 18+ days to spare. Real maintenance was scheduled. Real plant managers had options they did not have before.</p>
+    <p style="margin-top: 20px; font-size: 16px; color: var(--text-secondary);">That is the job: move failures from after-the-fact emergencies to planned work that fits the production calendar.</p>
   </section>
 
   <!-- Slide 10: Annika's Math -->
@@ -848,7 +898,7 @@
           <div class="metric-value">$3,300,000</div>
         </div>
       </div>
-      <p style="font-size: 14px; margin-top: 16px; color: var(--text-secondary);">Achievable with 18 extra days of notice. That is roughly 10 bearing or screen failures caught in the actionable window per year. Your asset mix and failure rates will determine the actual number. We can validate on your historical data in a brief pilot.</p>
+      <p style="font-size: 16px; margin-top: 16px; color: var(--text-secondary);">Achievable with 18 extra days of notice. That is roughly 10 bearing or screen failures caught in the actionable window per year. Your asset mix and failure rates will determine the actual number. We can validate on your historical data in a brief pilot.</p>
     </div>
   </section>
 
@@ -862,8 +912,8 @@
         <div class="persona-question">If we roll to eight plants, what does it cost?</div>
       </div>
     </div>
-    <p style="margin-top: 32px;"><strong>Cost scales with plants and data, not experiments.</strong> The reference environment sits at a 0.5 compute-unit floor and suspends after 300 seconds of idle. Adding a tenth data scientist costs almost nothing.</p>
-    <p style="margin-top: 20px; font-size: 14px; color: var(--text-secondary);">Eight plants means eight data sources, eight models, eight serving instances. Cost is a function of infrastructure, not friction. We will know the actual spend once we size your data volume.</p>
+    <p style="margin-top: 32px; font-size: 17px;"><strong>Cost scales with plants and data, not experiments.</strong> The reference environment sits at a 0.5 compute-unit floor and suspends after 300 seconds of idle. Adding a tenth data scientist costs almost nothing.</p>
+    <p style="margin-top: 20px; font-size: 16px; color: var(--text-secondary);">Eight plants means eight data sources, eight models, eight serving instances. Cost is a function of infrastructure, not friction. We will know the actual spend once we size your data volume.</p>
   </section>
 
   <!-- Slide 12: Cost Structure -->
@@ -872,7 +922,7 @@
     <div class="card-row">
       <div class="card">
         <h3>Serverless Architecture</h3>
-        <ul style="margin-top: 12px;">
+        <ul style="margin-top: 12px; margin-bottom: 0;">
           <li>Compute scales to zero when idle</li>
           <li>No sustained baseline cost between scoring runs</li>
           <li>Pricing tied to compute units and data scanned</li>
@@ -880,14 +930,14 @@
       </div>
       <div class="card">
         <h3>Discipline Built In</h3>
-        <ul style="margin-top: 12px;">
+        <ul style="margin-top: 12px; margin-bottom: 0;">
           <li>Cost is a function of plants and data</li>
           <li>Not per-experiment or per-model</li>
           <li>Unity Catalog governs all layers</li>
         </ul>
       </div>
     </div>
-    <p style="margin-top: 32px; font-size: 14px; color: var(--text-secondary);">This is the opposite of a per-experiment pricing model that multiplies out of control. Cost discipline is built into the architecture.</p>
+    <p style="margin-top: 32px; font-size: 16px; color: var(--text-secondary);">This is the opposite of a per-experiment pricing model that multiplies out of control. Cost discipline is built into the architecture.</p>
   </section>
 
   <!-- Slide 13: What We Need -->
@@ -903,9 +953,9 @@
   <!-- Slide 14: Close -->
   <section class="slide">
     <h2>The Next Step</h2>
-    <p style="margin-top: 60px; font-size: 20px;">We built this reference implementation on a continuous-process plant. Every number comes from that real build. The architecture transfers directly to discrete manufacturing.</p>
-    <p style="font-size: 20px; margin-top: 28px;">Volta's unplanned downtime problem is solvable.</p>
-    <p style="font-size: 20px; margin-top: 28px;"><span class="highlight">Let's validate it on your data.</span></p>
+    <p style="margin-top: 60px; font-size: 18px;">We built this reference implementation on a continuous-process plant. Every number comes from that real build. The architecture transfers directly to discrete manufacturing.</p>
+    <p style="font-size: 18px; margin-top: 28px;">Volta's unplanned downtime problem is solvable.</p>
+    <p style="font-size: 18px; margin-top: 28px;"><span class="highlight">Let's validate it on your data.</span></p>
   </section>
 
 </div>

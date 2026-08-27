@@ -1,0 +1,80 @@
+{
+  "captured_at": "2026-08-27T06:07:29.826734+00:00",
+  "project": {
+    "branch_logical_size_limit_bytes": 17592186044416,
+    "compute_last_active_time": "2026-08-27T06:05:09Z",
+    "default_branch": "projects/ironbark-ops/branches/production",
+    "default_endpoint_settings": {
+      "autoscaling_limit_max_cu": 8,
+      "autoscaling_limit_min_cu": 0.5,
+      "suspend_timeout_duration": "300s"
+    },
+    "display_name": "ironbark-ops",
+    "enable_pg_native_login": true,
+    "history_retention_duration": "604800s",
+    "owner": "chris.dorrington@databricks.com",
+    "pg_version": 17,
+    "project_id": "ironbark-ops",
+    "synthetic_storage_size_bytes": 0
+  },
+  "branches": [
+    {
+      "branch_id": "forecast-deferred-maintenance",
+      "is_root": false,
+      "source_branch": "projects/ironbark-ops/branches/production",
+      "expire_time": "2026-08-27T10:03:48Z",
+      "throwaway": true,
+      "state": "READY",
+      "logical_size_bytes": 0,
+      "endpoints": [
+        {
+          "endpoint_id": "primary",
+          "autoscaling_limit_min_cu": 0.5,
+          "autoscaling_limit_max_cu": 8,
+          "suspend_timeout_duration": "300s",
+          "scale_to_zero": true
+        }
+      ],
+      "purpose": "THROWAWAY forecasting scenario, destructive writes, 4h TTL"
+    },
+    {
+      "branch_id": "production",
+      "is_root": true,
+      "source_branch": null,
+      "expire_time": null,
+      "throwaway": false,
+      "state": "READY",
+      "logical_size_bytes": 34234368,
+      "endpoints": [
+        {
+          "endpoint_id": "primary",
+          "autoscaling_limit_min_cu": 1,
+          "autoscaling_limit_max_cu": 8,
+          "suspend_timeout_duration": "86400s",
+          "scale_to_zero": true
+        }
+      ],
+      "purpose": "root / main, clean environment"
+    },
+    {
+      "branch_id": "dev-work-order-notes",
+      "is_root": false,
+      "source_branch": "projects/ironbark-ops/branches/production",
+      "expire_time": null,
+      "throwaway": false,
+      "state": "READY",
+      "logical_size_bytes": 0,
+      "endpoints": [
+        {
+          "endpoint_id": "primary",
+          "autoscaling_limit_min_cu": 1,
+          "autoscaling_limit_max_cu": 8,
+          "suspend_timeout_duration": "86400s",
+          "scale_to_zero": true
+        }
+      ],
+      "purpose": "development iteration, migrations validated here before promotion"
+    }
+  ],
+  "note": "Project default_endpoint_settings apply to endpoints created after they are set, and there is no endpoint-level update_mask for these fields, so the two pre-existing endpoints still carry the original 1 CU / 86400s settings. The forecasting branch endpoint, created after the change, shows the intended 0.5 CU floor and 300s idle suspend."
+}

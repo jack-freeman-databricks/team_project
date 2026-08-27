@@ -1,0 +1,251 @@
+{
+  "captured_at": "2026-08-27T06:07:25.909006+00:00",
+  "lakebase_project": "projects/ironbark-ops",
+  "branch": "production",
+  "host": "ep-empty-poetry-d2h5n6t2.database.us-east-1.cloud.databricks.com",
+  "postgres_version": "PostgreSQL 17.11 (df1f1a3) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+  "tables": [
+    {
+      "table_name": "alert_outbox",
+      "columns": 21,
+      "comment": null
+    },
+    {
+      "table_name": "tag_current",
+      "columns": 11,
+      "comment": null
+    },
+    {
+      "table_name": "work_order",
+      "columns": 17,
+      "comment": null
+    },
+    {
+      "table_name": "work_order_note",
+      "columns": 8,
+      "comment": null
+    }
+  ],
+  "primary_keys": [
+    {
+      "table_name": "plant.alert_outbox",
+      "constraint_name": "alert_outbox_pkey",
+      "definition": "PRIMARY KEY (alert_id)"
+    },
+    {
+      "table_name": "plant.tag_current",
+      "constraint_name": "tag_current_pkey",
+      "definition": "PRIMARY KEY (tag_id)"
+    },
+    {
+      "table_name": "plant.work_order",
+      "constraint_name": "work_order_pkey",
+      "definition": "PRIMARY KEY (work_order_id)"
+    },
+    {
+      "table_name": "plant.work_order_note",
+      "constraint_name": "work_order_note_pkey",
+      "definition": "PRIMARY KEY (note_id)"
+    }
+  ],
+  "foreign_keys": [
+    {
+      "child_table": "plant.work_order",
+      "parent_table": "plant.alert_outbox",
+      "constraint_name": "work_order_alert_id_fkey",
+      "definition": "FOREIGN KEY (alert_id) REFERENCES plant.alert_outbox(alert_id)"
+    },
+    {
+      "child_table": "plant.work_order_note",
+      "parent_table": "plant.work_order",
+      "constraint_name": "work_order_note_work_order_id_fkey",
+      "definition": "FOREIGN KEY (work_order_id) REFERENCES plant.work_order(work_order_id) ON DELETE CASCADE"
+    }
+  ],
+  "check_constraints": [
+    {
+      "table_name": "plant.work_order",
+      "constraint_name": "closed_has_timestamp",
+      "definition": "CHECK (((status = 'CLOSED'::text) = (closed_at IS NOT NULL)))"
+    },
+    {
+      "table_name": "plant.work_order",
+      "constraint_name": "work_order_priority_check",
+      "definition": "CHECK ((priority = ANY (ARRAY['CRITICAL'::text, 'HIGH'::text, 'MEDIUM'::text, 'LOW'::text])))"
+    },
+    {
+      "table_name": "plant.work_order",
+      "constraint_name": "work_order_status_check",
+      "definition": "CHECK ((status = ANY (ARRAY['OPEN'::text, 'IN_PROGRESS'::text, 'ON_HOLD'::text, 'CLOSED'::text, 'CANCELLED'::text])))"
+    },
+    {
+      "table_name": "plant.work_order_note",
+      "constraint_name": "work_order_note_note_kind_check",
+      "definition": "CHECK ((note_kind = ANY (ARRAY['DIAGNOSIS'::text, 'ACTION'::text, 'PARTS'::text, 'HANDOVER'::text, 'SAFETY'::text])))"
+    }
+  ],
+  "indexes": [
+    {
+      "table_name": "alert_outbox",
+      "index_name": "alert_outbox_pkey",
+      "definition": "CREATE UNIQUE INDEX alert_outbox_pkey ON plant.alert_outbox USING btree (alert_id)"
+    },
+    {
+      "table_name": "alert_outbox",
+      "index_name": "ix_alert_open",
+      "definition": "CREATE INDEX ix_alert_open ON plant.alert_outbox USING btree (raised_at DESC) WHERE (acknowledged_at IS NULL)"
+    },
+    {
+      "table_name": "tag_current",
+      "index_name": "ix_tag_current_quality",
+      "definition": "CREATE INDEX ix_tag_current_quality ON plant.tag_current USING btree (quality) WHERE (quality <> 'GOOD'::text)"
+    },
+    {
+      "table_name": "tag_current",
+      "index_name": "ix_tag_current_source_ts",
+      "definition": "CREATE INDEX ix_tag_current_source_ts ON plant.tag_current USING btree (source_ts DESC)"
+    },
+    {
+      "table_name": "tag_current",
+      "index_name": "tag_current_pkey",
+      "definition": "CREATE UNIQUE INDEX tag_current_pkey ON plant.tag_current USING btree (tag_id)"
+    },
+    {
+      "table_name": "work_order",
+      "index_name": "ix_fts_work_order_description",
+      "definition": "CREATE INDEX ix_fts_work_order_description ON plant.work_order USING gin (to_tsvector('english'::regconfig, COALESCE(description, ''::text)))"
+    },
+    {
+      "table_name": "work_order",
+      "index_name": "ix_fts_work_order_resolution_notes",
+      "definition": "CREATE INDEX ix_fts_work_order_resolution_notes ON plant.work_order USING gin (to_tsvector('english'::regconfig, COALESCE(resolution_notes, ''::text)))"
+    },
+    {
+      "table_name": "work_order",
+      "index_name": "ix_wo_alert",
+      "definition": "CREATE INDEX ix_wo_alert ON plant.work_order USING btree (alert_id)"
+    },
+    {
+      "table_name": "work_order",
+      "index_name": "ix_wo_asset",
+      "definition": "CREATE INDEX ix_wo_asset ON plant.work_order USING btree (asset_id, created_at DESC)"
+    },
+    {
+      "table_name": "work_order",
+      "index_name": "ix_wo_open",
+      "definition": "CREATE INDEX ix_wo_open ON plant.work_order USING btree (priority, created_at DESC) WHERE (status = ANY (ARRAY['OPEN'::text, 'IN_PROGRESS'::text]))"
+    },
+    {
+      "table_name": "work_order",
+      "index_name": "work_order_pkey",
+      "definition": "CREATE UNIQUE INDEX work_order_pkey ON plant.work_order USING btree (work_order_id)"
+    },
+    {
+      "table_name": "work_order_note",
+      "index_name": "ix_ann_note",
+      "definition": "CREATE INDEX ix_ann_note ON plant.work_order_note USING lakebase_ann (note_embedding vector_cosine_ops)"
+    },
+    {
+      "table_name": "work_order_note",
+      "index_name": "ix_bm25_note",
+      "definition": "CREATE INDEX ix_bm25_note ON plant.work_order_note USING lakebase_bm25 (note_tsv)"
+    },
+    {
+      "table_name": "work_order_note",
+      "index_name": "ix_fts_work_order_note_note_text",
+      "definition": "CREATE INDEX ix_fts_work_order_note_note_text ON plant.work_order_note USING gin (to_tsvector('english'::regconfig, COALESCE(note_text, ''::text)))"
+    },
+    {
+      "table_name": "work_order_note",
+      "index_name": "ix_won_author",
+      "definition": "CREATE INDEX ix_won_author ON plant.work_order_note USING btree (author, created_at DESC)"
+    },
+    {
+      "table_name": "work_order_note",
+      "index_name": "ix_won_wo",
+      "definition": "CREATE INDEX ix_won_wo ON plant.work_order_note USING btree (work_order_id, created_at)"
+    },
+    {
+      "table_name": "work_order_note",
+      "index_name": "work_order_note_pkey",
+      "definition": "CREATE UNIQUE INDEX work_order_note_pkey ON plant.work_order_note USING btree (note_id)"
+    }
+  ],
+  "row_counts": [
+    {
+      "table_name": "alert_outbox",
+      "rows": 25
+    },
+    {
+      "table_name": "tag_current",
+      "rows": 0
+    },
+    {
+      "table_name": "work_order",
+      "rows": 22
+    },
+    {
+      "table_name": "work_order_note",
+      "rows": 49
+    }
+  ],
+  "searchable_text_columns": [
+    {
+      "table_name": "work_order",
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "work_order",
+      "column_name": "resolution_notes",
+      "data_type": "text"
+    },
+    {
+      "table_name": "work_order",
+      "column_name": "title",
+      "data_type": "text"
+    },
+    {
+      "table_name": "work_order_note",
+      "column_name": "note_text",
+      "data_type": "text"
+    }
+  ],
+  "relationship_proof": [
+    {
+      "severity": "CRITICAL",
+      "work_order_id": "WO-1009",
+      "asset_id": "ROM-APF01",
+      "failure_mode": "belt_speed",
+      "notes": 3
+    },
+    {
+      "severity": "WARNING",
+      "work_order_id": "WO-1008",
+      "asset_id": "ROM-APF01",
+      "failure_mode": "belt_speed",
+      "notes": 2
+    },
+    {
+      "severity": "CRITICAL",
+      "work_order_id": "WO-1006",
+      "asset_id": "CV-CV002",
+      "failure_mode": "motor_current",
+      "notes": 2
+    },
+    {
+      "severity": "WARNING",
+      "work_order_id": "WO-1004",
+      "asset_id": "CV-CV001",
+      "failure_mode": "mass_flow",
+      "notes": 2
+    },
+    {
+      "severity": "CRITICAL",
+      "work_order_id": "WO-1016",
+      "asset_id": "ROM-BIN01",
+      "failure_mode": "level",
+      "notes": 2
+    }
+  ]
+}

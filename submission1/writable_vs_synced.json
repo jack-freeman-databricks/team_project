@@ -1,0 +1,43 @@
+{
+  "captured_at": "2026-08-27T06:07:29.121868+00:00",
+  "synced_from_unity_catalog": {
+    "postgres_table": "tech_summit_scada_build.dim_tag_online",
+    "uc_source": "jack_freeman_catalog.tech_summit_scada_build.dim_tag",
+    "scheduling_policy": "TRIGGERED",
+    "managed_by": "Lakebase synced table, backed by a DLT pipeline",
+    "rows": 151,
+    "role": "read-only reference data. Not written by the application."
+  },
+  "writable_application_tables": [
+    {
+      "table_name": "alert_outbox",
+      "can_insert": true,
+      "can_update": true,
+      "can_delete": true,
+      "replica_identity_full": true
+    },
+    {
+      "table_name": "tag_current",
+      "can_insert": true,
+      "can_update": true,
+      "can_delete": true,
+      "replica_identity_full": true
+    },
+    {
+      "table_name": "work_order",
+      "can_insert": true,
+      "can_update": true,
+      "can_delete": true,
+      "replica_identity_full": true
+    },
+    {
+      "table_name": "work_order_note",
+      "can_insert": true,
+      "can_update": true,
+      "can_delete": true,
+      "replica_identity_full": true
+    }
+  ],
+  "separation_rationale": "A Lakebase synced table mirrors governed Unity Catalog data and must not be written by the application. Application state (work orders) and actions (operator notes, alarm acknowledgement) therefore live in separate Postgres-native tables in the plant schema, which is also the schema fed back to Unity Catalog by reverse CDF.",
+  "observed_caveat": "A direct INSERT into the synced table was NOT rejected by Postgres during testing, contrary to the documented read-only behaviour. The probe row was removed and the sync remained ONLINE at 151 rows. The separation is enforced by design and by the application, not by a Postgres privilege."
+}

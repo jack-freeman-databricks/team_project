@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    b_analytics:
+      name: "[lane B] ironbark analytical layer"
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      development: true
+      continuous: false
+      libraries:
+        - file:
+            path: ../src/analytics_pipeline.sql

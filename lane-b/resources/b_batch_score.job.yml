@@ -1,0 +1,28 @@
+resources:
+  jobs:
+    b_batch_score_pdm:
+      name: "[lane B] score every vibration sensor into pdm_prediction"
+      description: >-
+        Loads the champion model from Unity Catalog and scores features computed
+        from the LIVE readings, so it answers "what needs maintenance now" rather
+        than replaying the training history.
+      tasks:
+        - task_key: score
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/batch_score_pdm.py
+            parameters:
+              - "--catalog"
+              - "${var.catalog}"
+              - "--schema"
+              - "${var.schema}"
+              - "--model-name"
+              - "${var.model_name}"
+      environments:
+        - environment_key: default
+          spec:
+            client: "3"
+            dependencies:
+              - scikit-learn
+      queue:
+        enabled: true

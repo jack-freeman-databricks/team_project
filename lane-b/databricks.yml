@@ -1,0 +1,46 @@
+# Lane B bundle: the analytical layer and the predictive maintenance model.
+#
+# Deliberately SEPARATE from lane-a/databricks.yml. A bundle deploy is
+# all-or-nothing per target, so deploying into lane A's bundle would redeploy
+# their jobs too, including the replay stream. Independent bundles keep the lane
+# boundary that contract/naming.md's ownership map describes.
+#
+# Everything lives in one UC schema, so resource names are b_-prefixed and this
+# bundle only ever writes the tables lane B owns.
+bundle:
+  name: ironbark-lane-b
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: UC catalog holding every table in this build.
+    default: jack_freeman_catalog
+  schema:
+    description: The one shared schema for the whole build.
+    default: tech_summit_scada_build
+  model_name:
+    description: Unity Catalog registered model for vibration predictive maintenance.
+    default: jack_freeman_catalog.tech_summit_scada_build.vibration_pdm
+  serving_endpoint:
+    default: ironbark-pdm
+  experiment:
+    description: >-
+      MLflow experiment path. Set explicitly because a spark_python_task does not
+      inherit a default experiment the way a notebook task does.
+    default: /Users/chris.dorrington@databricks.com/ironbark_vibration_pdm
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      profile: ironbark
+
+  prod:
+    mode: production
+    workspace:
+      profile: ironbark
+    run_as:
+      user_name: chris.dorrington@databricks.com

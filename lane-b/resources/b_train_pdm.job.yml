@@ -1,0 +1,31 @@
+resources:
+  jobs:
+    b_train_pdm:
+      name: "[lane B] train and register the vibration PdM model"
+      description: >-
+        Trains the bearing degradation classifier, evaluates it leave-one-asset-out
+        against a best-case RMS threshold baseline, and registers it in Unity
+        Catalog. Runs on Databricks rather than locally because UC model
+        registration needs the platform's MLflow.
+      tasks:
+        - task_key: train_and_register
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/train_register_pdm.py
+            parameters:
+              - "--catalog"
+              - "${var.catalog}"
+              - "--schema"
+              - "${var.schema}"
+              - "--model-name"
+              - "${var.model_name}"
+              - "--experiment"
+              - "${var.experiment}"
+      environments:
+        - environment_key: default
+          spec:
+            client: "3"
+            dependencies:
+              - scikit-learn
+      queue:
+        enabled: true

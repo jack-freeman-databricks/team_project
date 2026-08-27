@@ -1,0 +1,30 @@
+[
+  {
+    "table_name": "alert_outbox",
+    "pk_count": 1,
+    "fk_count": 0,
+    "column_count": 21,
+    "row_count": 25
+  },
+  {
+    "table_name": "tag_current",
+    "pk_count": 1,
+    "fk_count": 0,
+    "column_count": 11,
+    "row_count": 0
+  },
+  {
+    "table_name": "work_order",
+    "pk_count": 1,
+    "fk_count": 1,
+    "column_count": 17,
+    "row_count": 22
+  },
+  {
+    "table_name": "work_order_note",
+    "pk_count": 1,
+    "fk_count": 1,
+    "column_count": 8,
+    "row_count": 49
+  }
+]

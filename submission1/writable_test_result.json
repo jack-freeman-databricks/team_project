@@ -1,0 +1,34 @@
+[
+  {
+    "table_name": "alert_outbox",
+    "can_insert": true,
+    "can_update": true,
+    "can_delete": true,
+    "replica_identity": "FULL",
+    "foreign_key_count": 0
+  },
+  {
+    "table_name": "tag_current",
+    "can_insert": true,
+    "can_update": true,
+    "can_delete": true,
+    "replica_identity": "FULL",
+    "foreign_key_count": 0
+  },
+  {
+    "table_name": "work_order",
+    "can_insert": true,
+    "can_update": true,
+    "can_delete": true,
+    "replica_identity": "FULL",
+    "foreign_key_count": 1
+  },
+  {
+    "table_name": "work_order_note",
+    "can_insert": true,
+    "can_update": true,
+    "can_delete": true,
+    "replica_identity": "FULL",
+    "foreign_key_count": 1
+  }
+]

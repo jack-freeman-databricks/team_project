@@ -1,0 +1,26 @@
+[
+  {
+    "held_out_asset":"CRU-SCC01",
+    "phase1_rows":2449,
+    "model_recall_phase1":0.991,
+    "rms_recall_phase1":0.0
+  },
+  {
+    "held_out_asset":"CV-CV009",
+    "phase1_rows":2449,
+    "model_recall_phase1":0.955,
+    "rms_recall_phase1":0.0
+  },
+  {
+    "held_out_asset":"DSD-DWS01",
+    "phase1_rows":2449,
+    "model_recall_phase1":0.975,
+    "rms_recall_phase1":0.0
+  },
+  {
+    "held_out_asset":"SCR-SCN01",
+    "phase1_rows":2449,
+    "model_recall_phase1":0.892,
+    "rms_recall_phase1":0.594
+  }
+]

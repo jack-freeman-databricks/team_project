@@ -57,6 +57,8 @@ INSTRUMENTS = {
     "II": ("motor_current",   "A",    "analog"),
     "TI": ("temperature",     "degC", "analog"),
     "VI": ("vibration",       "mm/s", "analog"),
+    "VP": ("vibration_peak",  "mm/s", "analog"),
+    "VK": ("vibration_kurtosis", "dimensionless", "analog"),
     "FI": ("volume_flow",     "m3/h", "analog"),
     "DI": ("density",         "t/m3", "analog"),
     "QI": ("assay",           "pct",  "analog"),
@@ -112,6 +114,30 @@ def tag(asset_id, inst, seq, nominal, lolo, lo, hi, hihi,
 RUN_STATES = "RUNNING|STOPPED|FAULT"
 
 
+def vibration_set(aid, seq, rms_nominal, hi, hi_hi, position):
+    """One bearing sensor: RMS, peak and kurtosis, as three tags.
+
+    The VI tag carries an RMS value already computed by the instrument, so
+    crest factor and kurtosis CANNOT be derived from it: both need the raw
+    waveform. Real condition monitoring systems solve this the same way we do
+    here, by having the edge analyser compute waveform statistics and publish
+    them as their own tags. So peak and kurtosis are tags, and crest factor is
+    derived downstream as peak / RMS.
+
+    The VK tag carries RAW kurtosis, where a Gaussian signal reads 3.0. Do not
+    confuse it with Spark's KURTOSIS(), which returns EXCESS kurtosis and reads
+    0.0 for a Gaussian.
+    """
+    tag(aid, "VI", seq, rms_nominal, 0.0, 0.5, hi, hi_hi, sample_hz=10.0,
+        pdm=True, desc=f"Bearing vibration RMS, {position} (ISO 10816)")
+    # Healthy rolling-element bearings run a crest factor around 3.5.
+    tag(aid, "VP", seq, rms_nominal * 3.5, 0.0, rms_nominal * 1.5,
+        rms_nominal * 5.2, rms_nominal * 6.8, sample_hz=10.0, pdm=True,
+        desc=f"Bearing vibration peak, {position}")
+    tag(aid, "VK", seq, 3.0, 0.0, 1.5, 5.0, 8.0, sample_hz=10.0, pdm=True,
+        desc=f"Bearing vibration kurtosis (raw, Gaussian = 3.0), {position}")
+
+
 def motor_tags(aid, amps, with_run=True):
     tag(aid, "II", 1, amps, amps * 0.15, amps * 0.55, amps * 1.15, amps * 1.30,
         pdm=True, desc="Motor current")
@@ -131,10 +157,8 @@ def crusher_tags(aid, amps, press_kpa, css_mm, rpm):
     tag(aid, "TI", 1, 62.0, 10.0, 30.0, 80.0, 92.0, pdm=True,
         desc="Main bearing temperature")
     tag(aid, "TI", 2, 55.0, 10.0, 25.0, 72.0, 85.0, desc="Lube oil temperature")
-    tag(aid, "VI", 1, 4.5, 0.0, 0.5, 7.1, 11.0, sample_hz=10.0, pdm=True,
-        desc="Bearing vibration RMS, drive end (ISO 10816)")
-    tag(aid, "VI", 2, 3.8, 0.0, 0.5, 7.1, 11.0, sample_hz=10.0, pdm=True,
-        desc="Bearing vibration RMS, non-drive end (ISO 10816)")
+    vibration_set(aid, 1, 4.5, 7.1, 11.0, "drive end")
+    vibration_set(aid, 2, 3.8, 7.1, 11.0, "non-drive end")
 
 
 def screen_tags(aid, amps, rpm, stroke_nominal=6.0):
@@ -143,11 +167,8 @@ def screen_tags(aid, amps, rpm, stroke_nominal=6.0):
         desc="Screen exciter speed")
     tag(aid, "TI", 1, 58.0, 10.0, 28.0, 78.0, 90.0, pdm=True,
         desc="Exciter bearing temperature")
-    tag(aid, "VI", 1, stroke_nominal, 0.0, 0.5, 11.0, 18.0, sample_hz=10.0,
-        pdm=True, desc="Side plate vibration RMS, feed end (ISO 10816)")
-    tag(aid, "VI", 2, stroke_nominal - 0.6, 0.0, 0.5, 11.0, 18.0,
-        sample_hz=10.0, pdm=True,
-        desc="Side plate vibration RMS, discharge end (ISO 10816)")
+    vibration_set(aid, 1, stroke_nominal, 11.0, 18.0, "feed end")
+    vibration_set(aid, 2, stroke_nominal - 0.6, 11.0, 18.0, "discharge end")
 
 
 def conveyor_tags(aid, tph, amps, speed_ms, mass_balance=True, vib=False):
@@ -157,8 +178,7 @@ def conveyor_tags(aid, tph, amps, speed_ms, mass_balance=True, vib=False):
         speed_ms * 1.05, speed_ms * 1.12, desc="Belt speed")
     motor_tags(aid, amps)
     if vib:
-        tag(aid, "VI", 1, 2.8, 0.0, 0.3, 4.5, 7.1, sample_hz=10.0, pdm=True,
-            desc="Head pulley bearing vibration RMS")
+        vibration_set(aid, 1, 2.8, 4.5, 7.1, "head pulley")
 
 
 # --------------------------------------------------------------------------

@@ -80,12 +80,13 @@ Instrument types follow ISA-5.1 loosely:
 | `RI` | rotational speed | rpm | `FI` | volume flow | m3/h |
 | `LI` | level | pct | `DI` | density | t/m3 |
 | `PI` | pressure | kPa | `QI` | assay | pct |
+| `VP` | vibration peak | mm/s | `VK` | vibration kurtosis | dimensionless |
 | `II` | motor current | A | `MI` | moisture | pct |
 | `GI` | gap / CSS | mm | `XI` | position | deg |
 | `ZI` | discrete state | enum | | | |
 
 The register is generated, not hand-maintained: `gen_reference_data.py` emits
-`dim_tag.csv` (121 tags, 25 assets), `dim_flowsheet_node.csv`,
+`dim_tag.csv` (151 tags, 25 assets), `dim_flowsheet_node.csv`,
 `dim_flowsheet_arc.csv` and `dim_rule.csv`. It self-checks that every unit node in
 the flowsheet closes and that the wet and dry sides of the balance reconcile, so it
 fails loudly if someone edits a tonnage without editing its counterpart. Regenerate
@@ -233,13 +234,23 @@ labels. Without them the PdM model has no positive class and lane B is stuck.
 | `CV-CV009` | head pulley bearing | 2.8 to 7.0 mm/s | 14 days | 1 |
 | `DSD-DWS01` | exciter bearing wear | 6.4 to 14.0 mm/s | 18 days | 1 |
 
-Rules for every injected event:
+Rules for every injected event. The two-phase shape is the important part, because it
+is what gives the model something an RMS threshold cannot see:
 
-* RMS follows a slow exponential ramp, not a step. Real bearings degrade.
+* **Phase 1, early (from 30 down to 12 days before failure).** A developing bearing
+  defect is impulsive, so the waveform statistics move first while overall energy
+  barely changes. `VK` (kurtosis) rises 3.0 to about 7.5, and `VP` rises enough to take
+  crest factor from about 3.5 to about 6.0, while `VI` (RMS) climbs no more than 10
+  percent. **An RMS alarm limit sees nothing at all in this phase.** This is the window
+  the model has to win in.
+* **Phase 2, late (final 12 days).** The defect spreads and the signal becomes more
+  random, so RMS climbs to its terminal value from the table above while kurtosis falls
+  back toward 4 to 5 and crest factor eases to 4 to 5. This fall-back is real bearing
+  behaviour, not a bug, and a model that only learned "kurtosis high = bad" will
+  mispredict here.
+* RMS follows a smooth ramp, not a step. Real bearings degrade.
 * Bearing temperature rises with it, roughly 8 to 15 degC above nominal at end of life.
 * Motor current rises slightly, 3 to 8 percent.
-* Crest factor and kurtosis rise ahead of RMS. That early separation is what makes
-  the model better than a plain RMS threshold, and it is the story worth telling.
 * `label_failure_30d` is true for every 10 minute window falling inside the last
   30 days before the failure point.
 * Every other asset stays healthy for the full 120 days, providing the negative class.
@@ -279,6 +290,35 @@ stale, which means anything using `current_timestamp()` (lane B's windowing, lan
 live tiles) sees an empty recent window. The generator must anchor the 24 hour window so
 it **ends at generation time**, and the 120 day vibration history must end where the 24
 hour window begins, so the two are contiguous.
+
+## Vibration: why peak and kurtosis are their own tags
+
+A `VI` tag carries an RMS value **already computed by the instrument**. Crest factor
+and kurtosis therefore cannot be derived from it: crest factor is peak-instantaneous
+over RMS of the raw waveform, and kurtosis is the waveform's fourth moment. Neither
+survives the instrument's RMS averaging.
+
+An earlier draft of this contract listed both as derived features anyway, which would
+have trained a model on columns the live pipeline could not produce: fine on seed data,
+NULL at seam 1, model silently degrading to noise. Same class of defect as putting a
+window function in the seam view.
+
+The fix matches how real condition monitoring works. The edge analyser computes
+waveform statistics and the historian carries them as separate tags:
+
+| Tag | Carries | Unit |
+|---|---|---|
+| `<asset>-VI0n` | bearing vibration RMS | mm/s |
+| `<asset>-VP0n` | bearing vibration peak | mm/s |
+| `<asset>-VK0n` | bearing vibration kurtosis, **raw** | dimensionless |
+
+* `crest_factor` is **derived** in the feature pipeline as `VP / VI`. A healthy
+  rolling-element bearing sits around 3.5.
+* `VK` carries **raw** kurtosis, where a Gaussian signal reads **3.0**. Do not confuse
+  it with Spark's `KURTOSIS()`, which returns **excess** kurtosis and reads 0.0 for a
+  Gaussian. Getting this backwards makes a healthy bearing look catastrophic.
+
+15 VI sensors, so 45 vibration tags in total and 151 tags overall.
 
 ## Vibration feature columns: use the contract names
 

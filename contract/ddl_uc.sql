@@ -439,7 +439,11 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 
 -- jack_freeman_catalog.tech_summit_scada_build.vibration_features_10m        the ML feature table
 --   asset_id STRING, tag_id STRING, window_start TIMESTAMP, window_end TIMESTAMP,
---   rms_mm_s DOUBLE, peak_mm_s DOUBLE, crest_factor DOUBLE, kurtosis DOUBLE,
+--   rms_mm_s DOUBLE,      -- from the VI tag (already RMS at the instrument)
+--   peak_mm_s DOUBLE,     -- from the VP tag
+--   crest_factor DOUBLE,  -- DERIVED: peak_mm_s / rms_mm_s. Healthy ~3.5.
+--   kurtosis DOUBLE,      -- from the VK tag. RAW kurtosis: Gaussian = 3.0, NOT
+--                         -- Spark's KURTOSIS() which is excess (Gaussian = 0.0).
 --   stddev_mm_s DOUBLE, sample_count BIGINT,
 --   rms_delta_1h DOUBLE, rms_delta_24h DOUBLE, rms_slope_24h DOUBLE,
 --   rms_pct_of_baseline DOUBLE,

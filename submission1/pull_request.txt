@@ -1,0 +1,21 @@
+Pull request promoting the validated change into main
+=====================================================
+
+Repository   : jack-freeman-databricks/team_project
+PR           : #1
+URL          : https://github.com/jack-freeman-databricks/team_project/pull/1
+Title        : Close the Build 1 validator gaps: scale-to-zero, forecasting branch, as-code packaging
+Head branch  : fix/submission1-validator-gaps
+Base branch  : main
+State        : MERGED
+Merged at    : 2026-08-27T06:09:12Z
+Merge commit : f6428c79e150d6c4128616749ddf22968163427a
+
+This is the second promotion in the project and the one raised as a pull request.
+The first (dev-work-order-notes) was promoted with a local --no-ff merge, visible
+in git_history.txt as a merge commit. Both are in the history.
+
+The Lakebase side of promotion is separate and cannot be a merge: Lakebase
+branches are copy-on-write with no merge operation, so a validated migration is
+promoted by re-applying it to the root branch. Every migration is idempotent,
+which is what makes that safe. See agent_change/promotion_evidence.txt.

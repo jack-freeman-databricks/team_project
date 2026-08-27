@@ -28,8 +28,9 @@ The whiteboard's pipeline 1 replays the seed in **wall-clock time** and upserts
 this workspace is **serverless-only** where a blocking `awaitTermination()` trips the kernel
 watchdog. So the replay is a *completing* job that loops: every `interval_seconds` it maps
 wall-clock time onto the 24 h seed loop, takes the latest reading per tag at that replay
-position, and upserts all 151 tags into `plant.tag_current`. Each run is bounded
-(`loop_seconds`) and exits; the **continuous** job restarts it, keeping `tag_current` live.
+position, and upserts all 151 tags into `plant.tag_current`. `loop_seconds` defaults to
+`86400`, so a single run replays the full 24 h loop and stays up all day; the **continuous**
+job restarts it only if it exits or fails, keeping `tag_current` live.
 Stateless (position is a pure function of wall time), so restarts need no shared state. Auth
 is the driver's OAuth identity (SDK-minted token, refreshed). Verified end-to-end: 151 tags →
 `tag_current` → CDF → `lb_tag_current_history` (~18 s flush).
@@ -48,8 +49,8 @@ databricks bundle deploy -t dev --var stream_pause_status=UNPAUSED --profile tec
 ```
 
 Knobs (bundle variables in `databricks.yml`): `replay_speed` (default `1.0` = true real
-time), `interval_seconds` (`5`), `loop_seconds` (`300`, the per-run length the continuous job
-restarts), and the Lakebase/`plant` coordinates. A live-demo fault hook reads an optional
+time), `interval_seconds` (`5`), `loop_seconds` (`86400` = a full 24 h replay loop per run;
+the continuous job restarts a run only if it exits or fails), and the Lakebase/`plant` coordinates. A live-demo fault hook reads an optional
 `scratch_a_fault_control` table `{tag_id, multiplier}` and scales that tag's value in real time.
 
 ## How the seed data is generated

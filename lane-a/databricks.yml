@@ -39,8 +39,8 @@ variables:
     description: Seconds between snapshot upserts within a run.
     default: "5"
   loop_seconds:
-    description: Bounded run length; the continuous job restarts each run to stay live.
-    default: "300"
+    description: Run length. 86400 = a full 24h replay loop per run, so a run stays up all day; the continuous trigger restarts it only if it exits or fails.
+    default: "86400"
   stream_pause_status:
     description: PAUSED (safe default) or UNPAUSED to start the replay stream on deploy.
     default: PAUSED

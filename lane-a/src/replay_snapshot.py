@@ -35,7 +35,7 @@ dbutils.widgets.text("lakebase_database", "databricks_postgres")
 dbutils.widgets.text("pg_schema", "plant")
 dbutils.widgets.text("replay_speed", "1.0")
 dbutils.widgets.text("interval_seconds", "5")
-dbutils.widgets.text("loop_seconds", "300")   # bounded run; the continuous job restarts it
+dbutils.widgets.text("loop_seconds", "86400")   # run length; 86400 = a full 24h replay loop per run
 
 g = dbutils.widgets.get
 CATALOG, SCHEMA, PG_SCHEMA = g("catalog"), g("schema"), g("pg_schema")

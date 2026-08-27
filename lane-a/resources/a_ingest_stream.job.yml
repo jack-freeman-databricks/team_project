@@ -1,7 +1,8 @@
 # Continuous job: looped snapshot micro-batch replaying the seed into Lakebase plant.tag_current.
-# Each run is a bounded loop (upsert every interval_seconds for loop_seconds, then exit) so it
-# completes and sidesteps the serverless kernel watchdog that kills a blocking streaming query.
-# The continuous trigger restarts each run back-to-back, keeping tag_current live.
+# Each run loops (upsert every interval_seconds for loop_seconds) in active Python rather than a
+# blocking stream, so it sidesteps the serverless kernel watchdog. loop_seconds defaults to 86400
+# (a full 24h replay loop), so a run stays up all day; the continuous trigger restarts it only if
+# it exits or fails, keeping tag_current live.
 #
 # Committed default is PAUSED so a plain `bundle deploy` never auto-starts it. Start with:
 #   databricks bundle deploy -t dev --var stream_pause_status=UNPAUSED

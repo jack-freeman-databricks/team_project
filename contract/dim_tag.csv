@@ -1,0 +1,122 @@
+tag_id,asset_id,asset_name,asset_type,area_code,area_name,measure,instrument_type,unit,value_class,sample_hz,nominal,lo_lo,lo,hi,hi_hi,is_mass_balance,is_pdm,enum_values,description
+ROM-BIN01-LI01,ROM-BIN01,ROM bin,bin,ROM,ROM & Reclaim,level,LI,pct,analog,1.0,68.0,5.0,20.0,92.0,98.0,False,False,,ROM bin level
+ROM-APF01-WI01,ROM-APF01,ROM apron feeder,feeder,ROM,ROM & Reclaim,mass_flow,WI,t/h,analog,1.0,2500.0,0.0,1375.0,2800.0000000000005,3125.0,True,False,,Apron feeder mass flow (plant feed)
+ROM-APF01-SI01,ROM-APF01,ROM apron feeder,feeder,ROM,ROM & Reclaim,belt_speed,SI,m/s,analog,1.0,0.22,0.05,0.1,0.3,0.35,False,False,,Apron feeder speed
+ROM-APF01-II01,ROM-APF01,ROM apron feeder,feeder,ROM,ROM & Reclaim,motor_current,II,A,analog,1.0,310.0,46.5,170.5,356.5,403.0,False,True,,Motor current
+ROM-APF01-ZI01,ROM-APF01,ROM apron feeder,feeder,ROM,ROM & Reclaim,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+LAB-ROM01-QI01,LAB-ROM01,ROM feed sampler,sampler,LAB,Laboratory,assay,QI,pct,analog,0.00056,61.2,55.0,58.5,64.0,66.0,False,False,,ROM feed Fe grade (hourly composite)
+LAB-ROM01-QI02,LAB-ROM01,ROM feed sampler,sampler,LAB,Laboratory,assay,QI,pct,analog,0.00056,4.1,1.0,2.0,6.5,8.5,False,False,,ROM feed SiO2
+LAB-ROM01-QI03,LAB-ROM01,ROM feed sampler,sampler,LAB,Laboratory,assay,QI,pct,analog,0.00056,2.4,0.5,1.0,4.0,5.5,False,False,,ROM feed Al2O3
+LAB-ROM01-MI01,LAB-ROM01,ROM feed sampler,sampler,LAB,Laboratory,moisture,MI,pct,analog,1.0,3.8,0.5,1.5,6.5,9.0,False,False,,ROM feed moisture
+CRU-PCR01-II01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,motor_current,II,A,analog,1.0,1450.0,217.5,797.5000000000001,1667.4999999999998,1885.0,False,True,,Motor current
+CRU-PCR01-ZI01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CRU-PCR01-PI01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,pressure,PI,kPa,analog,1.0,9800.0,4900.0,6860.0,11760.0,13230.0,False,False,,Hydraulic / crushing pressure
+CRU-PCR01-GI01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,gap,GI,mm,analog,1.0,150.0,135.0,142.0,158.0,165.0,False,False,,Closed side setting
+CRU-PCR01-RI01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,rotational_speed,RI,rpm,analog,1.0,155.0,124.0,142.6,167.4,178.25,False,False,,Eccentric / mantle speed
+CRU-PCR01-TI01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,temperature,TI,degC,analog,1.0,62.0,10.0,30.0,80.0,92.0,False,True,,Main bearing temperature
+CRU-PCR01-TI02,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,temperature,TI,degC,analog,1.0,55.0,10.0,25.0,72.0,85.0,False,False,,Lube oil temperature
+CRU-PCR01-VI01,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,vibration,VI,mm/s,analog,10.0,4.5,0.0,0.5,7.1,11.0,False,True,,"Bearing vibration RMS, drive end (ISO 10816)"
+CRU-PCR01-VI02,CRU-PCR01,Primary gyratory crusher,crusher,CRU,Crushing,vibration,VI,mm/s,analog,10.0,3.8,0.0,0.5,7.1,11.0,False,True,,"Bearing vibration RMS, non-drive end (ISO 10816)"
+CRU-SGB01-LI01,CRU-SGB01,Crushed ore surge bin,bin,CRU,Crushing,level,LI,pct,analog,1.0,55.0,5.0,15.0,90.0,97.0,False,False,,Surge bin level
+CRU-SCC01-II01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,motor_current,II,A,analog,1.0,780.0,117.0,429.00000000000006,896.9999999999999,1014.0,False,True,,Motor current
+CRU-SCC01-ZI01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CRU-SCC01-PI01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,pressure,PI,kPa,analog,1.0,7200.0,3600.0,5040.0,8640.0,9720.0,False,False,,Hydraulic / crushing pressure
+CRU-SCC01-GI01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,gap,GI,mm,analog,1.0,45.0,30.0,37.0,53.0,60.0,False,False,,Closed side setting
+CRU-SCC01-RI01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,rotational_speed,RI,rpm,analog,1.0,240.0,192.0,220.8,259.20000000000005,276.0,False,False,,Eccentric / mantle speed
+CRU-SCC01-TI01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,temperature,TI,degC,analog,1.0,62.0,10.0,30.0,80.0,92.0,False,True,,Main bearing temperature
+CRU-SCC01-TI02,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,temperature,TI,degC,analog,1.0,55.0,10.0,25.0,72.0,85.0,False,False,,Lube oil temperature
+CRU-SCC01-VI01,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,vibration,VI,mm/s,analog,10.0,4.5,0.0,0.5,7.1,11.0,False,True,,"Bearing vibration RMS, drive end (ISO 10816)"
+CRU-SCC01-VI02,CRU-SCC01,Secondary cone crusher,crusher,CRU,Crushing,vibration,VI,mm/s,analog,10.0,3.8,0.0,0.5,7.1,11.0,False,True,,"Bearing vibration RMS, non-drive end (ISO 10816)"
+CRU-TCC01-II01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,motor_current,II,A,analog,1.0,520.0,78.0,286.0,598.0,676.0,False,True,,Motor current
+CRU-TCC01-ZI01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CRU-TCC01-PI01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,pressure,PI,kPa,analog,1.0,6400.0,3200.0,4480.0,7680.0,8640.0,False,False,,Hydraulic / crushing pressure
+CRU-TCC01-GI01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,gap,GI,mm,analog,1.0,22.0,7.0,14.0,30.0,37.0,False,False,,Closed side setting
+CRU-TCC01-RI01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,rotational_speed,RI,rpm,analog,1.0,290.0,232.0,266.8,313.20000000000005,333.5,False,False,,Eccentric / mantle speed
+CRU-TCC01-TI01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,temperature,TI,degC,analog,1.0,62.0,10.0,30.0,80.0,92.0,False,True,,Main bearing temperature
+CRU-TCC01-TI02,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,temperature,TI,degC,analog,1.0,55.0,10.0,25.0,72.0,85.0,False,False,,Lube oil temperature
+CRU-TCC01-VI01,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,vibration,VI,mm/s,analog,10.0,4.5,0.0,0.5,7.1,11.0,False,True,,"Bearing vibration RMS, drive end (ISO 10816)"
+CRU-TCC01-VI02,CRU-TCC01,Tertiary cone crusher,crusher,CRU,Crushing,vibration,VI,mm/s,analog,10.0,3.8,0.0,0.5,7.1,11.0,False,True,,"Bearing vibration RMS, non-drive end (ISO 10816)"
+SCR-SCN01-II01,SCR-SCN01,Scalping screen,screen,SCR,Screening,motor_current,II,A,analog,1.0,240.0,36.0,132.0,276.0,312.0,False,True,,Motor current
+SCR-SCN01-ZI01,SCR-SCN01,Scalping screen,screen,SCR,Screening,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+SCR-SCN01-RI01,SCR-SCN01,Scalping screen,screen,SCR,Screening,rotational_speed,RI,rpm,analog,1.0,850.0,680.0,790.5,909.5,977.4999999999999,False,False,,Screen exciter speed
+SCR-SCN01-TI01,SCR-SCN01,Scalping screen,screen,SCR,Screening,temperature,TI,degC,analog,1.0,58.0,10.0,28.0,78.0,90.0,False,True,,Exciter bearing temperature
+SCR-SCN01-VI01,SCR-SCN01,Scalping screen,screen,SCR,Screening,vibration,VI,mm/s,analog,10.0,7.2,0.0,0.5,11.0,18.0,False,True,,"Side plate vibration RMS, feed end (ISO 10816)"
+SCR-SCN01-VI02,SCR-SCN01,Scalping screen,screen,SCR,Screening,vibration,VI,mm/s,analog,10.0,6.6000000000000005,0.0,0.5,11.0,18.0,False,True,,"Side plate vibration RMS, discharge end (ISO 10816)"
+SCR-SCN02-II01,SCR-SCN02,Secondary sizing screen,screen,SCR,Screening,motor_current,II,A,analog,1.0,195.0,29.25,107.25000000000001,224.24999999999997,253.5,False,True,,Motor current
+SCR-SCN02-ZI01,SCR-SCN02,Secondary sizing screen,screen,SCR,Screening,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+SCR-SCN02-RI01,SCR-SCN02,Secondary sizing screen,screen,SCR,Screening,rotational_speed,RI,rpm,analog,1.0,900.0,720.0,837.0,963.0,1035.0,False,False,,Screen exciter speed
+SCR-SCN02-TI01,SCR-SCN02,Secondary sizing screen,screen,SCR,Screening,temperature,TI,degC,analog,1.0,58.0,10.0,28.0,78.0,90.0,False,True,,Exciter bearing temperature
+SCR-SCN02-VI01,SCR-SCN02,Secondary sizing screen,screen,SCR,Screening,vibration,VI,mm/s,analog,10.0,6.8,0.0,0.5,11.0,18.0,False,True,,"Side plate vibration RMS, feed end (ISO 10816)"
+SCR-SCN02-VI02,SCR-SCN02,Secondary sizing screen,screen,SCR,Screening,vibration,VI,mm/s,analog,10.0,6.2,0.0,0.5,11.0,18.0,False,True,,"Side plate vibration RMS, discharge end (ISO 10816)"
+CV-CV001-WI01,CV-CV001,Primary crusher discharge conveyor,conveyor,CRU,Crushing,mass_flow,WI,t/h,analog,1.0,2500.0,0.0,1375.0,2800.0000000000005,3125.0,True,False,,Belt weightometer
+CV-CV001-SI01,CV-CV001,Primary crusher discharge conveyor,conveyor,CRU,Crushing,belt_speed,SI,m/s,analog,1.0,3.5,1.75,3.15,3.6750000000000003,3.9200000000000004,False,False,,Belt speed
+CV-CV001-II01,CV-CV001,Primary crusher discharge conveyor,conveyor,CRU,Crushing,motor_current,II,A,analog,1.0,420.0,63.0,231.00000000000003,482.99999999999994,546.0,False,True,,Motor current
+CV-CV001-ZI01,CV-CV001,Primary crusher discharge conveyor,conveyor,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV001-VI01,CV-CV001,Primary crusher discharge conveyor,conveyor,CRU,Crushing,vibration,VI,mm/s,analog,10.0,2.8,0.0,0.3,4.5,7.1,False,True,,Head pulley bearing vibration RMS
+CV-CV002-WI01,CV-CV002,Surge bin reclaim conveyor,conveyor,CRU,Crushing,mass_flow,WI,t/h,analog,1.0,2500.0,0.0,1375.0,2800.0000000000005,3125.0,True,False,,Belt weightometer
+CV-CV002-SI01,CV-CV002,Surge bin reclaim conveyor,conveyor,CRU,Crushing,belt_speed,SI,m/s,analog,1.0,3.5,1.75,3.15,3.6750000000000003,3.9200000000000004,False,False,,Belt speed
+CV-CV002-II01,CV-CV002,Surge bin reclaim conveyor,conveyor,CRU,Crushing,motor_current,II,A,analog,1.0,400.0,60.0,220.00000000000003,459.99999999999994,520.0,False,True,,Motor current
+CV-CV002-ZI01,CV-CV002,Surge bin reclaim conveyor,conveyor,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV003-WI01,CV-CV003,Scalping screen oversize conveyor,conveyor,SCR,Screening,mass_flow,WI,t/h,analog,1.0,900.0,0.0,495.00000000000006,1008.0000000000001,1125.0,True,False,,Belt weightometer
+CV-CV003-SI01,CV-CV003,Scalping screen oversize conveyor,conveyor,SCR,Screening,belt_speed,SI,m/s,analog,1.0,2.8,1.4,2.52,2.94,3.136,False,False,,Belt speed
+CV-CV003-II01,CV-CV003,Scalping screen oversize conveyor,conveyor,SCR,Screening,motor_current,II,A,analog,1.0,185.0,27.75,101.75000000000001,212.74999999999997,240.5,False,True,,Motor current
+CV-CV003-ZI01,CV-CV003,Scalping screen oversize conveyor,conveyor,SCR,Screening,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV004-WI01,CV-CV004,Scalping screen undersize conveyor,conveyor,SCR,Screening,mass_flow,WI,t/h,analog,1.0,1600.0,0.0,880.0000000000001,1792.0000000000002,2000.0,True,False,,Belt weightometer
+CV-CV004-SI01,CV-CV004,Scalping screen undersize conveyor,conveyor,SCR,Screening,belt_speed,SI,m/s,analog,1.0,3.2,1.6,2.8800000000000003,3.3600000000000003,3.5840000000000005,False,False,,Belt speed
+CV-CV004-II01,CV-CV004,Scalping screen undersize conveyor,conveyor,SCR,Screening,motor_current,II,A,analog,1.0,275.0,41.25,151.25,316.25,357.5,False,True,,Motor current
+CV-CV004-ZI01,CV-CV004,Scalping screen undersize conveyor,conveyor,SCR,Screening,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV005-WI01,CV-CV005,Secondary crusher discharge conveyor,conveyor,CRU,Crushing,mass_flow,WI,t/h,analog,1.0,900.0,0.0,495.00000000000006,1008.0000000000001,1125.0,True,False,,Belt weightometer
+CV-CV005-SI01,CV-CV005,Secondary crusher discharge conveyor,conveyor,CRU,Crushing,belt_speed,SI,m/s,analog,1.0,3.0,1.5,2.7,3.1500000000000004,3.3600000000000003,False,False,,Belt speed
+CV-CV005-II01,CV-CV005,Secondary crusher discharge conveyor,conveyor,CRU,Crushing,motor_current,II,A,analog,1.0,185.0,27.75,101.75000000000001,212.74999999999997,240.5,False,True,,Motor current
+CV-CV005-ZI01,CV-CV005,Secondary crusher discharge conveyor,conveyor,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV006-WI01,CV-CV006,Secondary screen oversize conveyor,conveyor,SCR,Screening,mass_flow,WI,t/h,analog,1.0,250.0,0.0,137.5,280.0,312.5,True,False,,Belt weightometer
+CV-CV006-SI01,CV-CV006,Secondary screen oversize conveyor,conveyor,SCR,Screening,belt_speed,SI,m/s,analog,1.0,2.4,1.2,2.16,2.52,2.688,False,False,,Belt speed
+CV-CV006-II01,CV-CV006,Secondary screen oversize conveyor,conveyor,SCR,Screening,motor_current,II,A,analog,1.0,95.0,14.25,52.25000000000001,109.24999999999999,123.5,False,True,,Motor current
+CV-CV006-ZI01,CV-CV006,Secondary screen oversize conveyor,conveyor,SCR,Screening,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV007-WI01,CV-CV007,Secondary screen undersize conveyor,conveyor,SCR,Screening,mass_flow,WI,t/h,analog,1.0,900.0,0.0,495.00000000000006,1008.0000000000001,1125.0,True,False,,Belt weightometer
+CV-CV007-SI01,CV-CV007,Secondary screen undersize conveyor,conveyor,SCR,Screening,belt_speed,SI,m/s,analog,1.0,2.8,1.4,2.52,2.94,3.136,False,False,,Belt speed
+CV-CV007-II01,CV-CV007,Secondary screen undersize conveyor,conveyor,SCR,Screening,motor_current,II,A,analog,1.0,180.0,27.0,99.00000000000001,206.99999999999997,234.0,False,True,,Motor current
+CV-CV007-ZI01,CV-CV007,Secondary screen undersize conveyor,conveyor,SCR,Screening,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV008-WI01,CV-CV008,Tertiary crusher recirculation conveyor,conveyor,CRU,Crushing,mass_flow,WI,t/h,analog,1.0,250.0,0.0,137.5,280.0,312.5,True,False,,Belt weightometer
+CV-CV008-SI01,CV-CV008,Tertiary crusher recirculation conveyor,conveyor,CRU,Crushing,belt_speed,SI,m/s,analog,1.0,2.4,1.2,2.16,2.52,2.688,False,False,,Belt speed
+CV-CV008-II01,CV-CV008,Tertiary crusher recirculation conveyor,conveyor,CRU,Crushing,motor_current,II,A,analog,1.0,98.0,14.7,53.900000000000006,112.69999999999999,127.4,False,True,,Motor current
+CV-CV008-ZI01,CV-CV008,Tertiary crusher recirculation conveyor,conveyor,CRU,Crushing,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV009-WI01,CV-CV009,Dewatering screen product conveyor,conveyor,DSD,Desands,mass_flow,WI,t/h,analog,1.0,2100.0,0.0,1155.0,2352.0,2625.0,True,False,,Belt weightometer
+CV-CV009-SI01,CV-CV009,Dewatering screen product conveyor,conveyor,DSD,Desands,belt_speed,SI,m/s,analog,1.0,3.4,1.7,3.06,3.57,3.8080000000000003,False,False,,Belt speed
+CV-CV009-II01,CV-CV009,Dewatering screen product conveyor,conveyor,DSD,Desands,motor_current,II,A,analog,1.0,355.0,53.25,195.25000000000003,408.24999999999994,461.5,False,True,,Motor current
+CV-CV009-ZI01,CV-CV009,Dewatering screen product conveyor,conveyor,DSD,Desands,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV009-VI01,CV-CV009,Dewatering screen product conveyor,conveyor,DSD,Desands,vibration,VI,mm/s,analog,10.0,2.8,0.0,0.3,4.5,7.1,False,True,,Head pulley bearing vibration RMS
+CV-CV010-WI01,CV-CV010,Product stockpile feed conveyor,conveyor,STK,Stacking & Stockpiles,mass_flow,WI,t/h,analog,1.0,2100.0,0.0,1155.0,2352.0,2625.0,True,False,,Belt weightometer
+CV-CV010-SI01,CV-CV010,Product stockpile feed conveyor,conveyor,STK,Stacking & Stockpiles,belt_speed,SI,m/s,analog,1.0,3.6,1.8,3.24,3.7800000000000002,4.032000000000001,False,False,,Belt speed
+CV-CV010-II01,CV-CV010,Product stockpile feed conveyor,conveyor,STK,Stacking & Stockpiles,motor_current,II,A,analog,1.0,350.0,52.5,192.50000000000003,402.49999999999994,455.0,False,True,,Motor current
+CV-CV010-ZI01,CV-CV010,Product stockpile feed conveyor,conveyor,STK,Stacking & Stockpiles,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+CV-CV010-VI01,CV-CV010,Product stockpile feed conveyor,conveyor,STK,Stacking & Stockpiles,vibration,VI,mm/s,analog,10.0,2.8,0.0,0.3,4.5,7.1,False,True,,Head pulley bearing vibration RMS
+DSD-CYC01-PI01,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,pressure,PI,kPa,analog,1.0,165.0,60.0,110.0,210.0,240.0,False,False,,Cyclone feed pressure
+DSD-CYC01-FI01,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,volume_flow,FI,m3/h,analog,1.0,3735.0,900.0,2600.0,4400.0,5000.0,True,False,,Cyclone feed slurry flow
+DSD-CYC01-DI01,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,density,DI,t/m3,analog,1.0,1.533,1.05,1.28,1.72,1.85,True,False,,Cyclone feed slurry density
+DSD-CYC01-FI02,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,volume_flow,FI,m3/h,analog,1.0,1769.0,300.0,1100.0,2300.0,2700.0,True,False,,Cyclone overflow (fines reject) slurry flow
+DSD-CYC01-DI02,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,density,DI,t/m3,analog,1.0,1.18,1.02,1.08,1.32,1.42,True,False,,Cyclone overflow slurry density
+DSD-CYC01-FI03,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,volume_flow,FI,m3/h,analog,1.0,1966.0,500.0,1350.0,2500.0,2900.0,True,False,,Cyclone underflow slurry flow
+DSD-CYC01-DI03,DSD-CYC01,Desands cyclone cluster,cyclone,DSD,Desands,density,DI,t/m3,analog,1.0,1.85,1.3,1.62,2.02,2.15,True,False,,Cyclone underflow slurry density
+DSD-DWS01-II01,DSD-DWS01,Dewatering screen,screen,DSD,Desands,motor_current,II,A,analog,1.0,165.0,24.75,90.75000000000001,189.74999999999997,214.5,False,True,,Motor current
+DSD-DWS01-ZI01,DSD-DWS01,Dewatering screen,screen,DSD,Desands,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+DSD-DWS01-RI01,DSD-DWS01,Dewatering screen,screen,DSD,Desands,rotational_speed,RI,rpm,analog,1.0,950.0,760.0,883.5,1016.5000000000001,1092.5,False,False,,Screen exciter speed
+DSD-DWS01-TI01,DSD-DWS01,Dewatering screen,screen,DSD,Desands,temperature,TI,degC,analog,1.0,58.0,10.0,28.0,78.0,90.0,False,True,,Exciter bearing temperature
+DSD-DWS01-VI01,DSD-DWS01,Dewatering screen,screen,DSD,Desands,vibration,VI,mm/s,analog,10.0,6.4,0.0,0.5,11.0,18.0,False,True,,"Side plate vibration RMS, feed end (ISO 10816)"
+DSD-DWS01-VI02,DSD-DWS01,Dewatering screen,screen,DSD,Desands,vibration,VI,mm/s,analog,10.0,5.800000000000001,0.0,0.5,11.0,18.0,False,True,,"Side plate vibration RMS, discharge end (ISO 10816)"
+DSD-DWS01-MI01,DSD-DWS01,Dewatering screen,screen,DSD,Desands,moisture,MI,pct,analog,1.0,8.2,2.0,5.0,11.0,13.5,False,False,,Product moisture
+DSD-THK01-LI01,DSD-THK01,Fines thickener,thickener,DSD,Desands,level,LI,pct,analog,1.0,62.0,10.0,25.0,88.0,95.0,False,False,,Thickener bed level
+DSD-THK01-DI01,DSD-THK01,Fines thickener,thickener,DSD,Desands,density,DI,t/m3,analog,1.0,1.42,1.05,1.2,1.65,1.8,False,False,,Thickener underflow density
+DSD-THK01-II01,DSD-THK01,Fines thickener,thickener,DSD,Desands,motor_current,II,A,analog,1.0,85.0,12.75,46.75000000000001,97.74999999999999,110.5,False,True,,Motor current
+DSD-THK01-ZI01,DSD-THK01,Fines thickener,thickener,DSD,Desands,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+UTL-WTR01-FI01,UTL-WTR01,Process water supply,utility,UTL,Utilities,volume_flow,FI,m3/h,analog,1.0,3225.0,600.0,2300.0,4000.0,4600.0,True,False,,Process water addition to desands
+UTL-WTR01-PI01,UTL-WTR01,Process water supply,utility,UTL,Utilities,pressure,PI,kPa,analog,1.0,480.0,200.0,350.0,600.0,680.0,False,False,,Process water header pressure
+STK-STK01-WI01,STK-STK01,Product stockpile stacker,stacker,STK,Stacking & Stockpiles,mass_flow,WI,t/h,analog,1.0,2100.0,0.0,1150.0,2350.0,2600.0,True,False,,Stacker boom weightometer (tonnes to stockpile)
+STK-STK01-XI01,STK-STK01,Product stockpile stacker,stacker,STK,Stacking & Stockpiles,position,XI,deg,analog,1.0,0.0,-95.0,-90.0,90.0,95.0,False,False,,Stacker slew angle
+STK-STK01-XI02,STK-STK01,Product stockpile stacker,stacker,STK,Stacking & Stockpiles,position,XI,deg,analog,1.0,12.0,-2.0,0.0,24.0,28.0,False,False,,Stacker luff angle
+STK-STK01-II01,STK-STK01,Product stockpile stacker,stacker,STK,Stacking & Stockpiles,motor_current,II,A,analog,1.0,145.0,21.75,79.75,166.75,188.5,False,True,,Motor current
+STK-STK01-ZI01,STK-STK01,Product stockpile stacker,stacker,STK,Stacking & Stockpiles,state,ZI,enum,discrete,1.0,1,0,0,1,1,False,False,RUNNING|STOPPED|FAULT,Run status
+STK-STK01-ZI02,STK-STK01,Product stockpile stacker,stacker,STK,Stacking & Stockpiles,state,ZI,enum,discrete,1.0,1,0,0,3,3,False,False,IDLE|SP01|SP02|SP03,Stockpile stacking indicator (which stockpile is being stacked to)
+LAB-PRD01-QI01,LAB-PRD01,Product sampler,sampler,LAB,Laboratory,assay,QI,pct,analog,0.00056,62.4,57.0,60.0,65.0,67.0,False,False,,Product Fe grade (hourly composite)
+LAB-PRD01-QI02,LAB-PRD01,Product sampler,sampler,LAB,Laboratory,assay,QI,pct,analog,0.00056,3.2,0.5,1.5,5.0,6.5,False,False,,Product SiO2
+LAB-PRD01-QI03,LAB-PRD01,Product sampler,sampler,LAB,Laboratory,assay,QI,pct,analog,0.00056,1.9,0.3,0.8,3.2,4.5,False,False,,Product Al2O3

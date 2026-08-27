@@ -1,0 +1,16 @@
+arc_id,from_node_id,to_node_id,arc_name,design_tph,measure_tag_id,measure_method,stream_type
+A01,N01,N02,ROM bin drawdown,2500.0,ROM-APF01-WI01,weightometer,dry_solids
+A02,N02,N03,Primary crusher feed,2500.0,,inferred,dry_solids
+A03,N03,N04,Primary crusher discharge,2500.0,CV-CV001-WI01,weightometer,dry_solids
+A04,N04,N05,Surge bin reclaim,2500.0,CV-CV002-WI01,weightometer,dry_solids
+A05,N05,N06,Scalping oversize,900.0,CV-CV003-WI01,weightometer,dry_solids
+A06,N05,N09,Scalping undersize to desands,1600.0,CV-CV004-WI01,weightometer,dry_solids
+A07,N06,N07,Secondary crusher discharge,900.0,CV-CV005-WI01,weightometer,dry_solids
+A08,N07,N08,Secondary screen oversize,250.0,CV-CV006-WI01,weightometer,dry_solids
+A09,N07,N09,Secondary screen undersize to desands,900.0,CV-CV007-WI01,weightometer,dry_solids
+A10,N08,N07,Tertiary recirculating load,250.0,CV-CV008-WI01,weightometer,dry_solids
+A11,N09,N12,Cyclone overflow (fines reject),400.0,DSD-CYC01-FI02,slurry_flow_density,slurry
+A12,N09,N10,Cyclone underflow,2100.0,DSD-CYC01-FI03,slurry_flow_density,slurry
+A13,N10,N11,Dewatered product,2100.0,CV-CV009-WI01,weightometer,dry_solids
+A14,N11,N13,Stacked product,2100.0,STK-STK01-WI01,weightometer,dry_solids
+A15,N09,N09,Process water addition,0.0,UTL-WTR01-FI01,volume_flow,water

@@ -1,0 +1,14 @@
+node_id,node_name,node_type,area_code,balance_role,accumulation_tag_id,capacity_t,layout_x,layout_y
+N01,ROM bin,bin,ROM,source,ROM-BIN01-LI01,1200.0,0,2
+N02,ROM apron feeder,feeder,ROM,unit,,0.0,1,2
+N03,Primary gyratory crusher,crusher,CRU,unit,,0.0,2,2
+N04,Crushed ore surge bin,bin,CRU,unit,CRU-SGB01-LI01,850.0,3,2
+N05,Scalping screen,screen,SCR,unit,,0.0,4,2
+N06,Secondary cone crusher,crusher,CRU,unit,,0.0,5,1
+N07,Secondary sizing screen,screen,SCR,unit,,0.0,6,1
+N08,Tertiary cone crusher,crusher,CRU,unit,,0.0,7,0
+N09,Desands cyclone cluster,cyclone,DSD,unit,,0.0,7,3
+N10,Dewatering screen,screen,DSD,unit,,0.0,8,3
+N11,Product stockpile stacker,stacker,STK,unit,,0.0,9,3
+N12,Fines thickener,thickener,DSD,sink,DSD-THK01-LI01,2400.0,8,4
+N13,Product stockpiles,stockpile,STK,sink,,0.0,10,3

@@ -1,0 +1,11 @@
+rule_id,rule_name,scope_type,scope_value,rule_type,severity,window_seconds,message_template
+R01,Trip limit exceeded,all,,limit_trip,CRITICAL,0,{tag_id} on {asset_name} at {value} {unit} breached trip limit
+R02,Warning limit exceeded,all,,limit_warn,WARNING,0,{tag_id} on {asset_name} at {value} {unit} outside normal range
+R03,Vibration ISO zone C/D,measure,vibration,limit_warn,HIGH,0,{asset_name} vibration {value} mm/s in ISO 10816 zone C or worse
+R04,Bearing temperature rising,measure,temperature,rate_of_change,HIGH,600,{asset_name} bearing temperature rising {value} degC over 10 min
+R05,Weightometer stale,measure,mass_flow,stale,WARNING,120,{tag_id} has not updated for {value} seconds
+R06,Belt running empty,asset_type,conveyor,deviation,WARNING,60,{asset_name} running with mass flow at {value} t/h
+R07,Crusher choke condition,asset_type,crusher,limit_trip,CRITICAL,0,{asset_name} crushing pressure {value} kPa indicates choke
+R08,Bin high level,asset_type,bin,limit_warn,HIGH,0,{asset_name} level {value}% approaching overflow
+R09,Mass balance not closing,node,,imbalance,HIGH,300,Node {node_id} imbalance {value}% over 5 min
+R10,Bad instrument quality,all,,quality,WARNING,0,{tag_id} reporting quality {value}

@@ -1,0 +1,19 @@
+Lakebase instance
+=================
+
+Project (Lakebase Autoscaling) : ironbark-ops
+Resource name                  : projects/ironbark-ops
+Branch (root / main)           : production
+Development branch             : dev-work-order-notes
+Endpoint                       : projects/ironbark-ops/branches/production/endpoints/primary
+Host                           : ep-empty-poetry-d2h5n6t2.database.us-east-1.cloud.databricks.com
+Postgres database              : databricks_postgres
+Connected as                   : chris.dorrington@databricks.com
+Compute                        : autoscaling 1 to 8 CU, scale to zero enabled
+Postgres native login          : enabled (required for executor-side foreach sinks)
+
+Connectivity check
+------------------
+  SELECT version();
+
+  PostgreSQL 17.11 (df1f1a3) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit

@@ -1,0 +1,22 @@
+Representative business question for Ironbark Resources
+=======================================================
+
+"Which crushing and screening assets are costing us the most unplanned downtime,
+ what failure modes are driving it, how does their measured vibration compare
+ against the governed ISO 10816 alarm limits, and is anything still open?"
+
+Why this is the question a maintenance planner actually asks:
+
+Ironbark's constraint is not detecting a single alarm, it is deciding where to
+spend a limited maintenance window. That decision needs three things joined
+together, and they normally live in three different systems:
+
+  - unplanned downtime and its cause, which sits in the work order system
+  - the engineering limits for each instrument, which are governed reference
+    data owned by the reliability team
+  - the free-text findings from the fitters who did the work
+
+Answering it requires the governed Unity Catalog tag register (synced into
+Lakebase as dim_tag_online, read-only) to be joined against writable
+operational Postgres tables (work_order, work_order_note) at low latency, from
+the application, without the data leaving the customer's account.

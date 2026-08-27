@@ -1,0 +1,80 @@
+{
+  "validation_query": "SELECT w.work_order_id, w.asset_id, w.status, count(n.note_id) FROM plant.work_order w LEFT JOIN plant.work_order_note n USING (work_order_id) GROUP BY 1,2,3 HAVING count(n.note_id) > 0",
+  "purpose": "Proves the new table exists, its foreign key joins to the parent, and it holds data, on BOTH the development branch and main after promotion.",
+  "results": {
+    "dev-work-order-notes": {
+      "work_order_note_exists": true,
+      "foreign_keys": 2,
+      "note_count": 48,
+      "sample_join": [
+        {
+          "work_order_id": "WO-1019",
+          "asset_id": "CRU-SCC01",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1020",
+          "asset_id": "CV-CV009",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1021",
+          "asset_id": "DSD-DWS01",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1022",
+          "asset_id": "SCR-SCN01",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1001",
+          "asset_id": "CRU-PCR01",
+          "status": "IN_PROGRESS",
+          "notes": 2
+        }
+      ]
+    },
+    "production (main)": {
+      "work_order_note_exists": true,
+      "foreign_keys": 2,
+      "note_count": 49,
+      "sample_join": [
+        {
+          "work_order_id": "WO-1009",
+          "asset_id": "ROM-APF01",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1019",
+          "asset_id": "CRU-SCC01",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1020",
+          "asset_id": "CV-CV009",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1021",
+          "asset_id": "DSD-DWS01",
+          "status": "CLOSED",
+          "notes": 3
+        },
+        {
+          "work_order_id": "WO-1022",
+          "asset_id": "SCR-SCN01",
+          "status": "CLOSED",
+          "notes": 3
+        }
+      ]
+    }
+  }
+}

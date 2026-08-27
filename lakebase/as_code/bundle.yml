@@ -1,0 +1,30 @@
+# Wraps the provisioning script in a Databricks Asset Bundle so the sync is
+# defined and deployed as code. The CLI calls live in provision.sh because DABs
+# has no native resource for Lakebase Autoscaling synced tables or CDF configs
+# yet: the legacy `synced_database_tables` resource targets a retired API, and
+# `postgres_synced_tables` does not exist. This keeps the whole thing inside a
+# bundle lifecycle without pretending a resource type exists.
+bundle:
+  name: ironbark-lakebase
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://fevm-serverless-stable-1s8h43.cloud.databricks.com
+
+resources:
+  jobs:
+    provision_lakebase:
+      name: "[ironbark] provision Lakebase: schema, forward sync, reverse CDF, search"
+      tasks:
+        - task_key: provision
+          environment_key: default
+          spark_python_task:
+            python_file: ../apply_migrations.py
+      environments:
+        - environment_key: default
+          spec:
+            client: "3"
+            dependencies: ["psycopg[binary]"]

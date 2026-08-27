@@ -1,0 +1,34 @@
+Evidence the change was promoted from branch to main
+====================================================
+
+Isolation confirmed BEFORE promotion (captured live):
+
+    BEFORE promote, main has work_order_note: NO   <-- must be NO
+    AFTER  promote, main has work_order_note: YES  <-- must be YES
+
+That "NO" is the important half. It proves the migration was genuinely developed
+on dev-work-order-notes and that main was untouched until promotion, rather than
+the branch being created decoratively after the fact.
+
+Promotion mechanism
+-------------------
+Lakebase branches are copy-on-write snapshots with no merge operation, so
+promotion is re-application of the validated migration to the root branch:
+
+    python3 lakebase/apply_migrations.py production
+
+Every statement is IF NOT EXISTS or otherwise idempotent, verified by re-running
+the whole migration set against main with no error and no duplicate objects.
+
+Post-promotion state of main
+----------------------------
+    plant.alert_outbox        25 rows
+    plant.tag_current          0 rows   (populated by the ingest pipeline)
+    plant.work_order          22 rows
+    plant.work_order_note     49 rows
+    foreign keys: 2
+      plant.work_order      -> plant.alert_outbox
+      plant.work_order_note -> plant.work_order
+
+See agent_change/validation_result.json for the same validation query run against
+both the branch and main.

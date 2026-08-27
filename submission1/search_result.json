@@ -1,0 +1,82 @@
+{
+  "query": "bearing starting to fail on a crusher, what did we find and what did we fit",
+  "method": "hybrid BM25 + vector ANN, reciprocal rank fusion (k=60)",
+  "embedding_endpoint": "databricks-gte-large-en (1024d, in-account)",
+  "results": [
+    {
+      "note_id": 56,
+      "rrf_score": 0.03252,
+      "bm25_rank": 1,
+      "vector_rank": 2,
+      "bm25_score": -0.676,
+      "cosine_sim": 0.7042,
+      "work_order_id": "WO-1020",
+      "asset_id": "CV-CV009",
+      "failure_mode": "vibration",
+      "title": "Head pulley bearing, product conveyor CV009",
+      "status": "CLOSED",
+      "note_kind": "DIAGNOSIS",
+      "note_text": "Head pulley drive side bearing on the dewatering screen product conveyor. Audible growl on walkdown before the vibration alarm tripped. Belt tracking normal and no scraper drag, so load path is fine. Grease purged clean with no water ingress, ruling out seal failure from the wash down. Trended peak RMS 7.35 mm/s, crest factor 6.19, kurtosis 7.75. Crest factor and kurtosis both moved before overall RMS did, which is why the model flagged this weeks before the ISO limit was reached."
+    },
+    {
+      "note_id": 53,
+      "rrf_score": 0.03151,
+      "bm25_rank": 2,
+      "vector_rank": 5,
+      "bm25_score": -1.031,
+      "cosine_sim": 0.6845,
+      "work_order_id": "WO-1019",
+      "asset_id": "CRU-SCC01",
+      "failure_mode": "vibration",
+      "title": "Mantle bearing, secondary cone crusher SCC01",
+      "status": "CLOSED",
+      "note_kind": "DIAGNOSIS",
+      "note_text": "Secondary cone mantle bearing. Vibration rose steadily over four weeks with kurtosis leading the overall level, which is the classic impulsive early bearing signature. Lube oil sample sent for particle count and came back at ISO 20/18/15, badly contaminated with fine steel. Crushing pressure and closed side setting both normal, so not a process cause. Trended peak RMS 12.54 mm/s, crest factor 6.20, kurtosis 7.73. Crest factor and kurtosis both moved before overall RMS did, which is why the model flagged this weeks before the ISO limit was reached."
+    },
+    {
+      "note_id": 50,
+      "rrf_score": 0.03058,
+      "bm25_rank": 3,
+      "vector_rank": 8,
+      "bm25_score": -1.031,
+      "cosine_sim": 0.6445,
+      "work_order_id": "WO-1022",
+      "asset_id": "SCR-SCN01",
+      "failure_mode": "vibration",
+      "title": "Exciter bearing, feed end, screen SCN01",
+      "status": "CLOSED",
+      "note_kind": "DIAGNOSIS",
+      "note_text": "Feed end exciter bearing. Envelope spectrum shows outer race defect frequency with running speed sidebands. Screen stroke measured 7.4 mm against a 7.2 mm spec, so the exciter is still driving correctly and the fault is the bearing not the drive. Side plate crack check done with dye penetrant, no indications found. Trended peak RMS 16.60 mm/s, crest factor 6.17, kurtosis 7.77. Crest factor and kurtosis both moved before overall RMS did, which is why the model flagged this weeks before the ISO limit was reached."
+    },
+    {
+      "note_id": 59,
+      "rrf_score": 0.03055,
+      "bm25_rank": 4,
+      "vector_rank": 7,
+      "bm25_score": -1.073,
+      "cosine_sim": 0.6644,
+      "work_order_id": "WO-1021",
+      "asset_id": "DSD-DWS01",
+      "failure_mode": "vibration",
+      "title": "Exciter bearing, dewatering screen DWS01",
+      "status": "CLOSED",
+      "note_kind": "DIAGNOSIS",
+      "note_text": "Dewatering screen exciter bearing, discharge end. Highest duty screen in the plant and it runs wet, so seal condition was the first suspect. Vibration trend shows crest factor rising well before the overall level, so the defect was impulsive and localised rather than generalised wear. Found standing water in the bearing housing drain. Trended peak RMS 14.48 mm/s, crest factor 6.14, kurtosis 7.70. Crest factor and kurtosis both moved before overall RMS did, which is why the model flagged this weeks before the ISO limit was reached."
+    },
+    {
+      "note_id": 49,
+      "rrf_score": 0.02899,
+      "bm25_rank": 9,
+      "vector_rank": 9,
+      "bm25_score": -1.394,
+      "cosine_sim": 0.6387,
+      "work_order_id": "WO-1009",
+      "asset_id": "ROM-APF01",
+      "failure_mode": "belt_speed",
+      "title": "Process excursion on ROM-APF01",
+      "status": "CLOSED",
+      "note_kind": "ACTION",
+      "note_text": "Isolated the drive and locked out. Removed the guard and confirmed play in the outer race by hand. Bearing is scrap, ordering a replacement."
+    }
+  ]
+}

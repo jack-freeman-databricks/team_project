@@ -1,0 +1,47 @@
+Lakebase development branch
+===========================
+
+Project        : ironbark-ops
+Root branch    : production   (this project's root / main branch; Lakebase names
+                              the auto-provisioned root branch "production", so
+                              it is the clean environment referred to below)
+Dev branch     : dev-work-order-notes
+Created from   : projects/ironbark-ops/branches/production
+Expiry         : no_expiry (kept for submission evidence)
+Endpoint       : projects/ironbark-ops/branches/dev-work-order-notes/endpoints/primary
+                 ep-autumn-pond-d2cxxewi.database.us-east-1.cloud.databricks.com
+
+Created with (as code, no UI):
+  databricks postgres create-branch projects/ironbark-ops dev-work-order-notes \
+    --json '{"spec": {"source_branch": "projects/ironbark-ops/branches/production",
+                      "no_expiry": true}}'
+
+What was done on the branch
+---------------------------
+1. Confirmed it is a genuine copy-on-write clone: the branch already contained
+   the parent's 22 work orders and 25 alerts before any change was made.
+
+2. Applied migration 002_add_work_order_note.sql, adding plant.work_order_note:
+     - BIGSERIAL primary key
+     - FK work_order_id -> work_order(work_order_id) ON DELETE CASCADE
+     - note_kind CHECK constraint (DIAGNOSIS/ACTION/PARTS/HANDOVER/SAFETY)
+     - note_text, the free-prose column Lakebase Search indexes
+     - REPLICA IDENTITY FULL so the table participates in Lakebase CDF
+     - two supporting indexes
+
+3. Seeded 48 operator notes against the inherited work orders, so the change was
+   exercised rather than merely declared.
+
+4. Validated ON THE BRANCH: notes queryable through the foreign key, 2 foreign
+   keys present in the plant schema, and the parent work_order table still
+   readable at 22 rows.
+
+Promotion back to main
+----------------------
+Verified isolation first: main did NOT contain work_order_note before promotion
+and DID after. See agent_change/promotion_evidence.txt.
+
+Lakebase branches are copy-on-write and have no merge operation, so promotion
+means re-applying the validated migration to the root branch. Every migration is
+written IF NOT EXISTS / idempotent, which is what makes that safe and repeatable
+(lakebase/apply_migrations.py re-runs the whole set against any branch).

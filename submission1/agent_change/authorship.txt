@@ -1,0 +1,31 @@
+Authorship of the coding-agent change
+=====================================
+
+Agent   : Claude (Anthropic), driving the Databricks CLI and psycopg via Claude Code
+Human   : chris.dorrington@databricks.com (reviewed and directed)
+Branch  : dev-work-order-notes (Lakebase), dev-work-order-notes (git)
+
+Authorship is visible in three places:
+
+1. Commit trailer on the git commit that introduced the migrations:
+       Co-authored-by: Isaac <no-reply@databricks.com>
+   See git_history.txt for the branch and the merge commit that promoted it.
+
+2. Header comment inside each migration file:
+       -- Authored by Claude (Anthropic) via Claude Code, on Lakebase development
+       -- branch `dev-work-order-notes`, off the root branch `production`.
+
+3. The migrations and the scripts that apply them are committed source:
+       submission1/migrations/002_add_work_order_note.sql
+       submission1/migrations/003_lakebase_search.sql
+       lakebase/apply_migrations.py
+
+What the agent decided, not just typed
+--------------------------------------
+The change was not dictated. The agent identified that the operational schema
+was a flat pair of tables with zero foreign keys and no free-text column, which
+failed two of the Build 1 requirements at once, and proposed work_order plus
+work_order_note as a 1:N model that fixes both while also giving Lakebase Search
+something real to index. Migration 003 then followed from discovering that
+lakebase_text exposes BM25 ranking and lakebase_vector exposes ANN index
+methods, so the search had to be built as two indexes fused rather than one.

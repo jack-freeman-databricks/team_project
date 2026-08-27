@@ -1,0 +1,24 @@
+Lakebase Search: hybrid vector plus full-text over operator notes
+=================================================================
+
+Natural-language query:
+
+  "bearing starting to fail on a crusher, what did we find and what did we fit"
+
+Why hybrid rather than either half alone:
+
+  full text (BM25, lakebase_text)   catches exact domain terms an operator types:
+                                    "outer race", a tag id, a part number
+  vector (ANN cosine, lakebase_vector) catches meaning: the query says "starting
+                                    to fail", the note says "play in the outer
+                                    race by hand" and never uses the word fail
+
+The two ranked lists are combined with reciprocal rank fusion, so a record that
+scores well on either signal surfaces, and one that scores well on both wins.
+
+Embeddings: databricks-gte-large-en (1024 dimensions), an in-account Databricks
+serving endpoint. Note text is never sent outside the customer's account.
+
+Indexes:
+  ix_bm25_note  USING lakebase_bm25 (note_tsv tsvector_bm25_ops)
+  ix_ann_note   USING lakebase_ann  (note_embedding vector_cosine_ops)

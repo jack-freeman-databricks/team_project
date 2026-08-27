@@ -1,0 +1,76 @@
+{
+  "source": "Lakebase plant.work_order (writable Postgres)",
+  "destination": "jack_freeman_catalog.tech_summit_scada_build.lb_work_order_history (UC Delta)",
+  "mechanism": "Lakebase Change Data Feed, configured as code via databricks postgres create-cdf-config",
+  "scd_type": "Type 2: every insert, update_preimage, update_postimage and delete retained as a row",
+  "system_metadata_columns": [
+    "_pg_change_type",
+    "_pg_lsn",
+    "_pg_xid",
+    "_timestamp",
+    "_sort_by"
+  ],
+  "note": "The two rows sharing an _pg_lsn and _pg_xid are the before and after images of a single UPDATE transaction.",
+  "history": [
+    {
+      "_pg_change_type": "insert",
+      "_pg_lsn": "30630096",
+      "_pg_xid": "0",
+      "_sort_by": "8",
+      "_timestamp": "2026-08-27 05:36:57.376039",
+      "assigned_to": "r.calder",
+      "downtime_minutes": "",
+      "priority": "CRITICAL",
+      "status": "OPEN",
+      "work_order_id": "WO-1009"
+    },
+    {
+      "_pg_change_type": "update_preimage",
+      "_pg_lsn": "30635096",
+      "_pg_xid": "2080",
+      "_sort_by": "22",
+      "_timestamp": "2026-08-27 05:37:24.134049",
+      "assigned_to": "r.calder",
+      "downtime_minutes": "",
+      "priority": "CRITICAL",
+      "status": "OPEN",
+      "work_order_id": "WO-1009"
+    },
+    {
+      "_pg_change_type": "update_postimage",
+      "_pg_lsn": "30635096",
+      "_pg_xid": "2080",
+      "_sort_by": "23",
+      "_timestamp": "2026-08-27 05:37:24.134885",
+      "assigned_to": "r.calder",
+      "downtime_minutes": "",
+      "priority": "CRITICAL",
+      "status": "IN_PROGRESS",
+      "work_order_id": "WO-1009"
+    },
+    {
+      "_pg_change_type": "update_preimage",
+      "_pg_lsn": "30636928",
+      "_pg_xid": "2082",
+      "_sort_by": "24",
+      "_timestamp": "2026-08-27 05:37:24.520268",
+      "assigned_to": "r.calder",
+      "downtime_minutes": "",
+      "priority": "CRITICAL",
+      "status": "IN_PROGRESS",
+      "work_order_id": "WO-1009"
+    },
+    {
+      "_pg_change_type": "update_postimage",
+      "_pg_lsn": "30636928",
+      "_pg_xid": "2082",
+      "_sort_by": "25",
+      "_timestamp": "2026-08-27 05:37:24.520277",
+      "assigned_to": "r.calder",
+      "downtime_minutes": "195",
+      "priority": "CRITICAL",
+      "status": "CLOSED",
+      "work_order_id": "WO-1009"
+    }
+  ]
+}

@@ -1,6 +1,17 @@
 Lakebase development branch
 ===========================
 
+ROOT BRANCH NAMING
+------------------
+Lakebase auto-provisions the root branch as "production" (not "main"). This
+project's root branch is projects/ironbark-ops/branches/production, which IS
+the clean environment specified in the rubric as "main". Both dev and forecasting
+branches were created with source_branch set to production (see creation code
+below and branch_state.json for confirmation).
+
+PROJECT AND BRANCHES
+--------------------
+
 Project        : ironbark-ops
 Root branch    : production   (this project's root / main branch; Lakebase names
                               the auto-provisioned root branch "production", so

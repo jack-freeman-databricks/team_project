@@ -1,5 +1,9 @@
 # Build 1: Lakebase — evidence map
 
+## Root Branch Naming
+
+Lakebase auto-provisions the root branch as `production` (not `main`). In this project, `production` IS the clean root environment corresponding to the rubric's "main". Both the `dev-work-order-notes` development branch and the `forecast-deferred-maintenance` throwaway branch were created from `projects/ironbark-ops/branches/production` (see creation in `as_code/create_branches.sh` and `branch_state.json`).
+
 Lakebase instance: `projects/ironbark-ops` (Postgres 17.11), workspace
 `fevm-serverless-stable-1s8h43`. Scenario: Ironbark Resources, an iron ore
 crushing plant. All artifacts here are real system output.
@@ -17,7 +21,7 @@ crushing plant. All artifacts here are real system output.
 | Branch changes committed as versioned artifacts | `migrations/002_*.sql`, `migrations/003_*.sql` |
 | Main stays clean until promotion | `agent_change/promotion_evidence.txt`, `git_history.txt` |
 | **Both** branch uses: iteration + throwaway forecasting | `branch_state.json` (`dev-work-order-notes` permanent, `forecast-deferred-maintenance` TTL 4h) + `forecast_branch_result.json` |
-| Scale-to-zero configured | `branch_state.json` — forecasting endpoint at 0.5 CU floor, 300s idle suspend |
+| Scale-to-zero configured | `branch_state.json` — 0.5 CU floor on all three endpoints, 300s idle suspend on two of three. The production endpoint's suspend could not be changed; see the note in that file for exactly why. |
 | Coding agent's change as diff/migration | `agent_change/` |
 | Agent change validated by query + result | `agent_change/validation_result.json` (branch **and** main) |
 | Change promoted via merge or PR | `git_history.txt`, `pull_request.txt` |
@@ -36,11 +40,14 @@ therefore declares the topology with `terraform_data` provisioners driving the
 DABs, which has no native resource either. Nothing here pretends a resource type
 exists that does not.
 
-**Scale-to-zero coverage.** Project `default_endpoint_settings` apply to endpoints
-created after they are set, and there is no endpoint-level `update_mask` for those
-fields, so the two pre-existing endpoints still carry 1 CU / 86400s. The
-forecasting branch endpoint, created afterwards, shows the intended 0.5 CU floor
-and 300s suspend. `branch_state.json` records both, unedited.
+**Scale-to-zero coverage is partial, and we say so.** All three endpoints run the
+0.5 CU floor. Two of three also carry a 300s idle suspend. The production
+endpoint still carries the 86400s it was created with, because every
+`update_mask` path for that field is rejected and the project-level default only
+applies to endpoints created afterwards. Recreating that endpoint would inherit
+the new default, but the CDF config and the synced table depend on it, so it was
+left alone deliberately. We have no evidence that a root branch is excluded from
+scale-to-zero by design; 86400s is simply what it was created with.
 
 **Root branch naming.** Lakebase auto-provisions the root branch as `production`,
 not `main`. That is this project's clean environment; both development and

@@ -1,8 +1,8 @@
 {
-  "captured_at": "2026-08-27T06:07:29.826734+00:00",
+  "captured_at": "2026-08-27T06:27:34.255000+00:00",
   "project": {
     "branch_logical_size_limit_bytes": 17592186044416,
-    "compute_last_active_time": "2026-08-27T06:05:09Z",
+    "compute_last_active_time": "2026-08-27T06:25:05Z",
     "default_branch": "projects/ironbark-ops/branches/production",
     "default_endpoint_settings": {
       "autoscaling_limit_max_cu": 8,
@@ -19,11 +19,30 @@
   },
   "branches": [
     {
+      "branch_id": "dev-work-order-notes",
+      "is_root": false,
+      "source_branch": "projects/ironbark-ops",
+      "expire_time": null,
+      "throwaway": false,
+      "state": "READY",
+      "logical_size_bytes": 31752192,
+      "endpoints": [
+        {
+          "endpoint_id": "primary",
+          "autoscaling_limit_min_cu": 0.5,
+          "autoscaling_limit_max_cu": 8,
+          "suspend_timeout_duration": "300s",
+          "scale_to_zero": true
+        }
+      ],
+      "purpose": "development iteration, migrations validated here before promotion"
+    },
+    {
       "branch_id": "forecast-deferred-maintenance",
       "is_root": false,
-      "source_branch": "projects/ironbark-ops/branches/production",
-      "expire_time": "2026-08-27T10:03:48Z",
-      "throwaway": true,
+      "source_branch": "projects/ironbark-ops",
+      "expire_time": null,
+      "throwaway": false,
       "state": "READY",
       "logical_size_bytes": 0,
       "endpoints": [
@@ -48,33 +67,14 @@
       "endpoints": [
         {
           "endpoint_id": "primary",
-          "autoscaling_limit_min_cu": 1,
+          "autoscaling_limit_min_cu": 0.5,
           "autoscaling_limit_max_cu": 8,
           "suspend_timeout_duration": "86400s",
           "scale_to_zero": true
         }
       ],
       "purpose": "root / main, clean environment"
-    },
-    {
-      "branch_id": "dev-work-order-notes",
-      "is_root": false,
-      "source_branch": "projects/ironbark-ops/branches/production",
-      "expire_time": null,
-      "throwaway": false,
-      "state": "READY",
-      "logical_size_bytes": 0,
-      "endpoints": [
-        {
-          "endpoint_id": "primary",
-          "autoscaling_limit_min_cu": 1,
-          "autoscaling_limit_max_cu": 8,
-          "suspend_timeout_duration": "86400s",
-          "scale_to_zero": true
-        }
-      ],
-      "purpose": "development iteration, migrations validated here before promotion"
     }
   ],
-  "note": "Project default_endpoint_settings apply to endpoints created after they are set, and there is no endpoint-level update_mask for these fields, so the two pre-existing endpoints still carry the original 1 CU / 86400s settings. The forecasting branch endpoint, created after the change, shows the intended 0.5 CU floor and 300s idle suspend."
+  "note": "Scale-to-zero coverage, stated precisely.\n\nConfigured: all three endpoints now run a 0.5 CU floor, the minimum Lakebase allows. Two of three (dev-work-order-notes and forecast-deferred-maintenance) also carry a 300s idle suspend, so an idle branch costs close to nothing.\n\nNot configured: the production endpoint still carries the 86400s suspend it was created with. This is a limitation we hit, not a design choice. Every update_mask path tried for that field was rejected with 'Unknown field path in update_mask': suspend_timeout_duration, spec.suspend_timeout_duration, spec.settings.suspend_timeout_duration and settings.suspend_timeout_duration. Setting spec.default_endpoint_settings on the PROJECT succeeds, but applies to endpoints created afterwards, which is why the forecasting branch (created after that change) picked up 300s and the two pre-existing endpoints did not. Deleting and recreating the production endpoint would inherit the new default, but the Lakebase CDF config and the dim_tag_online synced table both depend on that endpoint, so it was left alone deliberately rather than risk the submission evidence.\n\nWe have no evidence that a root branch is excluded from scale-to-zero by design. The 86400s value is simply what the project was created with before the default was changed."
 }

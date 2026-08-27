@@ -40,6 +40,9 @@ variables:
     default: "2 seconds"
   checkpoint_root:
     default: /Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/checkpoints
+  stream_pause_status:
+    description: PAUSED (safe default) or UNPAUSED to start the replay stream on deploy.
+    default: PAUSED
 
 targets:
   dev:

@@ -288,6 +288,50 @@ INSUFF = dict(node_id=insuff_node, tags=[str(x) for x in node_arcs.loc[insuff_no
               t_start=bs, t_end=bs + 400)
 print("stale tag:", STALE["tag_id"], "| INSUFFICIENT_DATA node:", insuff_node, INSUFF["tags"])
 
+# Discrete tags must hold state, not flicker per sample. Build a contiguous, non-overlapping
+# timeline per tag so each second maps to exactly one state (long dwell -> realistic ZI tags).
+# A run-status FAULT is correlated with a trip excursion on the same asset where one exists.
+trip_by_asset = {}
+for e in excursions:
+    if e["kind"] == "trip":
+        aid = pt.loc[pt.tag_id == e["tag_id"], "asset_id"].iloc[0]
+        trip_by_asset.setdefault(aid, []).append((e["t_start"], e["t_end"]))
+
+disc_segments = []   # (tag_id, seg_start, seg_end, state)
+for _, drow in pt[pt.value_class == "discrete"].iterrows():
+    tag, asset = drow.tag_id, drow.asset_id
+    states = str(drow.enum_values).split("|")
+    if tag.endswith("ZI02"):                              # stacking: 2-6 h campaigns, IDLE between
+        piles = [s for s in states if s != "IDLE"] or states
+        t, pi = 0, rng.randrange(len(piles))
+        while t < SEC:
+            e = min(SEC, t + rng.randint(2 * 3600, 6 * 3600))
+            disc_segments.append((tag, t, e - 1, piles[pi % len(piles)])); t, pi = e, pi + 1
+            if t < SEC:
+                gp = min(SEC, t + rng.randint(600, 2400))
+                disc_segments.append((tag, t, gp - 1, "IDLE")); t = gp
+    else:                                                 # run status: RUNNING w/ a few stops/faults
+        events = []
+        for _ in range(rng.randint(2, 4)):               # STOPPED 10-60 min
+            s = rng.randint(0, SEC - 3600); events.append((s, s + rng.randint(600, 3600), "STOPPED"))
+        for (ts, te) in trip_by_asset.get(asset, []):    # FAULT correlated with a trip on this asset
+            events.append((max(0, ts - 30), min(SEC, te + 60), "FAULT"))
+        if not trip_by_asset.get(asset) and rng.random() < 0.15:   # else a rare standalone FAULT
+            s = rng.randint(0, SEC - 600); events.append((s, s + rng.randint(120, 600), "FAULT"))
+        t = 0
+        for (s, e, st) in sorted(events):
+            if s < t:                                    # drop overlaps to keep the timeline clean
+                continue
+            if s > t:
+                disc_segments.append((tag, t, s - 1, "RUNNING"))
+            disc_segments.append((tag, s, min(e, SEC) - 1, st)); t = min(e, SEC)
+        if t < SEC:
+            disc_segments.append((tag, t, SEC - 1, "RUNNING"))
+
+disc_seg_sdf = F.broadcast(spark.createDataFrame(
+    [dict(seg_tag=a, seg_start=b, seg_end=c, seg_state=d) for (a, b, c, d) in disc_segments]))
+print(f"discrete segments: {len(disc_segments)} across {int(pt.value_class.eq('discrete').sum())} tags")
+
 exc_sdf   = F.broadcast(spark.createDataFrame(excursions)) if excursions else None
 stale_sdf = F.broadcast(spark.createDataFrame([STALE]))
 insuff_sdf = F.broadcast(spark.createDataFrame(
@@ -338,6 +382,11 @@ def build_group(hz):
         WHEN sim_kind = 'scale_flow'     THEN design_val * load_factor * (1 + 0.008*{z})
         WHEN sim_kind = 'scale_motor'    THEN nominal * (0.40 + 0.60*load_factor) * (1 + 0.02*{z})
         WHEN sim_kind = 'belt'           THEN nominal * (1 + 0.006*{z})
+        -- Live degradation: SCR-SCN01 & CRU-SCC01 held mid-phase-1 in the 24h window so the
+        -- live PdM path has something to score (VK~5.0, VP/VI crest~4.6, VI a few % over nominal).
+        WHEN asset_id IN ('SCR-SCN01','CRU-SCC01') AND measure='vibration'         THEN nominal * 1.04 * (1 + 0.02*{z})
+        WHEN asset_id IN ('SCR-SCN01','CRU-SCC01') AND measure='vibration_peak'     THEN nominal * 1.367 * (1 + 0.02*{z})
+        WHEN asset_id IN ('SCR-SCN01','CRU-SCC01') AND measure='vibration_kurtosis' THEN 5.0 + 0.15*{z}
         WHEN measure  = 'vibration'      THEN nominal * (1 + 0.09*abs({z}))
         ELSE nominal + coalesce((hi - lo)/6.0, abs(nominal)*0.03 + 0.05) * {z}
       END"""
@@ -346,11 +395,17 @@ def build_group(hz):
                       ELSE _v END"""
     df = df.withColumn("_v", F.expr(value_expr)).withColumn("value", F.expr(bounded))
 
-    df = df.withColumn("value_text", F.expr(
-        """CASE WHEN value_class='discrete' AND enum_values IS NOT NULL
-                THEN element_at(split(enum_values,'\\\\|'),
-                                cast(floor(pow(u,3.0)*size(split(enum_values,'\\\\|'))) as int)+1)
-                ELSE NULL END"""))
+    # Discrete value_text comes from the persistent-state timeline (one state per second),
+    # not a per-row draw. All discrete tags are 1 Hz, so only that group joins the segments.
+    if hz == 1.0:
+        df = df.join(disc_seg_sdf,
+                     (F.col("tag_id") == F.col("seg_tag")) &
+                     (F.col("t_ix") >= F.col("seg_start")) & (F.col("t_ix") <= F.col("seg_end")),
+                     "left")
+        df = df.withColumn("value_text", F.expr(
+            "CASE WHEN value_class='discrete' THEN seg_state ELSE NULL END"))
+    else:
+        df = df.withColumn("value_text", F.expr("CAST(NULL AS STRING)"))
 
     df = df.withColumn("source_ts", F.expr(
         f"timestamp_micros(cast(({READING_START_EPOCH} + t_ix/{hz})*1e6 as long))"))

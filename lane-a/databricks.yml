@@ -35,11 +35,12 @@ variables:
   replay_speed:
     description: Wall-clock speedup. 1.0 = true real time (24h seed replays over 24h). Raise for a faster demo loop.
     default: "1.0"
-  trigger_interval:
-    description: Micro-batch cadence for the replay stream.
-    default: "2 seconds"
-  checkpoint_root:
-    default: /Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/checkpoints
+  interval_seconds:
+    description: Seconds between snapshot upserts within a run.
+    default: "5"
+  loop_seconds:
+    description: Bounded run length; the continuous job restarts each run to stay live.
+    default: "300"
   stream_pause_status:
     description: PAUSED (safe default) or UNPAUSED to start the replay stream on deploy.
     default: PAUSED

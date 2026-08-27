@@ -14,7 +14,7 @@ deployed yet — the files are authored assets only.
 | `src/01_generate_seed_data.py` | 1 | Populates `tag_reading_seed` (24 h) and `vibration_features_seed` (120 d) — the unblock for lanes B and C. **Already run.** |
 | `src/create_lakebase_project.sh` | 2 | One-time: creates the `ironbark-ops` Lakebase project (DABs can't). |
 | `src/lakebase_setup.py` | 2 | Applies `contract/ddl_lakebase.sql` to the `plant` schema (tables, replica identity, event trigger). |
-| `src/replay_to_lakebase.py` | 2 | Real-time replay of the seed → upserts Lakebase `plant.tag_current`. |
+| `src/replay_snapshot.py` | 2 | Looped snapshot micro-batch replaying the seed → upserts Lakebase `plant.tag_current` (continuous serverless job). |
 | `resources/*.job.yml` | — | Job definitions for the three notebooks above. |
 | `databricks.yml` | — | Bundle config: variables + `dev`/`prod` targets. |
 
@@ -23,34 +23,34 @@ deployed yet — the files are authored assets only.
 The whiteboard's pipeline 1 replays the seed in **wall-clock time** and upserts
 `plant.tag_current`; Lakebase CDF then carries the change history back to UC.
 
-**Design note — why replay, not real-time mode.** Real-time mode (`trigger(realTime=)`)
-cannot use a Delta table as its source (only Kafka/MSK/Kinesis/Event Hubs). So this uses
-the contract's documented fallback: a standalone Structured Streaming job doing low-latency
-micro-batch `foreachBatch` upserts. A `rate` stream is the clock; each ~2 s batch maps wall
-time onto the seed's `source_ts`, takes the latest reading per tag, and upserts. The 24 h
-seed loops forever. Auth is driver-side (SDK-minted OAuth token, refreshed hourly) — no
-secret scope needed (that's only for the executor-side alert sink, Q2, still to come).
+**Design note — why a looped snapshot, not a streaming query.** Real-time mode
+(`trigger(realTime=)`) can't read a Delta table (only Kafka/MSK/Kinesis/Event Hubs), and
+this workspace is **serverless-only** where a blocking `awaitTermination()` trips the kernel
+watchdog. So the replay is a *completing* job that loops: every `interval_seconds` it maps
+wall-clock time onto the 24 h seed loop, takes the latest reading per tag at that replay
+position, and upserts all 151 tags into `plant.tag_current`. Each run is bounded
+(`loop_seconds`) and exits; the **continuous** job restarts it, keeping `tag_current` live.
+Stateless (position is a pure function of wall time), so restarts need no shared state. Auth
+is the driver's OAuth identity (SDK-minted token, refreshed). Verified end-to-end: 151 tags →
+`tag_current` → CDF → `lb_tag_current_history` (~18 s flush).
 
-### Bring it up (when ready — not done yet)
+### Bring it up
 ```bash
-# 0. one-time: create the Lakebase project (DABs can't provision it)
-./src/create_lakebase_project.sh tech-summit
+# 0. one-time: the Lakebase project already exists (lane B created it); the DDL is applied.
+#    (src/create_lakebase_project.sh is idempotent if you ever need it.)
 
-# 1. validate the bundle (read-only)
+# 1. validate + deploy (the ingest job is created PAUSED)
 databricks bundle validate -t dev --profile tech-summit
+databricks bundle deploy   -t dev --profile tech-summit
 
-# 2. deploy the assets (jobs; the stream is created PAUSED)
-databricks bundle deploy -t dev --profile tech-summit
-
-# 3. apply the Lakebase DDL, then start the replay
-databricks bundle run a_lakebase_setup -t dev --profile tech-summit
-databricks bundle run a_ingest_stream  -t dev --profile tech-summit
+# 2. start the live replay (continuous, unpaused)
+databricks bundle deploy -t dev --var stream_pause_status=UNPAUSED --profile tech-summit
 ```
 
 Knobs (bundle variables in `databricks.yml`): `replay_speed` (default `1.0` = true real
-time), `trigger_interval` (`2 seconds`), and the Lakebase/`plant` coordinates. A live-demo
-fault hook reads an optional `scratch_a_fault_control` table `{tag_id, multiplier}` and
-scales that tag's value in real time.
+time), `interval_seconds` (`5`), `loop_seconds` (`300`, the per-run length the continuous job
+restarts), and the Lakebase/`plant` coordinates. A live-demo fault hook reads an optional
+`scratch_a_fault_control` table `{tag_id, multiplier}` and scales that tag's value in real time.
 
 ## How the seed data is generated
 

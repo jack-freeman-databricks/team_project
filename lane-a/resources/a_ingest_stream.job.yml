@@ -1,10 +1,9 @@
-# Pipeline 1, Q1 (replay variant): a standalone Structured Streaming job that replays
-# tag_reading_seed in wall-clock time and upserts plant.tag_current in Lakebase. Runs on
-# serverless as low-latency micro-batch (foreachBatch), the contract's documented fallback
-# to the native postgresql/RTM sink (Delta is not a valid real-time-mode source).
+# Continuous job: looped snapshot micro-batch replaying the seed into Lakebase plant.tag_current.
+# Each run is a bounded loop (upsert every interval_seconds for loop_seconds, then exit) so it
+# completes and sidesteps the serverless kernel watchdog that kills a blocking streaming query.
+# The continuous trigger restarts each run back-to-back, keeping tag_current live.
 #
-# Continuous job. The committed default is PAUSED so a plain `bundle deploy` never
-# auto-starts a live stream into Lakebase; start it with:
+# Committed default is PAUSED so a plain `bundle deploy` never auto-starts it. Start with:
 #   databricks bundle deploy -t dev --var stream_pause_status=UNPAUSED
 resources:
   jobs:
@@ -16,7 +15,7 @@ resources:
       tasks:
         - task_key: replay_to_lakebase
           notebook_task:
-            notebook_path: ../src/replay_to_lakebase.py
+            notebook_path: ../src/replay_snapshot.py
             base_parameters:
               catalog: ${var.catalog}
               schema: ${var.schema}
@@ -26,5 +25,5 @@ resources:
               lakebase_database: ${var.lakebase_database}
               pg_schema: ${var.pg_schema}
               replay_speed: ${var.replay_speed}
-              trigger_interval: ${var.trigger_interval}
-              checkpoint_root: ${var.checkpoint_root}
+              interval_seconds: ${var.interval_seconds}
+              loop_seconds: ${var.loop_seconds}

@@ -5,6 +5,10 @@ Pilbara iron ore crushing plant. We build a real-time mass balance monitoring so
 with control-room-style visualisation, predictive maintenance on vibration sensors,
 and an AI layer over the top. All on Databricks.
 
+`plan.html` is a standalone one-page version of this plan, with the architecture
+diagram, the lane split, the day's two integration seams, and the platform
+constraints. Open it in a browser, no build step and no network needed.
+
 ## Start here
 
 1. Read `contract/naming.md`. It is the agreed data contract and it explains two
@@ -36,6 +40,7 @@ prompts/
 brief/
   transcript.md              the original scoping conversation
   whiteboard.jpg             the whiteboard photo the design came from
+plan.html                    standalone one-page plan, open in a browser
 ```
 
 ## Architecture

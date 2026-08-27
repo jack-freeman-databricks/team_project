@@ -1,0 +1,604 @@
+<title>Ironbark Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root{
+  --ground:#F2F1EE; --surface:#FFFFFF; --surface-2:#E9E7E2; --sunk:#DFDCD6;
+  --ink:#191D20; --ink-2:#3D4348; --muted:#6B6862; --rule:#D6D2CC; --rule-2:#C3BEB6;
+  --steel:#33505F; --steel-soft:#E2E8EC;
+  --ore:#9E4A2F; --ore-soft:#F2E4DE;
+  --ok:#2E6A4E; --warn:#8A6512; --crit:#B3261E;
+  --shadow:0 1px 2px rgba(25,29,32,.06), 0 6px 18px -12px rgba(25,29,32,.18);
+  --display:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#15181A; --surface:#1D2124; --surface-2:#252A2E; --sunk:#111416;
+    --ink:#E8E6E2; --ink-2:#C4C1BB; --muted:#948F88; --rule:#333A3F; --rule-2:#434B51;
+    --steel:#8FB4C8; --steel-soft:#22323C;
+    --ore:#D5805C; --ore-soft:#33231C;
+    --ok:#63AC82; --warn:#D3A845; --crit:#E86B60;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#15181A; --surface:#1D2124; --surface-2:#252A2E; --sunk:#111416;
+  --ink:#E8E6E2; --ink-2:#C4C1BB; --muted:#948F88; --rule:#333A3F; --rule-2:#434B51;
+  --steel:#8FB4C8; --steel-soft:#22323C;
+  --ore:#D5805C; --ore-soft:#33231C;
+  --ok:#63AC82; --warn:#D3A845; --crit:#E86B60;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--body); font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px 96px}
+.col{max-width:660px}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--steel);text-decoration:none;border-bottom:1px solid var(--rule-2)}
+a:hover{border-bottom-color:currentColor}
+a:focus-visible,.lane:focus-visible{outline:2px solid var(--ore);outline-offset:3px;border-radius:2px}
+code,.mono{font-family:var(--mono);font-size:.86em;font-variant-ligatures:none}
+
+/* ---- eyebrow / section machinery ---- */
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--steel);
+}
+section{padding-top:64px}
+.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.sec-head h2{font-size:30px;font-weight:600;letter-spacing:-.017em;line-height:1.18}
+.sec-head .lede{color:var(--ink-2);max-width:62ch}
+hr.rule{border:0;border-top:1px solid var(--rule);margin:0}
+
+/* ---- masthead ---- */
+header.mast{padding:64px 0 0}
+.mast .kicker{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.mast .kicker span.dot{width:7px;height:7px;border-radius:50%;background:var(--ore);flex:none}
+.mast h1{font-size:clamp(38px,6vw,62px);font-weight:700;letter-spacing:-.033em;line-height:1.02}
+.mast .sub{
+  font-size:21px;line-height:1.5;color:var(--ink-2);max-width:56ch;margin-top:20px;
+}
+.meta{
+  margin-top:34px;padding-top:20px;border-top:1px solid var(--rule);
+  display:flex;flex-wrap:wrap;gap:0;
+}
+.meta div{padding-right:34px;margin-right:34px;border-right:1px solid var(--rule)}
+.meta div:last-child{border-right:0;padding-right:0;margin-right:0}
+.meta dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.meta dd{margin:5px 0 0;font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:-.01em}
+
+/* ---- verdict ---- */
+.verdict{
+  margin-top:56px;background:var(--surface);border:1px solid var(--rule);
+  border-left:3px solid var(--ore);border-radius:3px;padding:26px 30px;box-shadow:var(--shadow);
+  max-width:820px;
+}
+.verdict .eyebrow{color:var(--ore)}
+.verdict p.big{font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:-.018em;line-height:1.3;margin:10px 0 12px}
+.verdict p.small{color:var(--ink-2);max-width:64ch}
+
+/* ---- figures ---- */
+figure{margin:36px 0 0}
+.fig-frame{
+  background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:26px 22px;overflow-x:auto;box-shadow:var(--shadow);
+}
+.fig-frame svg{display:block;width:100%;min-width:660px;height:auto;color:var(--ink)}
+figcaption{
+  margin-top:14px;font-size:14.5px;line-height:1.6;color:var(--muted);max-width:74ch;
+}
+figcaption b{color:var(--ink-2);font-weight:600}
+
+/* svg primitives */
+.n-fill{fill:var(--surface-2)}
+.n-stroke{stroke:var(--rule-2);stroke-width:1.25;fill:none}
+.n-label{font-family:var(--display);font-size:12.5px;font-weight:600;fill:var(--ink);letter-spacing:-.005em}
+.n-sub{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.a-line{stroke:var(--ink-2);stroke-width:1.4;fill:none}
+.a-lbl{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.seam-fill{fill:var(--ore-soft)}
+.seam-stroke{stroke:var(--ore);stroke-width:1.6;fill:none}
+.seam-lbl{font-family:var(--mono);font-size:9.5px;font-weight:500;fill:var(--ore);letter-spacing:.1em}
+.ore-line{stroke:var(--ore);stroke-width:1.4;fill:none}
+.ore-lbl{font-family:var(--mono);font-size:10px;fill:var(--ore)}
+.crit-line{stroke:var(--crit);stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+.crit-mark{stroke:var(--crit);stroke-width:2;fill:none}
+.crit-lbl{font-family:var(--mono);font-size:10px;fill:var(--crit)}
+.panel-ttl{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.13em;text-transform:uppercase}
+
+/* ---- lanes ---- */
+.lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+.lane{
+  background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:0 0 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;
+}
+.lane-top{padding:18px 22px 16px;border-bottom:1px solid var(--rule);background:var(--steel-soft)}
+.lane-id{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.15em;color:var(--steel)}
+.lane h3{font-size:20px;font-weight:600;letter-spacing:-.016em;margin-top:5px;line-height:1.2}
+.lane-body{padding:18px 22px 0;display:flex;flex-direction:column;gap:16px;flex:1}
+.kv{display:flex;flex-direction:column;gap:3px}
+.kv dt{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kv dd{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2)}
+.kv dd .mono{color:var(--ink)}
+.lane .first{
+  background:var(--sunk);border-radius:3px;padding:13px 15px;margin-top:auto;
+  font-size:14.5px;line-height:1.55;color:var(--ink-2);
+}
+.lane .first strong{font-family:var(--display);font-weight:600;color:var(--ink);display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+
+/* ---- gantt ---- */
+.gantt{
+  margin-top:8px;background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:24px 26px 20px;box-shadow:var(--shadow);overflow-x:auto;
+}
+.gantt-grid{display:grid;grid-template-columns:118px repeat(16,minmax(30px,1fr));min-width:720px;align-items:center;row-gap:9px}
+.g-tick{font-family:var(--mono);font-size:10px;color:var(--muted);grid-row:1;text-align:left;padding-bottom:8px;border-bottom:1px solid var(--rule);align-self:end}
+.g-tick.pad{border-bottom:1px solid var(--rule)}
+.g-name{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);grid-column:1;padding-right:14px}
+.g-bar{height:26px;border-radius:2px;display:flex;align-items:center;padding:0 10px;font-family:var(--display);font-size:11.5px;font-weight:600;letter-spacing:.01em;white-space:nowrap;overflow:hidden}
+.g-bar.all{background:var(--steel);color:var(--surface)}
+:root[data-theme="dark"] .g-bar.all,
+:root:not([data-theme="light"]) .g-bar.all{color:var(--sunk)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .g-bar.all{color:#fff}}
+.g-bar.lane-bar{background:var(--surface-2);border:1px solid var(--rule-2);color:var(--ink-2)}
+.g-bar.demo{background:var(--ore-soft);border:1px solid var(--ore);color:var(--ore)}
+.g-bar.check{background:transparent;border:1px dashed var(--rule-2);color:var(--muted);font-family:var(--mono);font-size:10px;font-weight:400}
+.g-seam{grid-row:2/-1;border-left:2px dashed var(--ore);pointer-events:none;height:100%;z-index:1;justify-self:start;width:0}
+.seam-key{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--rule)}
+.seam-key div{font-size:14px;color:var(--ink-2);max-width:34ch}
+.seam-key b{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ore);display:block;margin-bottom:3px}
+
+/* ---- tables ---- */
+.tbl-wrap{overflow-x:auto;margin-top:8px;border:1px solid var(--rule);border-radius:3px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5}
+thead th{
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);background:var(--sunk);border-bottom:1px solid var(--rule-2);white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:0}
+td.who{font-family:var(--mono);font-size:11.5px;color:var(--steel);white-space:nowrap}
+td strong{font-family:var(--display);font-weight:600;font-size:15px}
+.pill{
+  display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 8px;border-radius:2px;white-space:nowrap;
+}
+.pill.blocks{background:var(--crit);color:#fff}
+:root[data-theme="dark"] .pill.blocks,:root:not([data-theme="light"]) .pill.blocks{color:var(--sunk)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .pill.blocks{color:#fff}}
+.pill.plan{background:var(--warn);color:var(--sunk)}
+.pill.chk{background:var(--ok);color:var(--sunk)}
+
+/* ---- prose lists ---- */
+ul.tight{margin:0;padding-left:1.15em;display:flex;flex-direction:column;gap:9px}
+ul.tight li{padding-left:2px}
+ul.tight li b{font-weight:600}
+.stack{display:flex;flex-direction:column;gap:18px}
+
+/* ---- repo footer ---- */
+.repo{
+  margin-top:64px;padding:26px 30px;background:var(--sunk);border:1px solid var(--rule);
+  border-radius:3px;display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;justify-content:space-between;
+}
+.repo .tree{font-family:var(--mono);font-size:12.5px;line-height:1.85;color:var(--ink-2);white-space:pre}
+.repo .tree b{color:var(--ink);font-weight:500}
+.repo .side{max-width:34ch;display:flex;flex-direction:column;gap:10px}
+.repo .side p{font-size:14.5px;color:var(--ink-2)}
+
+@media (max-width:900px){
+  .lanes{grid-template-columns:1fr}
+  .meta div{border-right:0;padding-right:0;margin-right:26px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">
+    <span class="dot"></span>
+    <span class="eyebrow">Ironbark Resources &middot; iron ore crushing plant &middot; one day, three people</span>
+  </div>
+  <h1>Three lanes,<br>two seams,<br>one contract.</h1>
+  <p class="sub">A real-time mass balance and predictive maintenance solution, built end to end on Databricks in a single day. Here is how we split it so nobody waits.</p>
+
+  <dl class="meta">
+    <div><dt>Team</dt><dd>3 parallel lanes</dd></div>
+    <div><dt>Tag register</dt><dd>121 tags &middot; 25 assets</dd></div>
+    <div><dt>Design basis</dt><dd>2,500 t/h ROM feed</dd></div>
+    <div><dt>Repo</dt><dd><a href="https://github.com/jack-freeman-databricks/team_project">team_project</a></dd></div>
+  </dl>
+
+  <div class="verdict">
+    <span class="eyebrow">The call</span>
+    <p class="big">Split it. Three laptops, not one.</p>
+    <p class="small">One laptop makes two of us spectators. The work decomposes into three tiers that touch at exactly two seams. The catch is that the pipeline is a linear chain, so a naive split leaves two people idle until lunch. Two devices fix that, and they are the whole reason this plan works.</p>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head col">
+    <span class="eyebrow">The mechanism</span>
+    <h2>What we are building</h2>
+    <p class="lede">Synthetic plant data lands through a streaming pipeline into Lakebase, changes flow back into Unity Catalog, an analytical layer computes the mass balance, a model scores vibration, and an app plus an AI layer sit on top.</p>
+  </div>
+
+  <figure>
+    <div class="fig-frame">
+      <svg viewBox="0 0 1140 520" role="img" aria-label="Data flow from the synthetic generator through the ingest pipeline to Lakebase, back into Unity Catalog via change data capture, into the seam view that lanes B and C read, then into the analytics pipeline, the ML model and the control room app.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6.5" orient="auto">
+            <polygon points="0,0 10,4 0,8" fill="var(--ink-2)"/>
+          </marker>
+          <marker id="ah-ore" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6.5" orient="auto">
+            <polygon points="0,0 10,4 0,8" fill="var(--ore)"/>
+          </marker>
+        </defs>
+
+        <!-- alert branch -->
+        <rect x="430" y="24" width="192" height="54" rx="2" class="n-fill"/>
+        <rect x="430" y="24" width="192" height="54" rx="2" class="n-stroke"/>
+        <text x="526" y="46" class="n-label" text-anchor="middle">Alert POST</text>
+        <text x="526" y="63" class="n-sub" text-anchor="middle">plant.alert_outbox</text>
+
+        <!-- spine -->
+        <rect x="16" y="120" width="146" height="54" rx="2" class="n-fill"/>
+        <rect x="16" y="120" width="146" height="54" rx="2" class="n-stroke"/>
+        <text x="89" y="142" class="n-label" text-anchor="middle">Generator</text>
+        <text x="89" y="159" class="n-sub" text-anchor="middle">~450 evt/s</text>
+
+        <rect x="208" y="120" width="176" height="54" rx="2" class="n-fill"/>
+        <rect x="208" y="120" width="176" height="54" rx="2" class="n-stroke"/>
+        <text x="296" y="142" class="n-label" text-anchor="middle">Pipeline 1</text>
+        <text x="296" y="159" class="n-sub" text-anchor="middle">continuous SDP</text>
+
+        <rect x="430" y="120" width="176" height="54" rx="2" class="n-fill"/>
+        <rect x="430" y="120" width="176" height="54" rx="2" class="n-stroke"/>
+        <text x="518" y="142" class="n-label" text-anchor="middle">Lakebase</text>
+        <text x="518" y="159" class="n-sub" text-anchor="middle">plant.tag_current</text>
+
+        <rect x="652" y="120" width="192" height="54" rx="2" class="n-fill"/>
+        <rect x="652" y="120" width="192" height="54" rx="2" class="n-stroke"/>
+        <text x="748" y="142" class="n-label" text-anchor="middle">Change feed to UC</text>
+        <text x="748" y="159" class="n-sub" text-anchor="middle">lb_tag_current_history</text>
+
+        <!-- app -->
+        <rect x="896" y="180" width="228" height="72" rx="2" class="n-fill"/>
+        <rect x="896" y="180" width="228" height="72" rx="2" class="n-stroke"/>
+        <text x="1010" y="208" class="n-label" text-anchor="middle">Control room app</text>
+        <text x="1010" y="226" class="n-sub" text-anchor="middle">flowsheet + alarms</text>
+        <text x="1010" y="241" class="n-sub" text-anchor="middle">+ AI layer</text>
+
+        <!-- seed + seam -->
+        <rect x="386" y="252" width="196" height="54" rx="2" class="n-fill"/>
+        <rect x="386" y="252" width="196" height="54" rx="2" class="n-stroke" stroke-dasharray="5 4"/>
+        <text x="484" y="274" class="n-label" text-anchor="middle">Seed table</text>
+        <text x="484" y="291" class="n-sub" text-anchor="middle">static 24h sample</text>
+
+        <rect x="652" y="244" width="192" height="68" rx="2" class="seam-fill"/>
+        <rect x="652" y="244" width="192" height="68" rx="2" class="seam-stroke"/>
+        <text x="748" y="266" class="seam-lbl" text-anchor="middle">THE SEAM</text>
+        <text x="748" y="286" class="n-label" text-anchor="middle">vw_tag_reading</text>
+        <text x="748" y="302" class="n-sub" text-anchor="middle">the only thing B and C read</text>
+
+        <!-- pipeline 2 + outputs -->
+        <rect x="652" y="382" width="192" height="54" rx="2" class="n-fill"/>
+        <rect x="652" y="382" width="192" height="54" rx="2" class="n-stroke"/>
+        <text x="748" y="404" class="n-label" text-anchor="middle">Pipeline 2</text>
+        <text x="748" y="421" class="n-sub" text-anchor="middle">analytical SDP</text>
+
+        <rect x="896" y="344" width="228" height="54" rx="2" class="n-fill"/>
+        <rect x="896" y="344" width="228" height="54" rx="2" class="n-stroke"/>
+        <text x="1010" y="366" class="n-label" text-anchor="middle">Mass balance tables</text>
+        <text x="1010" y="383" class="n-sub" text-anchor="middle">per node, per minute</text>
+
+        <rect x="896" y="434" width="228" height="54" rx="2" class="n-fill"/>
+        <rect x="896" y="434" width="228" height="54" rx="2" class="n-stroke"/>
+        <text x="1010" y="456" class="n-label" text-anchor="middle">Vibration model</text>
+        <text x="1010" y="473" class="n-sub" text-anchor="middle">ironbark-pdm endpoint</text>
+
+        <!-- arrows -->
+        <line x1="162" y1="147" x2="202" y2="147" class="a-line" marker-end="url(#ah)"/>
+        <line x1="384" y1="147" x2="424" y2="147" class="a-line" marker-end="url(#ah)"/>
+        <text x="404" y="138" class="a-lbl" text-anchor="middle">upsert</text>
+        <line x1="606" y1="147" x2="646" y2="147" class="a-line" marker-end="url(#ah)"/>
+        <text x="626" y="138" class="a-lbl" text-anchor="middle">CDC</text>
+
+        <polyline points="340,120 340,51 424,51" class="a-line" marker-end="url(#ah)"/>
+        <text x="386" y="42" class="a-lbl" text-anchor="middle">rule fails</text>
+
+        <polyline points="518,120 518,100 1010,100 1010,174" class="ore-line" marker-end="url(#ah-ore)"/>
+        <text x="770" y="92" class="ore-lbl" text-anchor="middle">live tiles, read direct from Postgres</text>
+
+        <line x1="748" y1="174" x2="748" y2="238" class="a-line" marker-end="url(#ah)"/>
+        <text x="758" y="212" class="a-lbl">postimage only</text>
+
+        <line x1="582" y1="279" x2="646" y2="279" class="a-line" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+
+        <line x1="748" y1="312" x2="748" y2="376" class="a-line" marker-end="url(#ah)"/>
+        <line x1="844" y1="404" x2="890" y2="374" class="a-line" marker-end="url(#ah)"/>
+        <line x1="844" y1="414" x2="890" y2="452" class="a-line" marker-end="url(#ah)"/>
+        <line x1="960" y1="344" x2="960" y2="258" class="a-line" marker-end="url(#ah)"/>
+        <polyline points="896,461 872,461 872,270 1060,270 1060,258" class="a-line" marker-end="url(#ah)"/>
+      </svg>
+    </div>
+    <figcaption><b>The seam is the load-bearing idea.</b> <span class="mono">vw_tag_reading</span> starts pointed at the static seed table (dashed) so lanes B and C have real data from minute one. At seam 1 lane A repoints it at the live change feed, and nothing downstream changes. The rust path is why Lakebase is in the architecture at all: the app reads current values straight from Postgres for its live tiles, while the change feed becomes the historian for analytics.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <span class="eyebrow">Correction</span>
+    <h2>Two things the whiteboard cannot do</h2>
+    <p class="lede">Worth knowing before anyone starts building, because both would surface late and both change lane A's work.</p>
+  </div>
+
+  <figure>
+    <div class="fig-frame">
+      <svg viewBox="0 0 1080 300" role="img" aria-label="Comparison. On the left, the whiteboard's real-time-mode pipeline writing to a Lakebase sink and an API sink, both marked as non-existent. On the right, a continuous pipeline whose foreach batch sink handler performs both the Lakebase upsert and the alert POST.">
+        <defs>
+          <marker id="ah2" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6.5" orient="auto">
+            <polygon points="0,0 10,4 0,8" fill="var(--ink-2)"/>
+          </marker>
+        </defs>
+
+        <text x="20" y="18" class="panel-ttl" fill="var(--crit)">As drawn &middot; not buildable</text>
+        <text x="560" y="18" class="panel-ttl" fill="var(--ok)">What we build instead</text>
+
+        <!-- left -->
+        <rect x="250" y="40" width="176" height="42" rx="2" class="n-fill"/>
+        <rect x="250" y="40" width="176" height="42" rx="2" class="n-stroke"/>
+        <text x="338" y="66" class="n-label" text-anchor="middle">Lakebase sink</text>
+
+        <rect x="20" y="118" width="176" height="56" rx="2" class="n-fill"/>
+        <rect x="20" y="118" width="176" height="56" rx="2" class="n-stroke"/>
+        <text x="108" y="141" class="n-label" text-anchor="middle">SDP real-time mode</text>
+        <text x="108" y="158" class="n-sub" text-anchor="middle">sinks are Kafka only</text>
+
+        <rect x="250" y="210" width="176" height="42" rx="2" class="n-fill"/>
+        <rect x="250" y="210" width="176" height="42" rx="2" class="n-stroke"/>
+        <text x="338" y="236" class="n-label" text-anchor="middle">API sink</text>
+
+        <line x1="196" y1="132" x2="244" y2="76" class="crit-line"/>
+        <line x1="196" y1="160" x2="244" y2="216" class="crit-line"/>
+        <g class="crit-mark">
+          <line x1="212" y1="96" x2="228" y2="112"/><line x1="228" y1="96" x2="212" y2="112"/>
+          <line x1="212" y1="180" x2="228" y2="196"/><line x1="228" y1="180" x2="212" y2="196"/>
+        </g>
+        <text x="20" y="284" class="crit-lbl">Neither sink type exists in an RTM flow.</text>
+
+        <line x1="520" y1="10" x2="520" y2="290" stroke="var(--rule)" stroke-width="1"/>
+
+        <!-- right -->
+        <rect x="766" y="40" width="190" height="42" rx="2" class="n-fill"/>
+        <rect x="766" y="40" width="190" height="42" rx="2" class="n-stroke"/>
+        <text x="861" y="66" class="n-label" text-anchor="middle">Lakebase upsert</text>
+
+        <rect x="560" y="118" width="176" height="56" rx="2" class="n-fill"/>
+        <rect x="560" y="118" width="176" height="56" rx="2" class="n-stroke"/>
+        <text x="648" y="141" class="n-label" text-anchor="middle">Pipeline</text>
+        <text x="648" y="158" class="n-sub" text-anchor="middle">continuous, not RTM</text>
+
+        <rect x="766" y="114" width="190" height="64" rx="2" class="seam-fill"/>
+        <rect x="766" y="114" width="190" height="64" rx="2" class="seam-stroke"/>
+        <text x="861" y="141" class="n-label" text-anchor="middle">foreach_batch_sink</text>
+        <text x="861" y="158" class="n-sub" text-anchor="middle">one handler, both jobs</text>
+
+        <rect x="766" y="210" width="190" height="42" rx="2" class="n-fill"/>
+        <rect x="766" y="210" width="190" height="42" rx="2" class="n-stroke"/>
+        <text x="861" y="236" class="n-label" text-anchor="middle">Alert POST</text>
+
+        <line x1="736" y1="146" x2="760" y2="146" class="a-line" marker-end="url(#ah2)"/>
+        <line x1="861" y1="114" x2="861" y2="88" class="a-line" marker-end="url(#ah2)"/>
+        <line x1="861" y1="178" x2="861" y2="204" class="a-line" marker-end="url(#ah2)"/>
+        <text x="560" y="284" class="a-lbl" fill="var(--ok)">Latency lands in low seconds. A control room screen never notices.</text>
+      </svg>
+    </div>
+    <figcaption><b>One:</b> real-time mode sinks to Kafka and nothing else. There is no Lakebase sink and no HTTP sink in an RTM flow, and Delta is explicitly not RTM-usable, so the two arrows out of <span class="mono">SDP-RTM</span> cannot be built. A normal continuous pipeline with a <span class="mono">foreach_batch_sink</span> handler does both jobs per micro-batch. Keep true RTM as a stretch goal on a separate Kafka-sinking pipeline if there is time. <b>Two:</b> Lakebase change data capture into Unity Catalog is configured only through the workspace UI. No CLI, no REST API, so budget five minutes of clicking rather than trying to script it, and do it early.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <span class="eyebrow">The split</span>
+    <h2>Three lanes</h2>
+    <p class="lede">Each lane owns its own Unity Catalog schemas, prefixes its pipelines and jobs with its own letter, and has a scratch schema for experiments. That is what keeps three parallel Claude sessions from overwriting each other.</p>
+  </div>
+
+  <div class="lanes">
+    <article class="lane">
+      <div class="lane-top">
+        <span class="lane-id">LANE A</span>
+        <h3>Streaming spine</h3>
+      </div>
+      <div class="lane-body">
+        <dl class="kv"><dt>Owns</dt><dd>Generator, ingest pipeline, Lakebase, rule engine and alerting</dd></dl>
+        <dl class="kv"><dt>Writes to</dt><dd><span class="mono">ironbark.raw</span>, Lakebase <span class="mono">plant</span></dd></dl>
+        <dl class="kv"><dt>Risk</dt><dd>Highest. Three newer capabilities in one pipeline, so this lane owns the platform risk.</dd></dl>
+        <div class="first"><strong>Do first</strong>Write both seed tables. Two people are blocked until they land, so this comes before any streaming work.</div>
+      </div>
+    </article>
+
+    <article class="lane">
+      <div class="lane-top">
+        <span class="lane-id">LANE B</span>
+        <h3>Transform and ML</h3>
+      </div>
+      <div class="lane-body">
+        <dl class="kv"><dt>Owns</dt><dd>Analytical tables, the mass balance, the predictive maintenance model</dd></dl>
+        <dl class="kv"><dt>Writes to</dt><dd><span class="mono">ironbark.analytics</span>, <span class="mono">ironbark.ml</span></dd></dl>
+        <dl class="kv"><dt>Risk</dt><dd>Low. Reads one view, never <span class="mono">raw</span> directly, so the live stream can arrive whenever.</dd></dl>
+        <div class="first"><strong>Do first</strong>The mass balance, driven entirely by the flowsheet topology tables. Nothing about the plant may be hardcoded.</div>
+      </div>
+    </article>
+
+    <article class="lane">
+      <div class="lane-top">
+        <span class="lane-id">LANE C</span>
+        <h3>App and AI</h3>
+      </div>
+      <div class="lane-body">
+        <dl class="kv"><dt>Owns</dt><dd>The control room app, the AI layer answering what happened and what needs maintenance</dd></dl>
+        <dl class="kv"><dt>Writes to</dt><dd>Nothing shared. Reads only, plus alarm acknowledgement.</dd></dl>
+        <dl class="kv"><dt>Risk</dt><dd>Low, if it starts on stubs. Furthest downstream, so it must never wait.</dd></dl>
+        <div class="first"><strong>Do first</strong>Stub tables in the scratch schema with the agreed columns, behind one configurable schema name.</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <span class="eyebrow">The day</span>
+    <h2>Two seams, booked</h2>
+    <p class="lede">Integration is scheduled rather than left to the end. Every lane must also be independently demoable by mid afternoon, so a failed integration costs one panel instead of the whole demo.</p>
+  </div>
+
+  <div class="gantt">
+    <div class="gantt-grid">
+      <span class="g-tick pad" style="grid-column:1"></span>
+      <span class="g-tick" style="grid-column:2">09:00</span>
+      <span class="g-tick" style="grid-column:4">10:00</span>
+      <span class="g-tick" style="grid-column:6">11:00</span>
+      <span class="g-tick" style="grid-column:8">12:00</span>
+      <span class="g-tick" style="grid-column:10">13:00</span>
+      <span class="g-tick" style="grid-column:12">14:00</span>
+      <span class="g-tick" style="grid-column:14">15:00</span>
+      <span class="g-tick" style="grid-column:16">16:00</span>
+      <span class="g-tick pad" style="grid-column:17"></span>
+
+      <span class="g-seam" style="grid-column:7"></span>
+      <span class="g-seam" style="grid-column:13"></span>
+
+      <span class="g-name" style="grid-row:2">all three</span>
+      <div class="g-bar all" style="grid-row:2;grid-column:2/4">Phase 0 &middot; agree the contract</div>
+
+      <span class="g-name" style="grid-row:3">lane A</span>
+      <div class="g-bar lane-bar" style="grid-row:3;grid-column:4/7">seed tables, generator</div>
+      <div class="g-bar lane-bar" style="grid-row:3;grid-column:7/16">pipeline, Lakebase, alerting</div>
+
+      <span class="g-name" style="grid-row:4">lane B</span>
+      <div class="g-bar lane-bar" style="grid-row:4;grid-column:4/13">mass balance, analytics tables</div>
+      <div class="g-bar lane-bar" style="grid-row:4;grid-column:13/16">model, endpoint, scoring</div>
+
+      <span class="g-name" style="grid-row:5">lane C</span>
+      <div class="g-bar lane-bar" style="grid-row:5;grid-column:4/13">flowsheet app on stubs</div>
+      <div class="g-bar lane-bar" style="grid-row:5;grid-column:13/16">AI layer, swap to live</div>
+
+      <span class="g-name" style="grid-row:6">checkpoint</span>
+      <div class="g-bar check" style="grid-row:6;grid-column:14/16">each lane demoable standalone</div>
+
+      <span class="g-name" style="grid-row:7">together</span>
+      <div class="g-bar demo" style="grid-row:7;grid-column:16/18">end to end run-through</div>
+    </div>
+
+    <div class="seam-key">
+      <div><b>Seam 1 &middot; late morning</b>Lane A repoints the seam view from the seed table at the live change feed. Only the agreed schema has to match.</div>
+      <div><b>Seam 2 &middot; mid afternoon</b>Lane C flips one configured schema name from stubs to the real analytical tables, and keeps the stubs as a fallback.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <span class="eyebrow">Before you start</span>
+    <h2>What will bite</h2>
+    <p class="lede">Each of these would cost real time if discovered at three in the afternoon. Most are cheap to check up front.</p>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Constraint</th><th>Whose</th><th>What to do</th><th>When</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Destination catalog must not use default storage</strong><br>Lakehouse Sync cannot write into one.</td>
+          <td class="who">phase 0</td>
+          <td>Check before creating the catalog. Discovering this after the pipeline is built means rebuilding the catalog.</td>
+          <td><span class="pill chk">check first</span></td>
+        </tr>
+        <tr>
+          <td><strong>Predictive maintenance cannot train on 24 hours</strong><br>Five failure events across 120 days is the minimum credible set.</td>
+          <td class="who">lane A</td>
+          <td>Two seed horizons, not one: 24 hours at full rate for the mass balance, 120 days at 10 minute grain for the model.</td>
+          <td><span class="pill blocks">blocks B</span></td>
+        </tr>
+        <tr>
+          <td><strong>Lakebase tokens expire after one hour</strong></td>
+          <td class="who">lane A</td>
+          <td>Refresh the credential inside the sink handler. Caching one at pipeline start is the most likely way this dies mid-demo.</td>
+          <td><span class="pill plan">design in</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="mono">REPLICA IDENTITY FULL</span> on every synced table</strong></td>
+          <td class="who">lane A</td>
+          <td>Already in the Lakebase DDL. Without it the change feed will not start at all.</td>
+          <td><span class="pill chk">check first</span></td>
+        </tr>
+        <tr>
+          <td><strong>Both lanes must share one solids density</strong><br><span class="mono">SOLIDS_SG = 4.9</span></td>
+          <td class="who">lanes B, C</td>
+          <td>It converts slurry flow and density into tonnes. Pick different values and the desands node never closes, and it will look like a pipeline bug.</td>
+          <td><span class="pill plan">design in</span></td>
+        </tr>
+        <tr>
+          <td><strong>An app service principal cannot use a schema it does not own</strong></td>
+          <td class="who">lane C</td>
+          <td>Deploy the app before running it locally, and grant the SP explicitly on the hand-created schema.</td>
+          <td><span class="pill plan">design in</span></td>
+        </tr>
+        <tr>
+          <td><strong>Three Claude sessions will fight over shared tables</strong></td>
+          <td class="who">everyone</td>
+          <td>Tell each session which schema it owns. Left unsupervised they will each cheerfully replace the shared reference tables.</td>
+          <td><span class="pill chk">check first</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <span class="eyebrow">Getting going</span>
+    <h2>The contract is already written</h2>
+  </div>
+
+  <div class="col stack">
+    <p>Everything the three lanes need to agree on is committed. The tag register is generated rather than hand-maintained, and the generator refuses to emit the CSVs unless the design mass balance closes at every unit node and the wet and dry sides of the desands circuit reconcile. That check has already earned its keep twice: it caught a secondary crusher discharging more than it received, and a twelve tonne per hour gap between the two measurement methods.</p>
+    <p>Read <span class="mono">contract/naming.md</span> first, run phase 0 together from <span class="mono">prompts/00-phase-0-together.md</span>, then take a lane and paste your own prompt into your own session.</p>
+  </div>
+
+  <div class="repo">
+    <div class="tree"><b>contract/</b>
+  naming.md            the agreed contract
+  gen_reference_data.py   self-checking
+  dim_tag.csv          121 tags, 25 assets
+  dim_flowsheet_*.csv  13 nodes, 15 arcs
+  ddl_uc.sql           split by who creates what
+  ddl_lakebase.sql     tag_current, alert_outbox
+<b>prompts/</b>
+  00-phase-0-together.md
+  lane-a-streaming-spine.md
+  lane-b-transform-ml.md
+  lane-c-app-ai.md
+<b>brief/</b>
+  transcript.md, whiteboard.jpg</div>
+    <div class="side">
+      <span class="eyebrow">Repo</span>
+      <p><a href="https://github.com/jack-freeman-databricks/team_project">jack-freeman-databricks/team_project</a></p>
+      <p>The DDL is deliberately split into what you run by hand, what the pipelines create and own, and what the change feed creates. Running the wrong section is the fastest way to break someone else's lane.</p>
+    </div>
+  </div>
+</section>
+
+</div>

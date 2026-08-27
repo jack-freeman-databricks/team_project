@@ -1,0 +1,10 @@
+# One-time seed generation (step 1). Runs on serverless. Re-runnable (INSERT OVERWRITE).
+resources:
+  jobs:
+    a_generate_seed:
+      name: a_ironbark_generate_seed
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: generate_seed
+          notebook_task:
+            notebook_path: ../src/01_generate_seed_data.py

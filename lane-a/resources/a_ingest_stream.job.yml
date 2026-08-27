@@ -1,0 +1,29 @@
+# Pipeline 1, Q1 (replay variant): a standalone Structured Streaming job that replays
+# tag_reading_seed in wall-clock time and upserts plant.tag_current in Lakebase. Runs on
+# serverless as low-latency micro-batch (foreachBatch), the contract's documented fallback
+# to the native postgresql/RTM sink (Delta is not a valid real-time-mode source).
+#
+# Created as a CONTINUOUS job but PAUSED, so deploying the bundle does not auto-start it.
+# Unpause (or `databricks bundle run a_ingest_stream`) to begin the replay.
+resources:
+  jobs:
+    a_ingest_stream:
+      name: a_ironbark_ingest_stream
+      max_concurrent_runs: 1
+      continuous:
+        pause_status: PAUSED
+      tasks:
+        - task_key: replay_to_lakebase
+          notebook_task:
+            notebook_path: ../src/replay_to_lakebase.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              lakebase_project: ${var.lakebase_project}
+              lakebase_branch: ${var.lakebase_branch}
+              lakebase_endpoint: ${var.lakebase_endpoint}
+              lakebase_database: ${var.lakebase_database}
+              pg_schema: ${var.pg_schema}
+              replay_speed: ${var.replay_speed}
+              trigger_interval: ${var.trigger_interval}
+              checkpoint_root: ${var.checkpoint_root}

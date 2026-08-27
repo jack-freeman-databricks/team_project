@@ -1,0 +1,56 @@
+# Lane A bundle: seed generation, Lakebase setup, and the real-time replay ingest.
+#
+# NOTE: DABs cannot provision a Lakebase (Autoscaling Postgres) project — there is no
+# bundle resource type for it. Creating the project is a one-time prerequisite (see
+# README / src/create_lakebase_project.sh). This bundle owns the DDL setup job and the
+# streaming replay job; the Lakebase project must exist before either is run.
+bundle:
+  name: ironbark-lane-a
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: UC catalog holding the seed + reference tables.
+    default: jack_freeman_catalog
+  schema:
+    description: The one shared schema for the whole build.
+    default: tech_summit_scada_build
+
+  # Lakebase (Autoscaling Postgres) — see contract/naming.md and contract/ddl_lakebase.sql
+  lakebase_project:
+    default: ironbark-ops
+  lakebase_branch:
+    default: production
+  lakebase_endpoint:
+    default: primary
+  lakebase_database:
+    default: databricks_postgres
+  pg_schema:
+    description: Postgres schema in Lakebase that the replay upserts into.
+    default: plant
+
+  # Replay behaviour
+  replay_speed:
+    description: Wall-clock speedup. 1.0 = true real time (24h seed replays over 24h). Raise for a faster demo loop.
+    default: "1.0"
+  trigger_interval:
+    description: Micro-batch cadence for the replay stream.
+    default: "2 seconds"
+  checkpoint_root:
+    default: /Volumes/jack_freeman_catalog/tech_summit_scada_build/landing/checkpoints
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      profile: tech-summit
+
+  prod:
+    mode: production
+    workspace:
+      profile: tech-summit
+    run_as:
+      user_name: adrian.tompkins@databricks.com

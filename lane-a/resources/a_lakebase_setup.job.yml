@@ -1,0 +1,19 @@
+# Applies contract/ddl_lakebase.sql to the Lakebase `plant` schema: creates tag_current
+# and alert_outbox, sets REPLICA IDENTITY FULL (required for Lakebase CDF), the indexes,
+# and the event trigger. Idempotent. Prerequisite: the Lakebase project must already
+# exist (DABs cannot create it — see README). Runs on serverless.
+resources:
+  jobs:
+    a_lakebase_setup:
+      name: a_ironbark_lakebase_setup
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: apply_ddl
+          notebook_task:
+            notebook_path: ../src/lakebase_setup.py
+            base_parameters:
+              lakebase_project: ${var.lakebase_project}
+              lakebase_branch: ${var.lakebase_branch}
+              lakebase_endpoint: ${var.lakebase_endpoint}
+              lakebase_database: ${var.lakebase_database}
+              pg_schema: ${var.pg_schema}

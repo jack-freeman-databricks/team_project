@@ -28,7 +28,7 @@ Conventions:
 * `snake_case` for everything in UC. Tables are singular nouns except aggregates.
 * Dimension tables prefixed `dim_`. Views prefixed `vw_`.
 * Aggregate tables carry their grain as a suffix: `_1m`, `_10m`.
-* Tables created by Lakehouse Sync arrive as `lb_<source_table>_history`. Do not rename.
+* Tables created by Lakebase CDF arrive as `lb_<source_table>_history`. Do not rename.
 * Pipeline, job, endpoint and app names are prefixed with the owner's initials until
   after seam 2, e.g. `cd_ironbark_ingest`. Drop the prefix at integration.
 * Registered model: `ironbark.ml.vibration_pdm`. Serving endpoint: `ironbark-pdm`.
@@ -80,33 +80,85 @@ t/h   = Q_m3h * rho * Cw
 If lane B and the app use different values for `SOLIDS_SG` the desands node will
 never close and it will look like a pipeline bug. It is in the contract for a reason.
 
-## Two architecture decisions the whiteboard needs corrected
+## How the whiteboard maps onto what the platform actually does
 
-**1. There is no Lakebase sink in an SDP real-time-mode flow.** SDP RTM sinks are
-Kafka only (Delta is explicitly not RTM-usable), and there is no HTTP or API sink
-either. The whiteboard's `SDP-RTM -> Lakebase sink` and `SDP-RTM -> API sink` cannot
-be built as drawn.
+Verified against current docs (Connect to Lakebase, Lakebase Change Data Feed,
+Real-time mode concepts) rather than from memory. The short version: **the
+whiteboard is buildable almost exactly as drawn.** One box has to change what it
+is, not what it does.
 
-What we build instead: a normal continuous SDP pipeline using
-`@dp.foreach_batch_sink` (Python only, Public Preview), whose handler does both jobs
-per micro-batch, upserting `tag_current` into Lakebase and POSTing rule failures to
-the alerting endpoint. Latency lands in the low seconds rather than milliseconds,
-which is well inside what a control room screen needs.
+### Pipeline 1 is a standalone Structured Streaming job, not a Lakeflow pipeline
 
-Keep true RTM as a stretch goal only: a separate single-flow pipeline sinking to
-Kafka purely to demo sub-second latency. Note RTM requires `continuous: true` plus
-serverless on the `PREVIEW` channel with DBR 18.1.3, `spark.databricks.streaming.realTimeMode.enabled`,
-and a per-flow `pipelines.trigger: "RealTime"`. Compute never scales to zero.
+There **is** a native Lakebase sink, `format("postgresql")`, in Public Preview, and it
+**does** support `trigger(realTime=...)` for sub-second writes. It manages
+credentials, batching, retries on transient JDBC errors, and backpressure for us. It
+upserts with `INSERT ... ON CONFLICT`, inferring the key from the target table's
+primary key, and auto-creates the table if it is missing.
 
-**2. Lakebase to Unity Catalog CDC (Lakehouse Sync) is UI-only.** There is no CLI
-command and no REST API. It is configured once at the schema level via Catalog ->
-project -> branch -> Lakehouse Sync -> Start Sync. Prerequisites that will bite:
+The one hard constraint: *"Serverless compute and Lakeflow pipelines are not
+supported."* So the whiteboard's `SDP-RTM -> Lakebase sink` cannot be a declarative
+pipeline. It has to be a standalone Structured Streaming query on **classic compute**
+(dedicated or standard access mode), **DBR 18 or later**.
 
-* Postgres 17, tables in the `databricks_postgres` database
-* `ALTER TABLE tag_current REPLICA IDENTITY FULL;` on every synced table
-* the destination catalog must **not** use default storage
+That is a better outcome than it sounds, and it changes the shape of lane A's work:
+
+| | Recommended | Fallback |
+|---|---|---|
+| Pipeline 1 | standalone Structured Streaming, `format("postgresql")`, `trigger(realTime=...)` | Lakeflow pipeline, continuous, `@dp.foreach_batch_sink` |
+| Latency to Lakebase | sub-second | low seconds |
+| Auth | managed, runs as the query's identity | hand-rolled, and the token expires hourly |
+| Batching, retries, backpressure | built in | hand-rolled |
+| Compute | classic only, DBR 18+ | serverless fine |
+| Take it when | classic compute and the preview are available | they are not |
+
+Two queries, matching the whiteboard's two arrows out of pipeline 1:
+
+* **Q1**, native Lakebase sink, all readings upserting `plant.tag_current`.
+* **Q2**, rule failures only, using a custom `foreach` sink so one writer can both
+  POST to the alerting endpoint and insert into `plant.alert_outbox`. Note that an
+  executor-side `foreach` sink needs native Postgres password auth from a secret
+  scope, because OAuth refresh needs SDK context executors do not have.
+
+Lakeflow keeps its place as **pipeline 2**, the analytical fan-out, where declarative
+genuinely earns it: materialized views, expectations, incremental refresh, dependency
+management. Both technologies end up in the demo doing what each is actually best at,
+which is a better story than forcing one to do both.
+
+### Lakebase Change Data Feed is scriptable, and it needs a preview enabled
+
+It is called **Lakebase CDF** now, not Lakehouse Sync, and it is **not UI-only**: the
+feed can be created, checked, disabled and deleted through the Postgres REST API and
+the Databricks SDKs, so lane A can script it rather than clicking through it.
+
+What it needs:
+
+* a **workspace admin must enable the "Lakebase Change Data Feed" preview** on the
+  workspace Previews page. Check this in phase 0, it gates the whole middle of the
+  architecture and only an admin can do it
+* Postgres 16, 17 or 18
+* source tables in **any single database** in the project, not necessarily
+  `databricks_postgres`. One database per feed
+* `REPLICA IDENTITY FULL` on every source table
+* `USE CATALOG`, `USE SCHEMA`, `CREATE TABLE` on the destination, and `CAN MANAGE` on
+  the Lakebase project
+* the destination catalog must **not** use default storage, and its managed storage
+  must not be private-endpoint-only
+
+How it behaves, all of which the analytics layer has to account for:
+
+* configured at **schema level**: every current and future table in the source schema
+  joins the feed
+* lands as `lb_<table>_history`, batched and flushed **roughly every 15 seconds**
+* an UPDATE produces two rows, `update_preimage` and `update_postimage`, so filter to
+  `insert` + `update_postimage` and order by `_pg_lsn`
+* **empty tables are skipped** until they hold at least one row, so
+  `lb_alert_outbox_history` will not exist until the first alert fires. Do not treat
+  its absence as a broken feed
 * partitioned tables are unsupported
-* disabling and re-enabling sync does not re-snapshot, missed changes are lost
+* never enable Delta CDF, a row filter or a column mask on a destination table. Any
+  of the three stops the feed writing
+* `TIMESTAMPTZ` maps to `TIMESTAMP`, `TIMESTAMP` maps to `TIMESTAMP_NTZ`, `JSONB`
+  becomes `STRING`
 
 ## The seam view
 
@@ -116,10 +168,18 @@ repoints it at the live path at seam 1. Nothing downstream changes when it moves
 
 ## Fallback if lane A stalls
 
-If Lakebase or Lakehouse Sync do not come together, the pipeline writes a bronze
-streaming table directly to `ironbark.raw.tag_reading` and `vw_tag_reading` points
-there. Lakebase then becomes a UC-to-Lakebase synced table purely for the app's hot
-reads. Lanes B and C are unaffected either way, which is the whole point of the view.
+Two levels of fallback, take them early rather than late:
+
+1. **No classic compute or DBR 18, or the native sink preview is unavailable.** Build
+   pipeline 1 as a Lakeflow pipeline with `@dp.foreach_batch_sink` instead, per the
+   table above. Latency drops to low seconds, which no control room screen notices.
+   Remember the hourly token expiry on this path.
+2. **Lakebase or CDF do not come together at all.** Pipeline 1 writes a bronze
+   streaming table straight to `ironbark.raw.tag_reading` and `vw_tag_reading` points
+   there. Lakebase then becomes a UC-to-Lakebase synced table purely for the app's hot
+   reads, or drops out of the demo.
+
+Lanes B and C are unaffected by either, which is the entire point of the seam view.
 
 ## Seed data: two horizons, not one
 

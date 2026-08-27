@@ -11,8 +11,10 @@ constraints. Open it in a browser, no build step and no network needed.
 
 ## Start here
 
-1. Read `contract/naming.md`. It is the agreed data contract and it explains two
-   places where the original whiteboard architecture cannot be built as drawn.
+1. Read `contract/naming.md`. It is the agreed data contract, and its architecture
+   section explains the one box on the whiteboard that has to change what it is
+   (pipeline 1 is a standalone Structured Streaming job, not a Lakeflow pipeline)
+   plus everything Lakebase CDF needs before it will start.
 2. Run phase 0 together, using `prompts/00-phase-0-together.md`. Roughly 45 minutes,
    one laptop, all three of us. Nothing else starts until this is done.
 3. Each take a lane and paste your prompt into your own Claude Code session.
@@ -49,13 +51,16 @@ plan.html                    standalone one-page plan, open in a browser
 synthetic generator (121 tags, ~450 events/sec)
         |
         v
-Lakeflow Declarative Pipeline (continuous)
+Pipeline 1: standalone Structured Streaming, real-time mode
+            classic compute, DBR 18+  (NOT Lakeflow -- see contract/naming.md)
         |
-        +--> foreach_batch_sink --> Lakebase plant.tag_current  (upsert, hot reads)
-        |                      \
-        |                       -> alert POST + plant.alert_outbox
+        +-- Q1  format("postgresql") native sink, sub-second
+        |         --> Lakebase plant.tag_current   (upsert, hot reads for the app)
+        |
+        +-- Q2  custom foreach sink, rule failures only
+        |         --> alert POST + plant.alert_outbox
         v
-Lakehouse Sync (CDC, UI-only)
+Lakebase CDF (~15s flush)
         |
         v
 ironbark.raw.lb_tag_current_history
@@ -64,7 +69,7 @@ ironbark.raw.lb_tag_current_history
 ironbark.analytics.vw_tag_reading   <-- THE SEAM. Lanes B and C read only this.
         |
         v
-Lakeflow Declarative Pipeline #2
+Pipeline 2: Lakeflow declarative pipeline
         |
         +--> tag_reading_1m, mass_flow_1m, mass_balance_node_1m,
         |    equipment_state_1m, desands_balance_1m, stockpile_state
@@ -82,7 +87,7 @@ Databricks App (control room flowsheet)  +  AI layer
 
 | Lane | Owns | Writes to |
 |---|---|---|
-| A | generator, ingest pipeline, Lakebase, alerting | `ironbark.raw`, Lakebase `plant` |
+| A | generator, streaming ingest, Lakebase, CDF, alerting | `ironbark.raw`, Lakebase `plant` |
 | B | analytics tables, mass balance, PdM model | `ironbark.analytics`, `ironbark.ml` |
 | C | control room app, AI layer | nothing shared, reads only |
 

@@ -40,26 +40,63 @@ volume that Auto Loader picks up, or a Kafka/Event Hubs topic if one is easy to 
 Around 121 tags at 1 Hz with vibration at 10 Hz is roughly 400 to 500 events/sec.
 Include a controllable fault injection mode I can trigger live during the demo.
 
-**Step 3.** Build the ingest pipeline as a Lakeflow Declarative Pipeline in Python.
-Read `contract/naming.md` on why this is NOT a real-time-mode pipeline: SDP RTM sinks
-are Kafka only, there is no Lakebase sink and no HTTP sink in an RTM flow, so the
-whiteboard cannot be built as drawn. Use a normal continuous pipeline with
-`@dp.foreach_batch_sink`, whose handler does two things per micro-batch:
+**Step 3.** Build pipeline 1 as a **standalone Structured Streaming job**, not a
+Lakeflow pipeline. Read the architecture section of `contract/naming.md` for why: the
+native Lakebase sink supports real-time mode and gives us genuine sub-second writes
+with managed credentials, batching, retries and backpressure, but it explicitly does
+not run on serverless or inside a Lakeflow pipeline. So this hop needs classic compute
+(dedicated or standard access mode) on DBR 18 or later.
 
-* upsert `plant.tag_current` in Lakebase using the `ON CONFLICT` statement in
-  `contract/ddl_lakebase.sql`, batched via `execute_values`, with the
-  `WHERE EXCLUDED.seq > t.seq` guard so a late batch cannot overwrite a newer read
-* evaluate the rules in `ironbark.ref.dim_rule` as a broadcast stream-static join,
-  not hardcoded predicates, and for each failure insert into `plant.alert_outbox` and
-  POST to the alerting endpoint, recording the HTTP status
+Two queries, matching the two arrows out of pipeline 1 on the whiteboard:
 
-Refresh the Lakebase OAuth credential inside the handler. Tokens expire after an
-hour, and caching one at pipeline start is the most likely way this dies mid-demo.
+* **Q1**, all readings into Lakebase:
+  ```python
+  (df.writeStream
+     .format("postgresql")
+     .outputMode("update")
+     .option("checkpointLocation", "/Volumes/ironbark/raw/landing/checkpoints/tag_current")
+     .option("batchinterval", "50 milliseconds")   # long-form units only
+     .trigger(realTime="5 minutes")               # checkpoint cadence, not batch size
+     .start())
+  ```
+  The upsert key is inferred from the `tag_current` primary key, so no `upsertkey`
+  option is needed. Use the `endpoint` + `dbtable` form, or register the Lakebase
+  database in Unity Catalog and use `.toTable()`, whichever is quicker. Give the query
+  its own checkpoint location; it must be unique per query.
 
-**Step 4.** Enable Lakehouse Sync from the Lakebase `plant` schema to `ironbark.raw`.
-This is UI-only, there is no CLI or API, so walk me through the clicks rather than
-trying to automate it. Confirm `ironbark.raw.lb_tag_current_history` appears and is
-populating.
+* **Q2**, rule failures only. Evaluate `ironbark.ref.dim_rule` as a broadcast
+  stream-static join, not hardcoded predicates. Write with a custom `foreach` sink so
+  one writer both POSTs to the alerting endpoint and inserts into
+  `plant.alert_outbox`. An executor-side `foreach` sink needs native Postgres password
+  auth from a secret scope, not OAuth, because executors have no SDK context to
+  refresh a token with.
+
+Size the cluster for real-time mode's slot math: RTM schedules every stage
+concurrently, so free slots must cover the sum of partitions across all stages, not
+just the source. Set `spark.sql.shuffle.partitions` low to match real parallelism.
+Turn Photon and autoscaling off, they do nothing for RTM. Only one streaming shuffle
+stage is allowed per query.
+
+If classic compute or DBR 18 is not available, take the fallback in
+`contract/naming.md`: a Lakeflow pipeline with `@dp.foreach_batch_sink` doing the
+upsert and the POST. Latency drops to low seconds, which nobody watching a control
+room screen notices. On that path only, refresh the Lakebase credential inside the
+handler, because it expires hourly.
+
+**Step 4.** Start Lakebase CDF from the `plant` schema to `ironbark.raw`. Confirm with
+me first that a workspace admin has enabled the **Lakebase Change Data Feed** preview,
+because nothing here works until they have. This IS scriptable, through the Postgres
+REST API or the Databricks SDK, so prefer that over clicking so we can tear down and
+rebuild. Then verify:
+
+* `SELECT * FROM wal2delta.tables;` shows `tag_current` as `STREAMING`
+* `ironbark.raw.lb_tag_current_history` is populating, allowing for the roughly 15
+  second flush interval
+* `lb_alert_outbox_history` is absent until the first alert fires. CDF skips empty
+  tables, so that is expected rather than a fault
+
+Never enable Delta change data feed, a row filter or a column mask on a destination
+table. Any of the three permanently stops the feed.
 
 **Step 5, seam 1.** Repoint `ironbark.analytics.vw_tag_reading` at the live path
 using the commented definition in section A.3, filtering to `insert` and
@@ -67,7 +104,8 @@ using the commented definition in section A.3, filtering to `insert` and
 look sane, then tell my colleagues the seam has moved.
 
 Guardrails. Do not use `CREATE OR REPLACE` on anything in `ironbark.ref`, it is
-frozen. Do not hand-create the pipeline's own streaming tables, Lakeflow owns those.
+frozen. If you end up on the Lakeflow fallback, do not hand-create that pipeline's own
+streaming tables, Lakeflow owns those.
 Never full-refresh a pipeline without telling me first, it destroys streaming state.
 By mid-afternoon I need a standalone demoable state even if Lakebase is not working:
 that fallback is a bronze streaming table at `ironbark.raw.tag_reading` with

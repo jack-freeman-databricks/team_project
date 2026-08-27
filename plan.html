@@ -260,7 +260,7 @@ ul.tight li b{font-weight:600}
         <rect x="208" y="120" width="176" height="54" rx="2" class="n-fill"/>
         <rect x="208" y="120" width="176" height="54" rx="2" class="n-stroke"/>
         <text x="296" y="142" class="n-label" text-anchor="middle">Pipeline 1</text>
-        <text x="296" y="159" class="n-sub" text-anchor="middle">continuous SDP</text>
+        <text x="296" y="159" class="n-sub" text-anchor="middle">Structured Streaming, RTM</text>
 
         <rect x="430" y="120" width="176" height="54" rx="2" class="n-fill"/>
         <rect x="430" y="120" width="176" height="54" rx="2" class="n-stroke"/>
@@ -269,7 +269,7 @@ ul.tight li b{font-weight:600}
 
         <rect x="652" y="120" width="192" height="54" rx="2" class="n-fill"/>
         <rect x="652" y="120" width="192" height="54" rx="2" class="n-stroke"/>
-        <text x="748" y="142" class="n-label" text-anchor="middle">Change feed to UC</text>
+        <text x="748" y="142" class="n-label" text-anchor="middle">Lakebase CDF</text>
         <text x="748" y="159" class="n-sub" text-anchor="middle">lb_tag_current_history</text>
 
         <!-- app -->
@@ -295,7 +295,7 @@ ul.tight li b{font-weight:600}
         <rect x="652" y="382" width="192" height="54" rx="2" class="n-fill"/>
         <rect x="652" y="382" width="192" height="54" rx="2" class="n-stroke"/>
         <text x="748" y="404" class="n-label" text-anchor="middle">Pipeline 2</text>
-        <text x="748" y="421" class="n-sub" text-anchor="middle">analytical SDP</text>
+        <text x="748" y="421" class="n-sub" text-anchor="middle">Lakeflow, declarative</text>
 
         <rect x="896" y="344" width="228" height="54" rx="2" class="n-fill"/>
         <rect x="896" y="344" width="228" height="54" rx="2" class="n-stroke"/>
@@ -310,9 +310,9 @@ ul.tight li b{font-weight:600}
         <!-- arrows -->
         <line x1="162" y1="147" x2="202" y2="147" class="a-line" marker-end="url(#ah)"/>
         <line x1="384" y1="147" x2="424" y2="147" class="a-line" marker-end="url(#ah)"/>
-        <text x="404" y="138" class="a-lbl" text-anchor="middle">upsert</text>
+        <text x="404" y="138" class="a-lbl" text-anchor="middle">sub-second</text>
         <line x1="606" y1="147" x2="646" y2="147" class="a-line" marker-end="url(#ah)"/>
-        <text x="626" y="138" class="a-lbl" text-anchor="middle">CDC</text>
+        <text x="626" y="138" class="a-lbl" text-anchor="middle">~15s</text>
 
         <polyline points="340,120 340,51 424,51" class="a-line" marker-end="url(#ah)"/>
         <text x="386" y="42" class="a-lbl" text-anchor="middle">rule fails</text>
@@ -332,80 +332,85 @@ ul.tight li b{font-weight:600}
         <polyline points="896,461 872,461 872,270 1060,270 1060,258" class="a-line" marker-end="url(#ah)"/>
       </svg>
     </div>
-    <figcaption><b>The seam is the load-bearing idea.</b> <span class="mono">vw_tag_reading</span> starts pointed at the static seed table (dashed) so lanes B and C have real data from minute one. At seam 1 lane A repoints it at the live change feed, and nothing downstream changes. The rust path is why Lakebase is in the architecture at all: the app reads current values straight from Postgres for its live tiles, while the change feed becomes the historian for analytics.</figcaption>
+    <figcaption><b>Two engines, each doing what it is best at.</b> Pipeline 1 is a standalone Structured Streaming query in real-time mode, writing to Lakebase in milliseconds. Pipeline 2 is a Lakeflow declarative pipeline doing the analytical fan-out. <b>The seam between them is the load-bearing idea.</b> <span class="mono">vw_tag_reading</span> starts pointed at the static seed table (dashed) so lanes B and C have real data from minute one. At seam 1 lane A repoints it at the live change feed, and nothing downstream changes. The rust path is why Lakebase is in the architecture at all: the app reads current values straight from Postgres for its live tiles, while the change feed becomes the historian for analytics.</figcaption>
   </figure>
 </section>
 
 <section>
   <div class="sec-head col">
-    <span class="eyebrow">Correction</span>
-    <h2>Two things the whiteboard cannot do</h2>
-    <p class="lede">Worth knowing before anyone starts building, because both would surface late and both change lane A's work.</p>
+    <span class="eyebrow">Reality check</span>
+    <h2>The whiteboard mostly survives contact</h2>
+    <p class="lede">Checked against current documentation rather than memory. One box has to change what it <em>is</em>, not what it does, and the change buys us genuine sub-second latency.</p>
   </div>
 
   <figure>
     <div class="fig-frame">
-      <svg viewBox="0 0 1080 300" role="img" aria-label="Comparison. On the left, the whiteboard's real-time-mode pipeline writing to a Lakebase sink and an API sink, both marked as non-existent. On the right, a continuous pipeline whose foreach batch sink handler performs both the Lakebase upsert and the alert POST.">
+      <svg viewBox="0 0 1080 300" role="img" aria-label="Comparison. Both panels write to a Lakebase upsert and an alert POST. The only difference is that the left panel runs pipeline one as a Lakeflow declarative pipeline, which the Lakebase sink does not support, while the right panel runs it as a standalone Structured Streaming job on classic compute, which does.">
         <defs>
           <marker id="ah2" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6.5" orient="auto">
             <polygon points="0,0 10,4 0,8" fill="var(--ink-2)"/>
           </marker>
+          <marker id="ah3" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6.5" orient="auto">
+            <polygon points="0,0 10,4 0,8" fill="var(--ore)"/>
+          </marker>
         </defs>
 
-        <text x="20" y="18" class="panel-ttl" fill="var(--crit)">As drawn &middot; not buildable</text>
-        <text x="560" y="18" class="panel-ttl" fill="var(--ok)">What we build instead</text>
+        <text x="20" y="18" class="panel-ttl" fill="var(--crit)">As drawn &middot; one box unavailable</text>
+        <text x="560" y="18" class="panel-ttl" fill="var(--ok)">As built &middot; same shape, sub-second</text>
 
         <!-- left -->
-        <rect x="250" y="40" width="176" height="42" rx="2" class="n-fill"/>
-        <rect x="250" y="40" width="176" height="42" rx="2" class="n-stroke"/>
-        <text x="338" y="66" class="n-label" text-anchor="middle">Lakebase sink</text>
+        <rect x="270" y="44" width="176" height="42" rx="2" class="n-fill"/>
+        <rect x="270" y="44" width="176" height="42" rx="2" class="n-stroke"/>
+        <text x="358" y="70" class="n-label" text-anchor="middle">Lakebase upsert</text>
 
-        <rect x="20" y="118" width="176" height="56" rx="2" class="n-fill"/>
-        <rect x="20" y="118" width="176" height="56" rx="2" class="n-stroke"/>
-        <text x="108" y="141" class="n-label" text-anchor="middle">SDP real-time mode</text>
-        <text x="108" y="158" class="n-sub" text-anchor="middle">sinks are Kafka only</text>
+        <rect x="20" y="118" width="200" height="60" rx="2" fill="none" stroke="var(--crit)" stroke-width="1.6" stroke-dasharray="5 4"/>
+        <text x="120" y="142" class="n-label" text-anchor="middle" fill="var(--crit)">Lakeflow pipeline</text>
+        <text x="120" y="160" class="n-sub" text-anchor="middle" fill="var(--crit)">real-time mode</text>
 
-        <rect x="250" y="210" width="176" height="42" rx="2" class="n-fill"/>
-        <rect x="250" y="210" width="176" height="42" rx="2" class="n-stroke"/>
-        <text x="338" y="236" class="n-label" text-anchor="middle">API sink</text>
+        <rect x="270" y="210" width="176" height="42" rx="2" class="n-fill"/>
+        <rect x="270" y="210" width="176" height="42" rx="2" class="n-stroke"/>
+        <text x="358" y="236" class="n-label" text-anchor="middle">Alert POST</text>
 
-        <line x1="196" y1="132" x2="244" y2="76" class="crit-line"/>
-        <line x1="196" y1="160" x2="244" y2="216" class="crit-line"/>
+        <line x1="220" y1="134" x2="264" y2="80" class="crit-line"/>
+        <line x1="220" y1="162" x2="264" y2="216" class="crit-line"/>
         <g class="crit-mark">
-          <line x1="212" y1="96" x2="228" y2="112"/><line x1="228" y1="96" x2="212" y2="112"/>
-          <line x1="212" y1="180" x2="228" y2="196"/><line x1="228" y1="180" x2="212" y2="196"/>
+          <line x1="228" y1="98" x2="244" y2="114"/><line x1="244" y1="98" x2="228" y2="114"/>
         </g>
-        <text x="20" y="284" class="crit-lbl">Neither sink type exists in an RTM flow.</text>
+        <text x="20" y="278" class="crit-lbl">The Lakebase sink does not run on serverless</text>
+        <text x="20" y="292" class="crit-lbl">or inside a Lakeflow pipeline.</text>
 
         <line x1="520" y1="10" x2="520" y2="290" stroke="var(--rule)" stroke-width="1"/>
 
         <!-- right -->
-        <rect x="766" y="40" width="190" height="42" rx="2" class="n-fill"/>
-        <rect x="766" y="40" width="190" height="42" rx="2" class="n-stroke"/>
-        <text x="861" y="66" class="n-label" text-anchor="middle">Lakebase upsert</text>
+        <rect x="800" y="44" width="196" height="42" rx="2" class="seam-fill"/>
+        <rect x="800" y="44" width="196" height="42" rx="2" class="seam-stroke"/>
+        <text x="898" y="63" class="n-label" text-anchor="middle">Lakebase upsert</text>
+        <text x="898" y="78" class="n-sub" text-anchor="middle">native postgresql sink</text>
 
-        <rect x="560" y="118" width="176" height="56" rx="2" class="n-fill"/>
-        <rect x="560" y="118" width="176" height="56" rx="2" class="n-stroke"/>
-        <text x="648" y="141" class="n-label" text-anchor="middle">Pipeline</text>
-        <text x="648" y="158" class="n-sub" text-anchor="middle">continuous, not RTM</text>
+        <rect x="560" y="118" width="200" height="60" rx="2" class="n-fill"/>
+        <rect x="560" y="118" width="200" height="60" rx="2" class="n-stroke"/>
+        <text x="660" y="142" class="n-label" text-anchor="middle">Structured Streaming</text>
+        <text x="660" y="160" class="n-sub" text-anchor="middle">classic compute, DBR 18+</text>
 
-        <rect x="766" y="114" width="190" height="64" rx="2" class="seam-fill"/>
-        <rect x="766" y="114" width="190" height="64" rx="2" class="seam-stroke"/>
-        <text x="861" y="141" class="n-label" text-anchor="middle">foreach_batch_sink</text>
-        <text x="861" y="158" class="n-sub" text-anchor="middle">one handler, both jobs</text>
+        <rect x="800" y="210" width="196" height="42" rx="2" class="n-fill"/>
+        <rect x="800" y="210" width="196" height="42" rx="2" class="n-stroke"/>
+        <text x="898" y="229" class="n-label" text-anchor="middle">Alert POST</text>
+        <text x="898" y="244" class="n-sub" text-anchor="middle">custom foreach sink</text>
 
-        <rect x="766" y="210" width="190" height="42" rx="2" class="n-fill"/>
-        <rect x="766" y="210" width="190" height="42" rx="2" class="n-stroke"/>
-        <text x="861" y="236" class="n-label" text-anchor="middle">Alert POST</text>
-
-        <line x1="736" y1="146" x2="760" y2="146" class="a-line" marker-end="url(#ah2)"/>
-        <line x1="861" y1="114" x2="861" y2="88" class="a-line" marker-end="url(#ah2)"/>
-        <line x1="861" y1="178" x2="861" y2="204" class="a-line" marker-end="url(#ah2)"/>
-        <text x="560" y="284" class="a-lbl" fill="var(--ok)">Latency lands in low seconds. A control room screen never notices.</text>
+        <polyline points="760,134 782,134 782,68 794,68" class="ore-line" marker-end="url(#ah3)"/>
+        <text x="770" y="112" class="ore-lbl">Q1</text>
+        <polyline points="760,162 782,162 782,228 794,228" class="a-line" marker-end="url(#ah2)"/>
+        <text x="770" y="192" class="a-lbl">Q2</text>
+        <text x="560" y="278" class="a-lbl" fill="var(--ok)">trigger(realTime) &middot; managed auth, batching, retries,</text>
+        <text x="560" y="292" class="a-lbl" fill="var(--ok)">backpressure. Latency in milliseconds, not seconds.</text>
       </svg>
     </div>
-    <figcaption><b>One:</b> real-time mode sinks to Kafka and nothing else. There is no Lakebase sink and no HTTP sink in an RTM flow, and Delta is explicitly not RTM-usable, so the two arrows out of <span class="mono">SDP-RTM</span> cannot be built. A normal continuous pipeline with a <span class="mono">foreach_batch_sink</span> handler does both jobs per micro-batch. Keep true RTM as a stretch goal on a separate Kafka-sinking pipeline if there is time. <b>Two:</b> Lakebase change data capture into Unity Catalog is configured only through the workspace UI. No CLI, no REST API, so budget five minutes of clicking rather than trying to script it, and do it early.</figcaption>
+    <figcaption><b>The native Lakebase sink is real and it does real-time mode.</b> <span class="mono">format("postgresql")</span> supports <span class="mono">trigger(realTime=...)</span>, infers its upsert key from the target table's primary key, and manages credentials, batching, retries and backpressure for us. The single constraint is that it runs neither on serverless nor inside a Lakeflow pipeline, so pipeline 1 becomes a standalone Structured Streaming job on classic compute. Lakeflow keeps its place as pipeline 2, the analytical fan-out, where materialized views and expectations genuinely earn it. Both technologies end up doing what each is best at, which is a better story than forcing one to do both.</figcaption>
   </figure>
+
+  <div class="col stack" style="margin-top:34px">
+    <p><b>The second correction is one I had backwards.</b> Lakebase change data capture into Unity Catalog is called Lakebase CDF, and it is <em>not</em> UI-only: feeds can be created, inspected, disabled and deleted through the Postgres REST API and the Databricks SDKs, so lane A can script it and tear it down rather than clicking through a wizard. It does need a workspace admin to switch on the <span class="mono">Lakebase Change Data Feed</span> preview first, which is a phase 0 question because only an admin can answer it.</p>
+  </div>
 </section>
 
 <section>
@@ -521,9 +526,21 @@ ul.tight li b{font-weight:600}
       <thead><tr><th>Constraint</th><th>Whose</th><th>What to do</th><th>When</th></tr></thead>
       <tbody>
         <tr>
-          <td><strong>Destination catalog must not use default storage</strong><br>Lakehouse Sync cannot write into one.</td>
+          <td><strong>The Lakebase CDF preview must be switched on</strong><br>Only a workspace admin can do it.</td>
           <td class="who">phase 0</td>
-          <td>Check before creating the catalog. Discovering this after the pipeline is built means rebuilding the catalog.</td>
+          <td>Nothing in the middle of the architecture works until it is on. Ask on day one, not at three in the afternoon.</td>
+          <td><span class="pill chk">check first</span></td>
+        </tr>
+        <tr>
+          <td><strong>The native Lakebase sink needs classic compute, DBR 18+</strong><br>Serverless and Lakeflow pipelines are both unsupported.</td>
+          <td class="who">phase 0</td>
+          <td>Confirm a suitable cluster exists. If not, lane A falls back to a Lakeflow pipeline at low-seconds latency instead of milliseconds.</td>
+          <td><span class="pill chk">check first</span></td>
+        </tr>
+        <tr>
+          <td><strong>Destination catalog must not use default storage</strong><br>Nor be private-endpoint-only.</td>
+          <td class="who">phase 0</td>
+          <td>Check before creating the catalog. Discovering it after the pipeline is built means rebuilding the catalog.</td>
           <td><span class="pill chk">check first</span></td>
         </tr>
         <tr>
@@ -533,16 +550,22 @@ ul.tight li b{font-weight:600}
           <td><span class="pill blocks">blocks B</span></td>
         </tr>
         <tr>
-          <td><strong>Lakebase tokens expire after one hour</strong></td>
-          <td class="who">lane A</td>
-          <td>Refresh the credential inside the sink handler. Caching one at pipeline start is the most likely way this dies mid-demo.</td>
+          <td><strong>CDF skips empty tables</strong></td>
+          <td class="who">lanes A, B</td>
+          <td>The alert history table will not exist until the first alert fires. Do not spend an hour debugging a feed that is working correctly.</td>
           <td><span class="pill plan">design in</span></td>
         </tr>
         <tr>
-          <td><strong><span class="mono">REPLICA IDENTITY FULL</span> on every synced table</strong></td>
-          <td class="who">lane A</td>
-          <td>Already in the Lakebase DDL. Without it the change feed will not start at all.</td>
-          <td><span class="pill chk">check first</span></td>
+          <td><strong>Every update arrives twice</strong><br>As <span class="mono">update_preimage</span> and <span class="mono">update_postimage</span>.</td>
+          <td class="who">lane B</td>
+          <td>Filter to <span class="mono">insert</span> plus <span class="mono">update_postimage</span> and order by <span class="mono">_pg_lsn</span>. The seam view already does this.</td>
+          <td><span class="pill plan">design in</span></td>
+        </tr>
+        <tr>
+          <td><strong>Never enable Delta CDF, a row filter, or a column mask on a feed destination</strong></td>
+          <td class="who">lanes A, B</td>
+          <td>Any of the three permanently stops CDF writing to that table.</td>
+          <td><span class="pill plan">design in</span></td>
         </tr>
         <tr>
           <td><strong>Both lanes must share one solids density</strong><br><span class="mono">SOLIDS_SG = 4.9</span></td>

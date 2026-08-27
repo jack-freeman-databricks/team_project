@@ -8,7 +8,7 @@
 --           Declarative Pipelines creates and owns. DO NOT run it as DDL:
 --           SDP must create its own streaming tables and materialized views,
 --           and a hand-created table of the same name will conflict.
--- SECTION C is created by Lakehouse Sync. DO NOT run it either.
+-- SECTION C is created by Lakebase CDF. DO NOT run it either.
 --
 -- Replace <user_a>, <user_b>, <user_c> before running section A.
 -- =====================================================================
@@ -211,7 +211,7 @@ CREATE OR REPLACE VIEW ironbark.analytics.vw_tag_reading AS
 SELECT event_id, tag_id, source_ts, value, value_text, quality, unit, seq, ingest_ts
 FROM ironbark.raw.tag_reading_seed;
 
--- After seam 1, replace the body with the live Lakehouse Sync path. Each
+-- After seam 1, replace the body with the live Lakebase CDF path. Each
 -- Postgres UPDATE produces a preimage/postimage pair, so filter to postimage
 -- and insert only, and de-duplicate on the Postgres LSN.
 --
@@ -366,8 +366,10 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 
 
 -- =====================================================================
--- SECTION C -- created by Lakehouse Sync. DO NOT RUN.
---              Enabled once through the UI (there is no CLI or API).
+-- SECTION C -- created by Lakebase Change Data Feed. DO NOT RUN.
+--              Started once per schema, via the Lakebase UI or the Postgres
+--              REST API / SDK (it IS scriptable). Requires a workspace admin
+--              to have enabled the "Lakebase Change Data Feed" preview.
 -- =====================================================================
 --
 -- ironbark.raw.lb_tag_current_history
@@ -378,5 +380,15 @@ COMMENT 'Predictive maintenance scores. The AI layer reads this and can also cal
 --     _timestamp      TIMESTAMP  when the sync processed the change
 --     _sort_by        BIGINT     monotonic sort key
 --
+-- Batched and flushed roughly every 15 seconds, so this is the analytics
+-- path's floor latency. The app's live tiles bypass it by reading Lakebase
+-- directly.
+--
 -- Consumed through ironbark.analytics.vw_tag_reading (see A.3), which filters
 -- to insert + update_postimage. Do not read this table directly from lanes B or C.
+--
+-- Never enable Delta change data feed, a row filter, or a column mask on this
+-- table. Any of the three permanently stops CDF writing to it.
+--
+-- ironbark.raw.lb_alert_outbox_history
+--   will not exist until the first alert fires: CDF skips empty tables.

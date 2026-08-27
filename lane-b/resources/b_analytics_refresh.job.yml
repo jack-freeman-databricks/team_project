@@ -1,0 +1,24 @@
+resources:
+  jobs:
+    b_analytics_refresh:
+      name: "[lane B] refresh the analytical layer on a schedule"
+      description: >-
+        Keeps the flowsheet live. The analytical datasets are materialized views,
+        so they only recompute when the pipeline runs. Without this the control
+        room shows whatever the last manual run produced, which for a demo billed
+        as real-time is worse than useless.
+        Five minutes is chosen against the grain of the data: the mass balance is
+        a one minute window and Lakebase CDF flushes in roughly 15 seconds, so a
+        five minute refresh is comfortably fresher than an operator's decision
+        cycle without paying for continuous compute.
+      tasks:
+        - task_key: refresh
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.b_analytics.id}
+      schedule:
+        quartz_cron_expression: "0 0/5 * * * ?"
+        timezone_id: UTC
+        pause_status: ${var.refresh_pause_status}
+      queue:
+        enabled: true
+      max_concurrent_runs: 1

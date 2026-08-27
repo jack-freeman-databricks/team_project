@@ -25,6 +25,12 @@ variables:
     default: jack_freeman_catalog.tech_summit_scada_build.vibration_pdm
   serving_endpoint:
     default: ironbark-pdm
+  refresh_pause_status:
+    description: >-
+      UNPAUSED keeps the analytical layer refreshing every 5 minutes so the
+      control room stays live. PAUSED stops the schedule without undeploying it.
+    default: UNPAUSED
+
   experiment:
     description: >-
       MLflow experiment path. Set explicitly because a spark_python_task does not

@@ -1,0 +1,12 @@
+*   7db184f (HEAD -> main) Merge dev-work-order-notes: promote Lakebase Build 1 to main
+|\  
+| * 4bdc36a (dev-work-order-notes) Lakebase Build 1: operational schema, bidirectional sync, hybrid search
+|/  
+* cbe255e (origin/main) Lane B: validate mass balance against lane A's real seed data
+* aba1d13 Make vibration features physically derivable: add peak and kurtosis tags
+* 920b84f Lane B: mass balance logic, proven against a design-value fixture
+* 410a9bb Fix a latent day-killer in the seam view, and grant the team
+* 3a40bc1 Phase 0: land the contract on the real workspace
+* 4dcf1c6 Correct the streaming architecture against current Lakebase docs
+* 012f12e Add standalone one-page plan
+* 8051eb9 Add data contract and per-lane workstream prompts

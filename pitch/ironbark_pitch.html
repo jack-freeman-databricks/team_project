@@ -1,0 +1,365 @@
+<title>Ironbark Plant Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&display=swap">
+
+<style>
+  /* Committed brand visual world (Databricks). Painted explicitly so it holds on any host theme. */
+  :root{
+    color-scheme: light;
+    --navy:#1B3139; --navy-900:#0B2026; --lava:#FF3621; --lava-500:#FF5F46;
+    --oat:#F9F7F4; --oat-med:#EEEDE9; --ink:#12252B; --muted:#5A6F77; --line:#DCE0E2;
+    --green:#00A972; --yellow:#FFAB00; --blue:#2272B4; --maroon:#98102A;
+    --ff-sans:"DM Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --ff-mono:"DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --maxw: 1120px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--navy-900); color:var(--ink);
+    font-family:var(--ff-sans); -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---- chrome ---- */
+  .chrome{
+    position:fixed; inset:0 0 auto 0; height:52px; z-index:50;
+    display:flex; align-items:center; gap:16px; padding:0 20px;
+    background:rgba(11,32,38,.82); backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.08); color:#EFF3F4;
+  }
+  .chrome .brand{ display:flex; align-items:center; gap:9px; font-weight:700; letter-spacing:.01em; font-size:14px; }
+  .brand .dot{ width:11px; height:11px; border-radius:2px; background:var(--lava); transform:rotate(45deg); }
+  .chrome .spacer{ flex:1; }
+  .counter{ font-family:var(--ff-mono); font-size:12px; color:#9DB0B6; font-variant-numeric:tabular-nums; letter-spacing:.04em; }
+  .btn{
+    font-family:var(--ff-sans); font-weight:600; font-size:13px; color:#fff;
+    background:var(--lava); border:0; border-radius:7px; padding:9px 15px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px; transition:background .15s ease, transform .05s ease;
+  }
+  .btn:hover{ background:var(--lava-500); }
+  .btn:active{ transform:translateY(1px); }
+  .btn svg{ width:14px; height:14px; }
+  .progress{ position:fixed; top:52px; left:0; height:2px; background:var(--lava); z-index:50; width:0; transition:width .2s ease; }
+
+  /* ---- deck / slides ---- */
+  .deck{
+    height:100vh; overflow-y:scroll; scroll-snap-type:y mandatory; scroll-behavior:smooth;
+    scrollbar-width:none;
+  }
+  .deck::-webkit-scrollbar{ display:none; }
+  .slide{
+    height:100vh; scroll-snap-align:start; position:relative; overflow:hidden;
+    display:grid; place-items:center; padding:76px clamp(28px,6vw,120px) 64px;
+  }
+  .inner{ width:100%; max-width:var(--maxw); }
+
+  /* grounds */
+  .s-oat{ background:var(--oat); color:var(--ink); }
+  .s-oat-2{ background:linear-gradient(160deg,#FFFFFF 0%, var(--oat) 60%, var(--oat-med) 100%); color:var(--ink); }
+  .s-navy{ background:var(--navy); color:#EAF0F1; }
+  .s-navy-deep{ background:radial-gradient(120% 120% at 78% 12%, #17323b 0%, var(--navy-900) 70%); color:#EAF0F1; }
+
+  /* type */
+  .eyebrow{ font-family:var(--ff-mono); font-size:12.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--lava); margin:0 0 22px; font-weight:500; }
+  .s-navy .eyebrow, .s-navy-deep .eyebrow{ color:var(--lava-500); }
+  h1{ font-size:clamp(38px,6.4vw,74px); line-height:1.02; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance; }
+  h2{ font-size:clamp(30px,4.6vw,54px); line-height:1.06; letter-spacing:-.02em; font-weight:800; margin:0; text-wrap:balance; }
+  .statement{ font-size:clamp(30px,4.9vw,58px); line-height:1.1; letter-spacing:-.02em; font-weight:700; margin:0; max-width:16ch; text-wrap:balance; }
+  .statement em{ font-style:normal; color:var(--lava-500); }
+  .lead{ font-size:clamp(17px,1.7vw,21px); line-height:1.5; color:var(--muted); max-width:60ch; margin:22px 0 0; }
+  .s-navy .lead, .s-navy-deep .lead{ color:#A9BcC1; color:#A6B9BF; }
+  p{ margin:0; }
+
+  /* title slide */
+  .title-wrap{ display:flex; flex-direction:column; gap:0; }
+  .title-sub{ font-size:clamp(17px,1.9vw,23px); line-height:1.45; color:#B9C9CE; max-width:44ch; margin:26px 0 0; font-weight:400; }
+  .title-foot{ position:absolute; left:clamp(28px,6vw,120px); right:clamp(28px,6vw,120px); bottom:40px;
+    display:flex; justify-content:space-between; align-items:flex-end; gap:20px;
+    font-family:var(--ff-mono); font-size:12px; color:#7f959b; letter-spacing:.03em; }
+  .kicker{ display:inline-flex; align-items:center; gap:10px; margin-bottom:26px; font-family:var(--ff-mono);
+    font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:#9DB0B6; }
+  .kicker .rule{ width:34px; height:1px; background:var(--lava); }
+
+  /* cards */
+  .cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:40px; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:24px 22px; }
+  .s-navy .card, .s-navy-deep .card{ background:rgba(255,255,255,.045); border-color:rgba(255,255,255,.1); }
+  .card .n{ font-family:var(--ff-mono); font-size:12px; color:var(--lava); letter-spacing:.04em; }
+  .card h3{ font-size:19px; letter-spacing:-.01em; margin:12px 0 8px; font-weight:700; }
+  .card p{ font-size:14.5px; line-height:1.5; color:var(--muted); }
+  .s-navy .card p, .s-navy-deep .card p{ color:#9fb2b8; }
+
+  /* four C's */
+  .cs{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; margin-top:40px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .c{ background:var(--oat); padding:26px 22px; display:flex; flex-direction:column; gap:10px; }
+  .c .cnum{ font-family:var(--ff-mono); font-size:12px; color:var(--muted); letter-spacing:.06em; }
+  .c h3{ font-size:22px; font-weight:800; letter-spacing:-.01em; margin:0; }
+  .c h3::first-letter{ color:var(--lava); }
+  .c p{ font-size:14px; line-height:1.48; color:var(--muted); margin:0; }
+
+  /* pillars */
+  .pillars{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:44px; }
+  .pillar{ background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.11); border-radius:12px; padding:22px 18px; display:flex; flex-direction:column; }
+  .pillar .tag{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.06em; color:var(--lava-500); text-transform:uppercase; }
+  .pillar h3{ font-size:17px; font-weight:700; margin:12px 0 8px; letter-spacing:-.01em; }
+  .pillar p{ font-size:13px; line-height:1.45; color:#9fb2b8; }
+  .pillar .bar{ height:3px; width:30px; border-radius:2px; background:var(--lava); margin-bottom:2px; }
+
+  /* metrics */
+  .metrics{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px 34px; margin-top:44px; }
+  .metric .fig{ font-size:clamp(34px,4.4vw,52px); font-weight:800; letter-spacing:-.03em; line-height:1;
+    font-variant-numeric:tabular-nums; color:var(--ink); }
+  .metric .fig .u{ font-size:.42em; font-weight:600; color:var(--lava); letter-spacing:0; margin-left:4px; }
+  .metric .lab{ margin-top:12px; font-size:14px; line-height:1.45; color:var(--muted); max-width:30ch; }
+  .metric .lab b{ color:var(--ink); font-weight:600; }
+
+  /* flow diagram */
+  .flow{ display:flex; align-items:stretch; gap:0; margin-top:46px; flex-wrap:wrap; }
+  .node{ flex:1 1 0; min-width:120px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:16px 15px; display:flex; flex-direction:column; gap:6px; }
+  .node.hot{ border-color:var(--lava); box-shadow:0 0 0 1px var(--lava); }
+  .node .stage{ font-family:var(--ff-mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--lava); }
+  .node h4{ font-size:14.5px; margin:0; font-weight:700; letter-spacing:-.01em; line-height:1.15; }
+  .node p{ font-size:12px; line-height:1.4; color:var(--muted); }
+  .arrow{ align-self:center; color:var(--muted); flex:0 0 30px; text-align:center; font-size:18px; }
+  .flow-note{ margin-top:22px; font-family:var(--ff-mono); font-size:12.5px; color:var(--muted); letter-spacing:.02em; }
+  .flow-note b{ color:var(--lava); font-weight:500; }
+
+  /* outcomes list */
+  .outcomes{ display:grid; grid-template-columns:1fr 1fr; gap:18px 40px; margin-top:40px; }
+  .outcome{ display:flex; gap:16px; align-items:flex-start; padding:18px 0; border-top:1px solid rgba(255,255,255,.12); }
+  .outcome .idx{ font-family:var(--ff-mono); font-size:13px; color:var(--lava-500); padding-top:3px; }
+  .outcome h3{ font-size:18px; font-weight:700; margin:0 0 5px; letter-spacing:-.01em; }
+  .outcome p{ font-size:14px; line-height:1.5; color:#9fb2b8; }
+
+  /* binary motif */
+  .motif{ position:absolute; font-family:var(--ff-mono); color:rgba(255,255,255,.05); font-size:13px;
+    line-height:1.7; letter-spacing:.15em; user-select:none; pointer-events:none; white-space:pre; }
+
+  /* prev/next */
+  .nav{ position:fixed; right:20px; bottom:20px; z-index:50; display:flex; gap:8px; }
+  .nav button{ width:38px; height:38px; border-radius:9px; border:1px solid rgba(255,255,255,.16);
+    background:rgba(11,32,38,.7); color:#EAF0F1; font-size:16px; cursor:pointer; backdrop-filter:blur(6px); }
+  .nav button:hover{ background:var(--lava); border-color:var(--lava); }
+  .hint{ position:fixed; left:20px; bottom:22px; z-index:40; font-family:var(--ff-mono); font-size:11px; color:rgba(255,255,255,.4); }
+
+  :focus-visible{ outline:2px solid var(--lava); outline-offset:2px; }
+
+  @media (max-width:820px){
+    .cards,.cs,.pillars,.metrics,.outcomes{ grid-template-columns:1fr 1fr; }
+    .flow{ flex-direction:column; } .arrow{ transform:rotate(90deg); flex-basis:auto; padding:4px 0; }
+  }
+  @media (prefers-reduced-motion:reduce){ .deck{ scroll-behavior:auto; } .inner{ animation:none !important; } }
+
+  /* entrance */
+  .slide.active .inner{ animation:rise .6s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none;} }
+
+  /* ---------- PRINT / EXPORT PDF ---------- */
+  @media print{
+    @page{ size:1280px 720px; margin:0; }
+    html,body{ background:#fff; }
+    .chrome,.nav,.hint,.progress{ display:none !important; }
+    .deck{ height:auto; overflow:visible; scroll-snap-type:none; }
+    .slide{ height:720px; width:1280px; break-after:page; page-break-after:always; padding:64px 96px; }
+    .slide:last-child{ break-after:auto; page-break-after:auto; }
+    .slide.active .inner{ animation:none; }
+    *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+
+<div class="chrome">
+  <span class="brand"><span class="dot"></span> Ironbark&nbsp;·&nbsp;Real-Time Plant Intelligence</span>
+  <span class="spacer"></span>
+  <span class="counter">01 / 09</span>
+  <button class="btn" id="pdf" title="Print to PDF (choose 'Save as PDF', landscape)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Export PDF
+  </button>
+</div>
+<div class="progress" id="bar"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 · TITLE -->
+  <section class="slide s-navy-deep">
+    <div class="motif" style="top:64px; right:40px;">1001100 001110
+10010 00011 10100
+00100 00111  001
+001001 01101 001
+00111 10100 11010</div>
+    <div class="inner title-wrap">
+      <span class="kicker"><span class="rule"></span> Ironbark Resources · Pilbara iron ore</span>
+      <h1>Real-time plant<br>intelligence.</h1>
+      <p class="title-sub">Pit-to-port mass balance, predictive maintenance, and an AI control room — built on the Databricks Data + AI Platform.</p>
+    </div>
+    <div class="title-foot">
+      <span>Prepared for the Ironbark operations team</span>
+      <span>Databricks Field Engineering</span>
+    </div>
+  </section>
+
+  <!-- 2 · PROBLEM -->
+  <section class="slide s-oat">
+    <div class="inner">
+      <p class="eyebrow">The problem</p>
+      <h2>A crushing plant runs blind<br>between shift reports.</h2>
+      <p class="lead">2,500&nbsp;t/h of ROM feed moves through crushers, screens and a wet desands circuit — but the numbers that matter arrive in a spreadsheet hours after the tonnes are already lost.</p>
+      <div class="cards">
+        <div class="card"><span class="n">01</span><h3>Blind between reports</h3><p>Mass imbalances and choked crushers surface at end-of-shift, not as they happen.</p></div>
+        <div class="card"><span class="n">02</span><h3>Reactive maintenance</h3><p>Bearings are replaced after they fail. A vibration alarm fires far too late to plan around.</p></div>
+        <div class="card"><span class="n">03</span><h3>Siloed data</h3><p>Historian, lab, and maintenance systems never meet, so no one holds a single live picture.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · INSIGHT -->
+  <section class="slide s-navy">
+    <div class="motif" style="bottom:56px; left:40px;">00111 10100 001
+10010 00011 101
+001001 01101 00</div>
+    <div class="inner">
+      <p class="eyebrow">The shift</p>
+      <p class="statement">Model intelligence isn't the limiting factor. <em>Live, trusted context is.</em></p>
+      <p class="lead">The plant already emits ~450 readings a second across 151 instruments. The win isn't a bigger model — it's making that stream live, governed, and answerable in one place.</p>
+    </div>
+  </section>
+
+  <!-- 4 · FOUR C's -->
+  <section class="slide s-oat-2">
+    <div class="inner">
+      <p class="eyebrow">What the plant needs from its data</p>
+      <h2>Context, control, cost, choice.</h2>
+      <div class="cs">
+        <div class="c"><span class="cnum">01</span><h3>Context</h3><p>151 live tags, the flowsheet topology, and a semantic layer an agent can actually reason over.</p></div>
+        <div class="c"><span class="cnum">02</span><h3>Control</h3><p>Every table and model governed in Unity Catalog, with change history captured automatically.</p></div>
+        <div class="c"><span class="cnum">03</span><h3>Cost</h3><p>Serverless compute that scales to zero between shifts — you pay for tonnes, not idle clusters.</p></div>
+        <div class="c"><span class="cnum">04</span><h3>Choice</h3><p>Open Delta and Iceberg formats. No lock-in on your data, your model, or your cloud.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · ARCHITECTURE -->
+  <section class="slide s-oat">
+    <div class="inner">
+      <p class="eyebrow">The architecture</p>
+      <h2>One stream, pit to port.</h2>
+      <div class="flow">
+        <div class="node"><span class="stage">Source</span><h4>Plant instruments</h4><p>151 tags · ~450 events/sec</p></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="stage">Ingest</span><h4>Real-time streaming</h4><p>Lakeflow · sub-second</p></div>
+        <div class="arrow">→</div>
+        <div class="node hot"><span class="stage">Serve</span><h4>Lakebase</h4><p>Hot store · <code>tag_current</code></p></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="stage">Historian</span><h4>Change Data Feed</h4><p>Auto-captured to UC</p></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="stage">Intelligence</span><h4>Mass balance · PdM</h4><p>Analytics + ML model</p></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="stage">Consume</span><h4>Control room + Genie</h4><p>Live app · ask anything</p></div>
+      </div>
+      <p class="flow-note">Every value change flows <b>instrument → Lakebase → Unity Catalog historian in ~18 seconds</b>, with no pipeline to hand-maintain.</p>
+    </div>
+  </section>
+
+  <!-- 6 · PLATFORM PILLARS -->
+  <section class="slide s-navy-deep">
+    <div class="inner">
+      <p class="eyebrow">Built on the platform, not around it</p>
+      <h2>Five services, one solution.</h2>
+      <div class="pillars">
+        <div class="pillar"><div class="bar"></div><span class="tag">Lakeflow</span><h3>Real-time ingest</h3><p>Streaming and batch on the same open data lake.</p></div>
+        <div class="pillar"><div class="bar"></div><span class="tag">Lakebase</span><h3>Operational store</h3><p>Sub-second Postgres the control room reads live.</p></div>
+        <div class="pillar"><div class="bar"></div><span class="tag">Unity Catalog</span><h3>Governance + CDF</h3><p>One control plane; the historian comes for free.</p></div>
+        <div class="pillar"><div class="bar"></div><span class="tag">Agent Bricks · Genie</span><h3>Ask the plant</h3><p>Natural-language answers over sensors and work orders.</p></div>
+        <div class="pillar"><div class="bar"></div><span class="tag">Databricks Apps</span><h3>Control room</h3><p>The live flowsheet, deployed next to the data.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · PROOF -->
+  <section class="slide s-oat">
+    <div class="inner">
+      <p class="eyebrow">Proof — built and validated in a day</p>
+      <h2>Not a mockup. A working pipeline.</h2>
+      <div class="metrics">
+        <div class="metric"><div class="fig">151<span class="u">tags</span></div><div class="lab">instruments streaming at <b>~450 events/sec</b>, upserted live to Lakebase</div></div>
+        <div class="metric"><div class="fig">&lt;1<span class="u">%</span></div><div class="lab">mass-balance imbalance at <b>every unit node</b> — the recirculating load closes exactly</div></div>
+        <div class="metric"><div class="fig">0.95<span class="u">recall</span></div><div class="lab">predictive model catches bearing wear 30 days out vs <b>0.15</b> for an RMS alarm limit</div></div>
+        <div class="metric"><div class="fig">~18<span class="u">sec</span></div><div class="lab">from a sensor change to the <b>Unity Catalog historian</b> via Change Data Feed</div></div>
+        <div class="metric"><div class="fig">99.5<span class="u">%</span></div><div class="lab">good-quality readings, with realistic faults and alarms baked into the <b>live stream</b></div></div>
+        <div class="metric"><div class="fig">120<span class="u">days</span></div><div class="lab">of physics-simulated history — enough to <b>train and prove</b> the maintenance model</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · VALUE -->
+  <section class="slide s-navy">
+    <div class="inner">
+      <p class="eyebrow">The payoff</p>
+      <h2>From shift reports to a living plant.</h2>
+      <div class="outcomes">
+        <div class="outcome"><span class="idx">01</span><div><h3>Fewer unplanned stops</h3><p>Bearing wear is flagged weeks ahead — while the waveform is shifting, before any RMS alarm fires.</p></div></div>
+        <div class="outcome"><span class="idx">02</span><div><h3>Tighter control</h3><p>The mass balance reconciles every minute, so drift is caught as it starts, not at end of shift.</p></div></div>
+        <div class="outcome"><span class="idx">03</span><div><h3>One pane of glass</h3><p>A live flowsheet the control room and the plant manager share — the same numbers, in real time.</p></div></div>
+        <div class="outcome"><span class="idx">04</span><div><h3>Ask anything</h3><p>"What needs maintenance this week?" answered over real work orders and sensor history, in plain language.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · CLOSE -->
+  <section class="slide s-navy-deep">
+    <div class="motif" style="top:72px; left:44px;">10100 00100 00111
+001 001001 01101
+001 00111 10100 11</div>
+    <div class="inner title-wrap">
+      <span class="kicker"><span class="rule"></span> The next step</span>
+      <h1>Let's put the<br>plant online.</h1>
+      <p class="title-sub">A live, governed, AI-ready foundation for Ironbark — starting with the crushing circuit, extensible pit to port.</p>
+    </div>
+    <div class="title-foot">
+      <span>Databricks Data + AI Platform</span>
+      <span>Lakeflow · Lakebase · Unity Catalog · Agent Bricks</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="Previous slide">‹</button>
+  <button id="next" aria-label="Next slide">›</button>
+</div>
+<div class="hint">← → to navigate · Export PDF for the deck</div>
+
+<script>
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll('.slide')];
+  const counter = document.querySelector('.counter');
+  const bar = document.getElementById('bar');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pad = n => String(n+1).padStart(2,'0');
+
+  function currentIndex(){ return Math.round(deck.scrollTop / window.innerHeight); }
+  function render(i){
+    counter.textContent = pad(i) + ' / ' + pad(slides.length-1);
+    bar.style.width = ((i)/(slides.length-1))*100 + '%';
+    slides.forEach((s,k)=> s.classList.toggle('active', k===i));
+  }
+  function go(i){
+    i = Math.max(0, Math.min(slides.length-1, i));
+    slides[i].scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+  }
+  let raf;
+  deck.addEventListener('scroll', ()=>{ cancelAnimationFrame(raf); raf = requestAnimationFrame(()=> render(currentIndex())); }, {passive:true});
+  document.getElementById('next').onclick = ()=> go(currentIndex()+1);
+  document.getElementById('prev').onclick = ()=> go(currentIndex()-1);
+  document.getElementById('pdf').onclick = ()=> window.print();
+  addEventListener('keydown', e=>{
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); go(currentIndex()+1); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); go(currentIndex()-1); }
+    else if(e.key==='Home'){ e.preventDefault(); go(0); }
+    else if(e.key==='End'){ e.preventDefault(); go(slides.length-1); }
+  });
+  render(0);
+</script>

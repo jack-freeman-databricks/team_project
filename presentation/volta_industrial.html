@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Volta Industrial: Predictive Maintenance</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
 
   <style>
     * {
@@ -22,6 +23,7 @@
       --surface-light: #F9F7F4;
       --surface-white: #FFFFFF;
       --border: #E8E5E0;
+      --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
       --positive: #00A972;
       --line-1: #00A972;
       --line-2: #FF3621;
@@ -65,12 +67,13 @@
     }
 
     .eyebrow {
-      font-size: 15px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      font-weight: 700;
       color: var(--accent);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -502,6 +505,46 @@
       font-weight: 700;
     }
 
+
+    /* Deck chrome. Screen only: fixed elements do not repeat across print pages,
+       and the PDF reads fine without it. */
+    .deck-header {
+      position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 60;
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 28px; background: var(--surface-white);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .deck-mark { width: 11px; height: 11px; background: var(--accent);
+                 transform: rotate(45deg); flex: none; }
+    .deck-header .spacer { margin-left: auto; }
+    .deck-progress {
+      position: fixed; top: 52px; left: 0; height: 2px; z-index: 61;
+      background: var(--accent); transition: width 0.35s ease; width: 0;
+    }
+    .deck-footer {
+      position: fixed; bottom: 22px; left: 28px; z-index: 60;
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+      color: var(--text-secondary); opacity: 0.75;
+    }
+    .slide { padding-top: 104px !important; }
+    /* The deck header carries the count now, so the original floating counter is
+       a duplicate sitting underneath it. */
+    .slide-counter { display: none; }
+
+    /* Big number with a small coral unit suffix. The strongest device in the
+       Ironbark deck: the eye lands on the magnitude, the unit stays out of the way. */
+    .unit { font-size: 0.4em; color: var(--accent); font-weight: 600;
+            margin-left: 2px; letter-spacing: 0; }
+
+    /* A short coral rule above a card label, so cards read as a labelled set
+       rather than a row of boxes. */
+    .card h3::before, .stat-card .eyebrow::before {
+      content: ""; display: block; width: 26px; height: 2px;
+      background: var(--accent); margin-bottom: 10px;
+    }
+
     @media print {
       /* A4 landscape is 297 x 210mm. Geometry in mm, not vh: vh resolves against
          the rendering viewport, not the page box. Slides are forced to static
@@ -527,7 +570,9 @@
         page-break-inside: avoid;
       }
       .slide:last-child { break-after: auto; page-break-after: auto; }
-      .slide-counter, .slide-nav { display: none !important; }
+      .slide-counter, .slide-nav,
+      .deck-header, .deck-progress, .deck-footer { display: none !important; }
+      .slide { padding-top: 9mm !important; }
 
       /* A4 landscape is only about 1123px wide, so the 1600px and 1200px
          responsive breakpoints both fire in print and collapse the multi-column
@@ -560,6 +605,15 @@
   </style>
 </head>
 <body>
+  <div class="deck-header">
+    <span class="deck-mark"></span>
+    <span>Databricks &middot; Volta Industrial</span>
+    <span class="spacer"></span>
+    <span id="chrome-count" style="opacity:.6"></span>
+  </div>
+  <div class="deck-progress" id="deck-progress"></div>
+  <div class="deck-footer">&larr; &rarr; to navigate</div>
+
 
 <div class="slides-container">
 
@@ -1002,5 +1056,22 @@
   showSlide(0);
 </script>
 
+  <script>
+    // Keep the header counter and progress bar in step with whichever slide is
+    // active, without assuming how the existing navigation tracks it.
+    (function () {
+      var slides = document.querySelectorAll('.slide');
+      function sync() {
+        var i = 0;
+        slides.forEach(function (el, n) { if (el.classList.contains('active')) i = n; });
+        var c = document.getElementById('chrome-count');
+        if (c) c.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+        var p = document.getElementById('deck-progress');
+        if (p) p.style.width = ((i + 1) / slides.length * 100) + '%';
+      }
+      new MutationObserver(sync).observe(document.body, {subtree: true, attributes: true, attributeFilter: ['class']});
+      sync();
+    })();
+  </script>
 </body>
 </html>

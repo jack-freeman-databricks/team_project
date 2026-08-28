@@ -28,6 +28,7 @@
       --line-1: #00A972;
       --line-2: #FF3621;
       --line-3: #445F6B;
+      --ink: #10212B;
     }
 
     html, body {
@@ -506,6 +507,54 @@
     }
 
 
+    /* Full-bleed statement slide, used as the switch-to-live-demo break. Dark ground
+       so it reads as a deliberate pivot rather than one more content slide. */
+    .slide-statement {
+      background: var(--ink);
+      justify-content: center;
+      align-items: flex-start;
+      /* The dark ground is the whole point of this slide, so keep it when printing. */
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .slide-statement .eyebrow { color: var(--accent-soft); margin-bottom: 28px; }
+    .demo-word {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 132px;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--surface-white);
+      margin: 0;
+    }
+    .demo-word .highlight { color: var(--accent-soft); }
+    .demo-lede {
+      font-size: 21px;
+      line-height: 1.5;
+      color: #C6D2D8;
+      max-width: 720px;
+      margin-top: 28px;
+    }
+    .demo-lede strong { color: var(--surface-white); font-weight: 600; }
+    .demo-cues {
+      display: flex;
+      gap: 40px;
+      margin-top: 52px;
+      flex-wrap: wrap;
+    }
+    .demo-cue {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8FA3AC;
+      padding-top: 14px;
+      border-top: 2px solid var(--accent);
+      min-width: 150px;
+    }
+    .demo-cue b { display: block; color: var(--surface-white); font-weight: 500;
+                  letter-spacing: 0.06em; margin-top: 6px; }
+
     /* Deck chrome. Screen only: fixed elements do not repeat across print pages,
        and the PDF reads fine without it. */
     .deck-header {
@@ -523,6 +572,16 @@
       position: fixed; top: 52px; left: 0; height: 2px; z-index: 61;
       background: var(--accent); transition: width 0.35s ease; width: 0;
     }
+    /* When a dark statement slide is showing, carry the chrome over to the dark
+       ground so the header does not read as a stray white band. */
+    body:has(.slide-statement.active) .deck-header {
+      background: var(--ink);
+      border-bottom-color: rgba(255, 255, 255, 0.14);
+      color: #E4EBEE;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    body:has(.slide-statement.active) .deck-footer { color: #8FA3AC; }
+
     .deck-footer {
       position: fixed; bottom: 22px; left: 28px; z-index: 60;
       font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
@@ -573,6 +632,14 @@
       .slide-counter, .slide-nav,
       .deck-header, .deck-progress, .deck-footer { display: none !important; }
       .slide { padding-top: 9mm !important; }
+
+      /* Slides are 209mm tall on a 210mm page, which leaves a 1mm strip at the
+         page edge. That is invisible on a white slide but reads as a seam on the
+         dark demo slide. box-shadow paints outside the border box without
+         affecting layout, so it floods the strip and is clipped by the page. */
+      /* Offset right and down only. A symmetric spread bleeds up onto the
+         bottom edge of the preceding page. */
+      .slide-statement { box-shadow: 6mm 6mm 0 0 var(--ink) !important; }
 
       /* A4 landscape is only about 1123px wide, so the 1600px and 1200px
          responsive breakpoints both fire in print and collapse the multi-column
@@ -826,91 +893,19 @@
   </section>
 
   <!-- Slide 8: The Data Path -->
-  <section class="slide">
-    <h2>How It Reaches the <span class="highlight">Floor</span></h2>
-    <p style="margin-top: 32px;">Telemetry to action, with latency and audit at every layer:</p>
-    <div class="chart-container">
-      <svg viewBox="0 0 1120 360" style="max-width: 100%; height: auto;">
-        <!-- ROW 1: Ingestion pipeline -->
-        <!-- Sensors box -->
-        <rect x="30" y="30" width="95" height="65" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="77" y="68" font-size="13" font-weight="600" fill="var(--text)" text-anchor="middle">Sensors</text>
-
-        <!-- Arrow 1 -->
-        <line x1="125" y1="62" x2="168" y2="62" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="168,62 160,58 160,66" fill="var(--text-secondary)"/>
-        <text x="146" y="48" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Every 1s</text>
-
-        <!-- Streaming Ingest box -->
-        <rect x="168" y="30" width="108" height="65" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="222" y="58" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Streaming</text>
-        <text x="222" y="73" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Ingest</text>
-
-        <!-- Arrow 2 -->
-        <line x1="276" y1="62" x2="319" y2="62" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="319,62 311,58 311,66" fill="var(--text-secondary)"/>
-
-        <!-- Lakehouse box - highlighted -->
-        <rect x="319" y="30" width="108" height="65" fill="var(--accent-pale)" stroke="var(--accent)" stroke-width="2.5" rx="8"/>
-        <text x="373" y="68" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="middle">Lakehouse</text>
-
-        <!-- Arrow 3: Down to Model Score -->
-        <line x1="373" y1="95" x2="373" y2="135" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="373,135 369,127 377,127" fill="var(--text-secondary)"/>
-        <text x="310" y="118" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Train models</text>
-
-        <!-- ROW 2: Real-time serving -->
-        <!-- Model Score box -->
-        <rect x="300" y="135" width="125" height="75" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="362" y="162" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Model Score</text>
-        <text x="362" y="178" font-size="11" fill="var(--text-secondary)" text-anchor="middle">(Serverless)</text>
-        <text x="362" y="193" font-size="10" fill="var(--text-secondary)" text-anchor="middle">Real-time</text>
-
-        <!-- Arrow 4 -->
-        <line x1="425" y1="172" x2="475" y2="172" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="475,172 467,168 467,176" fill="var(--text-secondary)"/>
-        <text x="450" y="158" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Sub-sec</text>
-
-        <!-- Lakebase box -->
-        <rect x="475" y="135" width="125" height="75" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="537" y="162" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Lakebase</text>
-        <text x="537" y="178" font-size="11" fill="var(--text-secondary)" text-anchor="middle">(Serverless SQL)</text>
-        <text x="537" y="193" font-size="10" fill="var(--text-secondary)" text-anchor="middle">Live reads</text>
-
-        <!-- Arrow 5 -->
-        <line x1="600" y1="172" x2="650" y2="172" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="650,172 642,168 642,176" fill="var(--text-secondary)"/>
-        <text x="625" y="158" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Sub-sec</text>
-
-        <!-- Floor App box -->
-        <rect x="650" y="135" width="105" height="75" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="702" y="168" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Floor</text>
-        <text x="702" y="183" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">App</text>
-
-        <!-- Arrow 6: To Maintenance Assistant -->
-        <line x1="702" y1="135" x2="765" y2="77" stroke="var(--text-secondary)" stroke-width="2.5"/>
-        <polygon points="765,77 760,85 772,82" fill="var(--text-secondary)"/>
-
-        <!-- Maintenance Assistant box -->
-        <rect x="740" y="30" width="125" height="65" fill="var(--surface-light)" stroke="var(--border)" stroke-width="1.5" rx="8"/>
-        <text x="802" y="58" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Maintenance</text>
-        <text x="802" y="73" font-size="12" font-weight="600" fill="var(--text)" text-anchor="middle">Assistant</text>
-
-        <!-- Change feed: Dashed arrow back to Lakehouse, no overlap -->
-        <line x1="537" y1="135" x2="445" y2="95" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="5,3"/>
-        <polygon points="445,95 451,104 441,101" fill="var(--text-secondary)"/>
-        <text x="495" y="105" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">Change feed</text>
-        <text x="495" y="118" font-size="10" font-weight="500" fill="var(--text-secondary)" text-anchor="middle">~15s audit</text>
-
-        <!-- ROW 3: Governance -->
-        <!-- Unity Catalog box -->
-        <rect x="30" y="265" width="835" height="80" fill="var(--accent-pale)" stroke="var(--accent-soft)" stroke-width="1.5" rx="8"/>
-        <text x="48" y="290" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="start">Unity Catalog Governance</text>
-        <text x="48" y="315" font-size="11" fill="var(--text-secondary)">• All data, models, and access governed in one place</text>
-        <text x="48" y="335" font-size="11" fill="var(--text-secondary)">• Audit trail captures every state change for compliance</text>
-      </svg>
+  <!-- Slide 8: the switch to the live demo. The architecture diagram now lives
+       inside the app itself, so this slide is a pivot, not an explainer. -->
+  <section class="slide slide-statement">
+    <div class="eyebrow">Live environment</div>
+    <h2 class="demo-word">Demo <span class="highlight">time</span></h2>
+    <p class="demo-lede">Everything from here is running live on your data model:
+      streaming ingest, the trained model scoring in real time, and the floor app
+      operators would actually use. <strong>The full architecture is in the app.</strong></p>
+    <div class="demo-cues">
+      <div class="demo-cue">Watch for<b>Early warning</b></div>
+      <div class="demo-cue">Watch for<b>Live flowsheet</b></div>
+      <div class="demo-cue">Watch for<b>Maintenance assistant</b></div>
     </div>
-    <p class="caption">From sensors to floor: streaming ingest, lakehouse, serverless scoring, live Postgres, floor app. Change feed audits every state change back into the lakehouse. Governance spans all layers.</p>
   </section>
 
   <!-- Slide 9: Annika's Question -->

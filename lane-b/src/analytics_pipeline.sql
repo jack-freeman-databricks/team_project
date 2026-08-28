@@ -312,3 +312,101 @@ SELECT window_start, window_end,
    - of_q*of_rho*(4.9*(of_rho-1)/(of_rho*3.9))
    - uf_q*uf_rho*(4.9*(uf_rho-1)/(uf_rho*3.9)) solids_imbalance_tph
 FROM p;
+
+-- ---------------------------------------------------------------------
+-- Vibration features at 10 minute grain. The live counterpart of
+-- vibration_features_seed, same 21 columns so the two can be unioned.
+--
+-- Crest factor is DERIVED as VP/VI and kurtosis is READ from the VK tag. It
+-- cannot be computed from the VI tag: that tag carries an RMS value already
+-- averaged by the instrument, and neither peak nor a fourth moment survives
+-- that averaging. An earlier attempt derived both from VI and produced crest
+-- factors around 1.1, below a sine wave's 1.41 and physically impossible for
+-- bearing vibration. Hence the VP and VK partner tags.
+--
+-- VK carries RAW kurtosis, where a Gaussian signal reads 3.0. Do NOT pass it
+-- through Spark's KURTOSIS(), which returns EXCESS kurtosis and reads 0.0 for a
+-- Gaussian. Getting that backwards makes a healthy bearing look catastrophic.
+--
+-- Three columns cannot be derived from instrument readings at all:
+-- hours_since_maintenance needs a maintenance log, and label_failure_30d is a
+-- training label that only exists in hindsight. Both are NULL here and that is
+-- correct rather than lazy. run_minutes IS derivable now that discrete tags hold
+-- a state, so it comes from equipment_state_1m.
+-- ---------------------------------------------------------------------
+CREATE OR REFRESH MATERIALIZED VIEW vibration_features_10m
+  COMMENT "Live 10-minute vibration features. Same columns as vibration_features_seed so the two union."
+AS
+WITH v AS (
+  SELECT t.asset_id, t.instrument_type, t.nominal,
+         regexp_extract(t.tag_id, '([0-9]+)$', 1) AS seq,
+         window(r.source_ts, '10 minutes').start AS window_start,
+         window(r.source_ts, '10 minutes').end   AS window_end,
+         AVG(r.value) AS av, STDDEV(r.value) AS sd, COUNT(*) AS n
+  FROM vw_tag_reading r
+  JOIN dim_tag t ON t.tag_id = r.tag_id
+  WHERE t.instrument_type IN ('VI','VP','VK') AND r.quality = 'GOOD'
+  GROUP BY t.asset_id, t.instrument_type, t.nominal,
+           regexp_extract(t.tag_id, '([0-9]+)$', 1),
+           window(r.source_ts, '10 minutes')
+),
+ctx AS (   -- temperature, current and throughput on the same asset
+  SELECT t.asset_id,
+         window(r.source_ts, '10 minutes').start AS window_start,
+         AVG(CASE WHEN t.instrument_type = 'TI' THEN r.value END) AS bearing_temp_c,
+         AVG(CASE WHEN t.instrument_type = 'II' THEN r.value END) AS motor_current_a,
+         AVG(CASE WHEN t.instrument_type = 'WI' THEN r.value END) AS throughput_tph
+  FROM vw_tag_reading r
+  JOIN dim_tag t ON t.tag_id = r.tag_id
+  WHERE t.instrument_type IN ('TI','II','WI') AND r.quality = 'GOOD'
+  GROUP BY t.asset_id, window(r.source_ts, '10 minutes')
+),
+run AS (   -- minutes actually running in the window, from the discrete state
+  SELECT asset_id, window(window_start, '10 minutes').start AS window_start,
+         SUM(run_seconds) / 60.0 AS run_minutes
+  FROM equipment_state_1m
+  GROUP BY asset_id, window(window_start, '10 minutes')
+),
+joined AS (
+  SELECT
+    vi.asset_id,
+    CONCAT(vi.asset_id, '-VI', vi.seq) AS tag_id,
+    vi.window_start, vi.window_end,
+    vi.av AS rms_mm_s,
+    vp.av AS peak_mm_s,
+    vp.av / NULLIF(vi.av, 0) AS crest_factor,
+    vk.av AS kurtosis,
+    vi.sd AS stddev_mm_s,
+    vi.n  AS sample_count,
+    100.0 * vi.av / NULLIF(vi.nominal, 0) AS rms_pct_of_baseline,
+    c.bearing_temp_c, c.motor_current_a, c.throughput_tph,
+    rn.run_minutes
+  FROM v vi
+  JOIN v vp ON vp.asset_id = vi.asset_id AND vp.seq = vi.seq
+           AND vp.window_start = vi.window_start AND vp.instrument_type = 'VP'
+  JOIN v vk ON vk.asset_id = vi.asset_id AND vk.seq = vi.seq
+           AND vk.window_start = vi.window_start AND vk.instrument_type = 'VK'
+  LEFT JOIN ctx c  ON c.asset_id  = vi.asset_id AND c.window_start  = vi.window_start
+  LEFT JOIN run rn ON rn.asset_id = vi.asset_id AND rn.window_start = vi.window_start
+  WHERE vi.instrument_type = 'VI'
+)
+SELECT
+  asset_id, tag_id, window_start, window_end,
+  rms_mm_s, peak_mm_s, crest_factor, kurtosis, stddev_mm_s, sample_count,
+  -- 6 and 144 ten-minute periods back, so one hour and 24 hours.
+  rms_mm_s - LAG(rms_mm_s, 6)   OVER (PARTITION BY tag_id ORDER BY window_start) AS rms_delta_1h,
+  rms_mm_s - LAG(rms_mm_s, 144) OVER (PARTITION BY tag_id ORDER BY window_start) AS rms_delta_24h,
+  -- Trend in mm/s per day across the trailing 24h of 10-minute windows.
+  REGR_SLOPE(rms_mm_s, UNIX_TIMESTAMP(window_start))
+    OVER (PARTITION BY tag_id ORDER BY window_start
+          ROWS BETWEEN 143 PRECEDING AND CURRENT ROW) * 86400 AS rms_slope_24h,
+  rms_pct_of_baseline,
+  bearing_temp_c, motor_current_a, throughput_tph,
+  run_minutes,
+  CAST(NULL AS DOUBLE)  AS hours_since_maintenance,  -- needs a maintenance log
+  CASE WHEN rms_mm_s <  2.8 THEN 'A'
+       WHEN rms_mm_s <  7.1 THEN 'B'
+       WHEN rms_mm_s < 11.0 THEN 'C'
+       ELSE 'D' END       AS iso_10816_zone,
+  CAST(NULL AS BOOLEAN) AS label_failure_30d          -- a training label, hindsight only
+FROM joined;

@@ -902,18 +902,21 @@
       streaming ingest, the trained model scoring in real time, and the floor app
       operators would actually use. <strong>The full architecture is in the app.</strong></p>
     <div class="demo-cues">
-      <div class="demo-cue">Watch for<b>Early warning</b></div>
-      <div class="demo-cue">Watch for<b>Live flowsheet</b></div>
-      <div class="demo-cue">Watch for<b>Maintenance assistant</b></div>
+      <div class="demo-cue">Watch for<b>One governed source</b></div>
+      <div class="demo-cue">Watch for<b>The floor acting on it</b></div>
+      <div class="demo-cue">Watch for<b>AI you can audit</b></div>
     </div>
   </section>
 
-  <!-- Slide 9: Annika's Question -->
+  <!-- Slide 9: the operations concern. Headline is the concern, not a named
+       individual: naming execs on a slide reads oddly, and the quote already
+       carries the problem in the customer's own words. -->
   <section class="slide">
-    <h2>Annika's Question</h2>
+    <div class="eyebrow">The operations mandate</div>
+    <h2>Unplanned Downtime <span class="highlight">Reduction</span></h2>
     <div class="persona-card">
       <div class="persona-name">VP Manufacturing Operations</div>
-      <div class="persona-role">Cares About Unplanned Downtime Reduction</div>
+      <div class="persona-role">The question behind the mandate</div>
       <div style="margin-top: 16px;">
         <div class="persona-question">Did a plant manager make a different call this shift?</div>
       </div>
@@ -951,12 +954,13 @@
     </div>
   </section>
 
-  <!-- Slide 11: Fatima's Question -->
+  <!-- Slide 11: the AI spend concern, headlined by the concern rather than a name. -->
   <section class="slide">
-    <h2>Fatima's Question</h2>
+    <div class="eyebrow">The AI spend mandate</div>
+    <h2>AI Spend at <span class="highlight">Scale</span></h2>
     <div class="persona-card">
       <div class="persona-name">Director of Manufacturing IT and Finance</div>
-      <div class="persona-role">Cares About AI Spend at Scale</div>
+      <div class="persona-role">The question behind the mandate</div>
       <div style="margin-top: 16px;">
         <div class="persona-question">If we roll to eight plants, what does it cost?</div>
       </div>
@@ -965,28 +969,55 @@
     <p style="margin-top: 20px; font-size: 16px; color: var(--text-secondary);">Eight plants means eight data sources, eight models, eight serving instances. Cost is a function of infrastructure, not friction. We will know the actual spend once we size your data volume.</p>
   </section>
 
-  <!-- Slide 12: Cost Structure -->
+  <!-- Slide 12: the AI spend owner's signature slide. The strongest cost story we
+       have is a design decision, not a price list: detection does not use a language
+       model, so it carries no token cost at any sensor volume. The gateway numbers
+       here are real and live on the ironbark-pdm endpoint. -->
   <section class="slide">
-    <h2>How Cost <span class="highlight">Works</span></h2>
-    <div class="card-row">
+    <div class="eyebrow">Governed AI spend</div>
+    <h2>What the AI Actually <span class="highlight">Costs</span></h2>
+    <p>The cheapest decision we made was choosing not to use a language model for the
+       detection job:</p>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Detection path</div>
+        <div class="stat-value">0</div>
+        <div class="stat-sub">tokens. It is a gradient-boosted model on 12 numeric
+          features, so sensor volume never buys tokens.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rate limit</div>
+        <div class="stat-value">240</div>
+        <div class="stat-sub">calls per minute, enforced at the AI Gateway. A runaway
+          client cannot become a runaway invoice.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Inference logging</div>
+        <div class="stat-value">100%</div>
+        <div class="stat-sub">of calls written to a table in your own catalog, tagged
+          by plant and asset.</div>
+      </div>
+    </div>
+    <div class="card-row" style="margin-top: 28px;">
       <div class="card">
-        <h3>Serverless Architecture</h3>
+        <h3>Two paths, two cost curves</h3>
         <ul style="margin-top: 12px; margin-bottom: 0;">
-          <li>Compute scales to zero when idle</li>
-          <li>No sustained baseline cost between scoring runs</li>
-          <li>Pricing tied to compute units and data scanned</li>
+          <li>Detection scales with sensors and runs without tokens</li>
+          <li>Language is used only where language is the job: answering a
+              question on shift</li>
+          <li>So token spend tracks how often a person asks, not how much
+              your plant measures</li>
         </ul>
       </div>
       <div class="card">
-        <h3>Discipline Built In</h3>
+        <h3>Discipline built in</h3>
         <ul style="margin-top: 12px; margin-bottom: 0;">
-          <li>Cost is a function of plants and data</li>
-          <li>Not per-experiment or per-model</li>
-          <li>Unity Catalog governs all layers</li>
+          <li>Compute scales to zero when idle, no baseline between runs</li>
+          <li>Cost is a function of plants and data, not experiments</li>
+          <li>Unity Catalog governs every layer, gateway logs every call</li>
         </ul>
       </div>
     </div>
-    <p style="margin-top: 32px; font-size: 16px; color: var(--text-secondary);">This is the opposite of a per-experiment pricing model that multiplies out of control. Cost discipline is built into the architecture.</p>
   </section>
 
   <!-- Slide 13: What We Need -->

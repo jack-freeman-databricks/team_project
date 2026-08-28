@@ -1,0 +1,637 @@
+<title>Volta Pitch Run of Show</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #F4F6F7;
+    --panel:       #FFFFFF;
+    --ink:         #10212B;
+    --ink-soft:    #4A5D67;
+    --ink-faint:   #7C8D96;
+    --rule:        #D8DEE1;
+    --rule-soft:   #E7EBED;
+    --biz:         #E02D18;
+    --biz-wash:    #FDEEEB;
+    --spend:       #0E6E78;
+    --spend-wash:  #E6F2F3;
+    --warn:        #9A5B0B;
+    --warn-wash:   #FBF1E3;
+    --sans:  'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --cond:  'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+    --mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:     #0C1A22;
+      --panel:      #12242E;
+      --ink:        #E8EFF2;
+      --ink-soft:   #A3B5BE;
+      --ink-faint:  #74898F;
+      --rule:       #24404C;
+      --rule-soft:  #1B333E;
+      --biz:        #FF6A54;
+      --biz-wash:   #2A1712;
+      --spend:      #4FC3CC;
+      --spend-wash: #0D2A2E;
+      --warn:       #E0A45C;
+      --warn-wash:  #2A1F0F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:     #0C1A22;
+    --panel:      #12242E;
+    --ink:        #E8EFF2;
+    --ink-soft:   #A3B5BE;
+    --ink-faint:  #74898F;
+    --rule:       #24404C;
+    --rule-soft:  #1B333E;
+    --biz:        #FF6A54;
+    --biz-wash:   #2A1712;
+    --spend:      #4FC3CC;
+    --spend-wash: #0D2A2E;
+    --warn:       #E0A45C;
+    --warn-wash:  #2A1F0F;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0 24px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  /* ---------- masthead ---------- */
+  header.mast { padding: 56px 0 28px; border-bottom: 2px solid var(--ink); }
+  .kicker {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--biz);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--cond); font-weight: 700; font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.0; letter-spacing: -0.015em; margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 18px; color: var(--ink-soft); max-width: 62ch; margin: 0;
+  }
+  .mast-meta {
+    display: flex; flex-wrap: wrap; gap: 28px; margin-top: 26px;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .mast-meta b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- persona legend ---------- */
+  .legend {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--rule); border: 1px solid var(--rule);
+    margin: 32px 0 0;
+  }
+  .legend > div { background: var(--panel); padding: 18px 20px; }
+  .legend h4 {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin: 0 0 8px; font-weight: 600;
+  }
+  .legend .l-biz h4 { color: var(--biz); }
+  .legend .l-spend h4 { color: var(--spend); }
+  .legend p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+  .legend b { color: var(--ink); }
+
+  /* ---------- section headings ---------- */
+  h2 {
+    font-family: var(--cond); font-weight: 700; font-size: 30px;
+    letter-spacing: -0.01em; margin: 64px 0 6px; padding-top: 8px;
+  }
+  h2 .n {
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    color: var(--ink-faint); letter-spacing: 0.1em; display: block;
+    margin-bottom: 8px;
+  }
+  .sec-note { color: var(--ink-soft); font-size: 15px; margin: 0 0 26px; max-width: 66ch; }
+
+  /* ---------- run of show ---------- */
+  .row {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 0 22px;
+    padding: 22px 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .row:first-of-type { border-top: 1px solid var(--rule); }
+  .slot { font-family: var(--mono); font-size: 12.5px; line-height: 1.5; padding-top: 3px; }
+  .slot .sno {
+    display: block; font-family: var(--cond); font-size: 26px; font-weight: 700;
+    line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .slot .time { display: block; margin-top: 5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .row.biz   .slot .sno { color: var(--biz); }
+  .row.spend .slot .sno { color: var(--spend); }
+
+  .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .head .title { font-family: var(--cond); font-size: 21px; font-weight: 700; letter-spacing: -0.005em; }
+  .chip {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 8px; white-space: nowrap;
+  }
+  .chip.biz   { color: var(--biz);   background: var(--biz-wash); }
+  .chip.spend { color: var(--spend); background: var(--spend-wash); }
+  .chip.both  { color: var(--ink-soft); background: var(--rule-soft); }
+
+  .say {
+    font-size: 16.5px; line-height: 1.6; margin: 0 0 10px;
+    padding-left: 15px; border-left: 3px solid var(--rule);
+  }
+  .row.biz   .say { border-left-color: var(--biz); }
+  .row.spend .say { border-left-color: var(--spend); }
+  .say em { font-style: italic; color: var(--ink-soft); }
+  .beat { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 8px; }
+  .beat b { color: var(--ink); font-weight: 600; }
+  .avoid {
+    font-family: var(--mono); font-size: 12px; color: var(--warn);
+    background: var(--warn-wash); padding: 7px 10px; margin: 10px 0 0;
+    line-height: 1.5;
+  }
+
+  /* ---------- demo beats ---------- */
+  .beats { counter-reset: b; margin: 0; padding: 0; list-style: none; }
+  .beats > li {
+    counter-increment: b; position: relative;
+    padding: 20px 0 20px 56px; border-top: 1px solid var(--rule-soft);
+  }
+  .beats > li:first-child { border-top: 1px solid var(--rule); }
+  .beats > li::before {
+    content: counter(b); position: absolute; left: 0; top: 20px;
+    font-family: var(--cond); font-weight: 700; font-size: 30px; line-height: 1;
+    color: var(--ink-faint); font-variant-numeric: tabular-nums;
+  }
+  .beats h3 {
+    font-family: var(--cond); font-size: 20px; font-weight: 700;
+    margin: 0 0 4px; display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline;
+  }
+  .milestone {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ---------- objections ---------- */
+  .obj { border-top: 1px solid var(--rule); }
+  .obj > div { padding: 18px 0; border-bottom: 1px solid var(--rule-soft); }
+  .q {
+    font-family: var(--cond); font-size: 18px; font-weight: 700; margin: 0 0 7px;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .q .mark { font-family: var(--mono); font-size: 13px; font-weight: 600; flex: none; }
+  .obj .biz-q .mark   { color: var(--biz); }
+  .obj .spend-q .mark { color: var(--spend); }
+  .obj .tech-q .mark  { color: var(--ink-faint); }
+  .a { margin: 0; color: var(--ink-soft); font-size: 15.5px; }
+  .a b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- preflight ---------- */
+  .pre { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .pre li {
+    padding: 16px 0 16px 30px; border-bottom: 1px solid var(--rule-soft);
+    position: relative; font-size: 15.5px; color: var(--ink-soft);
+  }
+  .pre li::before {
+    content: ""; position: absolute; left: 0; top: 23px;
+    width: 13px; height: 13px; border: 2px solid var(--ink-faint);
+  }
+  .pre li.hot::before { border-color: var(--warn); background: var(--warn-wash); }
+  .pre li b { color: var(--ink); font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: 0.88em;
+    background: var(--rule-soft); padding: 1px 5px; color: var(--ink);
+  }
+
+  footer {
+    margin-top: 72px; padding-top: 20px; border-top: 2px solid var(--ink);
+    font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 680px) {
+    .legend { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; gap: 8px; }
+    .slot { display: flex; gap: 12px; align-items: baseline; padding-top: 0; }
+    .slot .sno { font-size: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  a:focus-visible, li:focus-visible { outline: 2px solid var(--biz); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="kicker">Volta Industrial &middot; Databricks team</p>
+  <h1>Pitch Run of Show</h1>
+  <p class="standfirst">Fifteen and a half minutes across fourteen slides, with a five minute
+    live demo in the middle. Two judges are scoring the same six criteria at once, so every
+    moment below is marked with who it is for. Nail one judge and ignore the other and the
+    ceiling is a 3 no matter how good the build is.</p>
+  <div class="mast-meta">
+    <span>Runtime <b>15:30</b></span>
+    <span>Slides <b>14</b></span>
+    <span>Demo <b>5:00</b></span>
+    <span>Presenters <b>3</b></span>
+  </div>
+  <div class="legend">
+    <div class="l-biz">
+      <h4>Business owner</h4>
+      <p>The executive. Listening for <b>the customer problem, the decision, the business
+        value</b>. In the room this is the VP Manufacturing Operations concern: unplanned
+        downtime.</p>
+    </div>
+    <div class="l-spend">
+      <h4>AI spend owner</h4>
+      <p>Accountable for AI cost and governance. Listening for <b>what the AI costs, what
+        limits are set, what the logs capture</b>. In the room this is the Director of
+        Manufacturing IT and Finance concern.</p>
+    </div>
+  </div>
+</header>
+
+<h2><span class="n">Section 01</span>The problem</h2>
+<p class="sec-note">Opens for the business owner. The job here is that the problem is theirs
+  and stated in their words, not a feature tour. Do not mention Databricks products in this
+  section at all.</p>
+
+<div class="row both">
+  <div class="slot"><span class="sno">01</span><span class="time">0:30</span></div>
+  <div>
+    <div class="head"><span class="title">Predictive Maintenance for Continuous Production</span>
+      <span class="chip both">Both</span></div>
+    <p class="say">"We are going to show you a working system, not a concept. Every number in
+      this deck was measured on a build we finished, and in about ten minutes we will switch
+      to it running live. We want you to leave with two things: what this is worth on your
+      downtime line, and exactly what the AI costs to run."</p>
+    <p class="beat">Naming both takeaways in the opening tells each judge their question is
+      on the agenda. It costs eight seconds and it sets up criterion 6.</p>
+  </div>
+</div>
+
+<div class="row biz">
+  <div class="slot"><span class="sno">02</span><span class="time">0:45</span></div>
+  <div>
+    <div class="head"><span class="title">Thirty three million a year</span>
+      <span class="chip biz">Business owner</span></div>
+    <p class="say">"Fifteen hundred hours of unplanned downtime a year across eight plants,
+      at twenty two thousand dollars an hour. That is thirty three million, before expedited
+      freight and SLA penalties. The interesting part is not the size of it. It is that most
+      of it is detectable weeks in advance."</p>
+    <p class="beat">That last sentence is the hinge of the whole pitch. Land it and pause.</p>
+  </div>
+</div>
+
+<div class="row biz">
+  <div class="slot"><span class="sno">03</span><span class="time">1:00</span></div>
+  <div>
+    <div class="head"><span class="title">Why Current Monitoring Misses the Window</span>
+      <span class="chip biz">Business owner</span></div>
+    <p class="say">"You already have the sensors. The gap is not instrumentation, it is
+      timing. A bearing defect is impulsive: early on it changes the shape of the vibration,
+      not the amount. An RMS alarm measures the amount. So an alarm tuned not to cry wolf is
+      blind for the first eighteen days."</p>
+    <p class="beat"><b>The line to land:</b> "Your monitoring is not broken. It is measuring
+      the wrong statistic for early detection." That reframes the conversation from a
+      procurement problem into a physics problem, and it is generous about their existing
+      investment.</p>
+  </div>
+</div>
+
+<div class="row both">
+  <div class="slot"><span class="sno">04</span><span class="time">0:45</span></div>
+  <div>
+    <div class="head"><span class="title">What We Measure: The Early Window</span>
+      <span class="chip both">Both</span></div>
+    <p class="say">"Over the thirty days before a bearing failure: kurtosis up forty eight
+      percent, crest factor up twenty seven percent, RMS up two percent. That two percent is
+      exactly why your current alarms stay quiet."</p>
+    <p class="beat">Three numbers, one point. Do not explain what kurtosis is unless asked.
+      If asked, it is "how spiky the signal is, versus how strong it is".</p>
+  </div>
+</div>
+
+<h2><span class="n">Section 02</span>The proof</h2>
+<p class="sec-note">Still the business owner's section, but this is where technical
+  credibility gets established for criterion 2. Volunteer the validation method before
+  anyone asks for it.</p>
+
+<div class="row both">
+  <div class="slot"><span class="sno">05</span><span class="time">0:45</span></div>
+  <div>
+    <div class="head"><span class="title">Reference Implementation</span>
+      <span class="chip both">Both</span></div>
+    <p class="say">"One hundred and fifty one instrument tags, twenty five assets, twenty one
+      point seven million readings in a single day, and a live mass balance closing to a
+      hundredth of a percent on a twenty five hundred tonne an hour feed. This is a mining
+      plant, a continuous process. The architecture moves to your discrete lines unchanged."</p>
+    <p class="beat">One aside for the spend owner, eight seconds: <b>"and note what is not in
+      that list: no GPU cluster, and no fine tuning run."</b> It plants the cost argument
+      early so slide 12 is a callback rather than a surprise.</p>
+  </div>
+</div>
+
+<div class="row both">
+  <div class="slot"><span class="sno">06</span><span class="time">1:00</span></div>
+  <div>
+    <div class="head"><span class="title">Early Detection: 95.8% vs 14.8%</span>
+      <span class="chip both">Both</span></div>
+    <p class="say">"In the window where intervention is still possible, the model catches
+      ninety five point eight percent of degrading readings. An RMS threshold catches
+      fourteen point eight. We validated leave one asset out: trained on the other assets,
+      tested on one held out completely."</p>
+    <p class="beat"><b>Say why that matters, unprompted:</b> "If we had split rows at random
+      we would have leaked, because two adjacent ten minute windows are nearly identical.
+      That is the most common way a number like this gets inflated." Volunteering the trap
+      you avoided is the single most efficient credibility move in the deck.</p>
+    <p class="avoid">Do not say "ninety five percent accurate". It is recall on degrading
+      readings in a specific window, and a judge who knows the difference will ask.</p>
+  </div>
+</div>
+
+<div class="row biz">
+  <div class="slot"><span class="sno">07</span><span class="time">0:45</span></div>
+  <div>
+    <div class="head"><span class="title">Precision: Zero False Positives</span>
+      <span class="chip biz">Business owner</span></div>
+    <p class="say">"Fifteen vibration sensors. The model flagged four. Exactly those four
+      failed. On the other eleven it scored zero point zero zero zero. A control room that
+      cries wolf gets ignored inside a week, so this number matters as much as the first one."</p>
+  </div>
+</div>
+
+<h2><span class="n">Section 03</span>The demo</h2>
+<p class="sec-note">Five minutes, and the largest single block of score on the sheet. It
+  carries criterion 5 outright and it is the only place criterion 1 can be earned, because
+  the three milestones have to be <em>shown</em> connected rather than asserted. The three
+  beats below are the three milestones in order. Narrate them alternating personas.</p>
+
+<ol class="beats">
+  <li>
+    <h3>One governed source <span class="milestone">Milestone 1 &middot; governed data serving the app</span></h3>
+    <p class="beat">Open on the flowsheet. "This layout is not drawn by hand. The app reads
+      the plant topology from the same two tables that feed the mass balance pipeline, so
+      these two views cannot disagree. One definition of the plant, governed in Unity
+      Catalog, serving both."</p>
+    <p class="beat"><b>Point at an estimated arc.</b> "This stream is styled differently
+      because it is inferred, not measured. Showing an inferred number as if it were measured
+      is how you lose a control room's trust permanently." <span class="chip spend">Spend owner</span>
+      That detail reads as governance maturity, not UI polish.</p>
+  </li>
+  <li>
+    <h3>The floor acting on it <span class="milestone">Milestone 2 &middot; the app acting on the data</span></h3>
+    <p class="beat">Move to the alarm strip. Acknowledge an alarm and let them see the write
+      land. "That acknowledgement just wrote back to the operational database. This is not a
+      dashboard you look at, it is a system of record you act in, and the acknowledgement is
+      part of the audit trail."</p>
+    <p class="beat">Then the asset detail view with the ISO 10816 zone bands.
+      <span class="chip biz">Business owner</span> "This is the screen a maintenance planner
+      opens. The bands are the international standard your engineers already work to, so
+      nobody has to learn our scale."</p>
+  </li>
+  <li>
+    <h3>AI you can audit <span class="milestone">Milestone 3 &middot; the AI inside it governed</span></h3>
+    <p class="beat">Ask the assistant a real question, ideally "what needs maintenance this
+      week and why". <span class="chip biz">Business owner</span> "The answer cites the
+      assets and the reason. A planner can act on that without opening a notebook."</p>
+    <p class="beat"><b>Then hand over to the spend owner and stay on this beat.</b>
+      <span class="chip spend">Spend owner</span> Open the AI Gateway view on the endpoint.
+      "Every call through this endpoint is rate limited at two hundred and forty a minute,
+      usage tracked, and logged to a table in your own catalog tagged by plant and asset. A
+      runaway client cannot become a runaway invoice, and if you ever need to answer what the
+      AI told someone in March, the payload is there."</p>
+    <p class="avoid">Do not open the gateway view cold. See pre-flight: usage data arrives on
+      a delay, and an empty panel here converts your strongest governance moment into a
+      visible fault.</p>
+  </li>
+</ol>
+
+<h2><span class="n">Section 04</span>The business case</h2>
+
+<div class="row biz">
+  <div class="slot"><span class="sno">09</span><span class="time">0:45</span></div>
+  <div>
+    <div class="head"><span class="title">Unplanned Downtime Reduction</span>
+      <span class="chip biz">Business owner</span></div>
+    <p class="say">"The question we keep getting from operations is this one: <em>did a plant
+      manager make a different call this shift?</em> On the reference build, yes. Three
+      bearing defects and a screen failure, each with more than eighteen days of notice.
+      Maintenance was scheduled instead of scrambled."</p>
+    <p class="beat">The slide no longer names anyone, so attribute it in the room instead:
+      "this is the question your VP of Manufacturing Operations asked us". Speaking the name
+      is warm; printing it on a slide is not.</p>
+  </div>
+</div>
+
+<div class="row biz">
+  <div class="slot"><span class="sno">10</span><span class="time">1:00</span></div>
+  <div>
+    <div class="head"><span class="title">The Business Case</span>
+      <span class="chip biz">Business owner</span></div>
+    <p class="say">"Thirty three million today. If ten percent of those hours convert from
+      unplanned to planned, that is three point three million a year."</p>
+    <p class="beat"><b>Then immediately give the number back:</b> "We are not claiming ten
+      percent. We are claiming eighteen days of notice. Ten percent is what that notice is
+      worth if your maintenance function acts on it, and your asset mix decides the real
+      figure. That is what the pilot is for." Executives discount numbers they sense are
+      being oversold, so bounding it yourself makes the rest of the deck more credible, not
+      less.</p>
+  </div>
+</div>
+
+<h2><span class="n">Section 05</span>AI spend</h2>
+<p class="sec-note">The spend owner's signature moment and the one criterion where a generic
+  answer caps you at a 3. The value story has to be about Volta specifically, not about
+  serverless in general.</p>
+
+<div class="row spend">
+  <div class="slot"><span class="sno">11</span><span class="time">0:30</span></div>
+  <div>
+    <div class="head"><span class="title">AI Spend at Scale</span>
+      <span class="chip spend">Spend owner</span></div>
+    <p class="say">"The other question we were asked: <em>if we roll this to eight plants,
+      what does it cost?</em> Cost scales with plants and data, not with experiments. Adding
+      a tenth data scientist costs almost nothing here."</p>
+  </div>
+</div>
+
+<div class="row spend">
+  <div class="slot"><span class="sno">12</span><span class="time">1:30</span></div>
+  <div>
+    <div class="head"><span class="title">What the AI Actually Costs</span>
+      <span class="chip spend">Spend owner</span></div>
+    <p class="say">"The cheapest decision we made on this build was choosing <em>not</em> to
+      use a language model for the detection job. Detection is a gradient boosted model on
+      twelve numeric features. It scores twenty one million readings a day and it consumes
+      zero tokens, because there is no language in the problem. Vibration is a number."</p>
+    <p class="say">"We do use a language model, in exactly one place: answering a person's
+      question on shift. That means your token spend tracks how often somebody asks
+      something, not how much your plant measures. Those two cost curves are completely
+      different, and picking the wrong one is how AI programmes get expensive."</p>
+    <p class="beat"><b>Then the three controls, briefly:</b> a rate limit of two hundred and
+      forty calls a minute enforced at the gateway, usage tracked per plant and per asset,
+      and one hundred percent of inferences written to a table in their catalog.
+      "Governance is not a policy document here, it is configuration on the endpoint."</p>
+    <p class="beat"><b>Close on their number, not ours:</b> "So the honest answer to what
+      this costs at eight plants is that the detection layer scales with sensors and stays
+      off tokens entirely, and we size the rest against your data volume in the pilot."</p>
+    <p class="avoid">This is the slide where a generic answer costs you the criterion. Do not
+      describe serverless in the abstract. Every sentence should be about a crushing plant
+      with twenty one million readings a day.</p>
+  </div>
+</div>
+
+<h2><span class="n">Section 06</span>The ask</h2>
+
+<div class="row both">
+  <div class="slot"><span class="sno">13</span><span class="time">0:45</span></div>
+  <div>
+    <div class="head"><span class="title">What We Need From You</span>
+      <span class="chip both">Both</span></div>
+    <p class="say">"Three things. One plant's data, twelve months of telemetry and work
+      orders. A technical point person who knows your lakehouse. And agreement on which
+      metric we are moving, because early detection in the backlog and downtime in the plant
+      manager's scorecard are different targets."</p>
+    <p class="beat">Asking for alignment on the metric rather than just data is what makes
+      this read as a pilot plan instead of a data request.</p>
+  </div>
+</div>
+
+<div class="row both">
+  <div class="slot"><span class="sno">14</span><span class="time">0:30</span></div>
+  <div>
+    <div class="head"><span class="title">The Next Step</span>
+      <span class="chip both">Both</span></div>
+    <p class="say">"Everything you just saw, we built and validated. On your data, with one
+      plant, we can tell you whether the eighteen day window holds on your equipment. That
+      is the only question that actually matters, and it is a short piece of work."</p>
+  </div>
+</div>
+
+<h2><span class="n">Section 07</span>Under questioning</h2>
+<p class="sec-note">Criterion 2 is scored on whether the answer is adapted to whoever asked.
+  Same fact, different framing. Whoever built a layer should answer for it: the builder
+  answering is what reads as expertise.</p>
+
+<div class="obj">
+  <div class="biz-q">
+    <p class="q"><span class="mark">BIZ</span>How do we know this works on our equipment?</p>
+    <p class="a">"You do not yet, and neither do we. What we know is that it works on
+      equipment it had never seen, because that is how we validated it: held one asset out
+      entirely and tested on that. <b>The pilot answers it properly on twelve months of your
+      own telemetry.</b>"</p>
+  </div>
+  <div class="biz-q">
+    <p class="q"><span class="mark">BIZ</span>What if it misses a failure?</p>
+    <p class="a">"It will. We are not proposing you switch off your inspections. We are
+      proposing you get eighteen days of notice on the failures it does catch, and on the
+      reference build that was four out of four bearing and screen failures. <b>This is added
+      warning, not replaced process.</b>"</p>
+  </div>
+  <div class="biz-q">
+    <p class="q"><span class="mark">BIZ</span>My maintenance team is already at capacity.</p>
+    <p class="a">"That is the argument for it rather than against it. Planned work costs less
+      labour than an emergency: no overtime call out, no expedited freight, parts already on
+      site. <b>This converts work you are already doing into a cheaper form of the same
+      work.</b>"</p>
+  </div>
+  <div class="spend-q">
+    <p class="q"><span class="mark">SPEND</span>What is the actual run rate?</p>
+    <p class="a">"Detection carries no token cost at any volume, and the compute scales to
+      zero between runs, so there is no idle baseline. The language layer is bounded by how
+      many questions people ask on shift. <b>We will not quote you a monthly figure before we
+      have sized your data volume, and you should not trust anyone who does.</b>"</p>
+  </div>
+  <div class="spend-q">
+    <p class="q"><span class="mark">SPEND</span>What stops this becoming a runaway bill?</p>
+    <p class="a">"A rate limit on the endpoint, configured today at two hundred and forty
+      calls a minute. A misbehaving client gets throttled, not billed. <b>The limit is
+      configuration you control, and it is enforced at the gateway rather than trusted to
+      application code.</b>"</p>
+  </div>
+  <div class="spend-q">
+    <p class="q"><span class="mark">SPEND</span>Where do the logs go, and who can read them?</p>
+    <p class="a">"Every inference is written to a table in your own Unity Catalog, tagged with
+      the plant and the asset it was about. Access is governed by the same catalog permissions
+      as the rest of your data. <b>Nothing about the AI sits outside the governance you
+      already run.</b>"</p>
+  </div>
+  <div class="spend-q">
+    <p class="q"><span class="mark">SPEND</span>Why not just use an LLM for all of it?</p>
+    <p class="a">"Because it is the wrong instrument and a far more expensive one. Vibration
+      is a number, not language, so a language model would cost orders of magnitude more to
+      get a worse answer, and it would give you a different answer on the same input twice.
+      <b>You cannot put a non deterministic number in a maintenance audit trail.</b> We use
+      language where the task is language, and nowhere else."</p>
+  </div>
+  <div class="tech-q">
+    <p class="q"><span class="mark">TECH</span>What features does the model use at serving time?</p>
+    <p class="a">Answer precisely, because it is checkable: <b>the deployed endpoint takes
+      twelve features, including three vibration trend features</b> (one hour delta, twenty
+      four hour delta and twenty four hour slope). Those come from the feature pipeline, not
+      from a raw reading, which is why scoring runs against computed features rather than the
+      live tag stream.</p>
+  </div>
+  <div class="tech-q">
+    <p class="q"><span class="mark">TECH</span>How do you handle model drift?</p>
+    <p class="a">"Today, honestly: retraining is a job you run, not an automatic loop. The
+      inference table gives you the input distribution over time, which is what you would
+      monitor drift against. <b>We would rather tell you that than claim a closed loop we
+      have not built.</b>"</p>
+  </div>
+  <div class="tech-q">
+    <p class="q"><span class="mark">TECH</span>Is any of this real time, or is it batch?</p>
+    <p class="a">The live tiles read the operational database directly, which is why that
+      layer exists. The analytics refresh runs on a five minute schedule. Say that plainly:
+      <b>the flowsheet is minutes fresh, the tag values are current.</b> Claiming
+      sub second end to end would not survive a follow up question.</p>
+  </div>
+</div>
+
+<h2><span class="n">Section 08</span>Pre-flight</h2>
+<p class="sec-note">Criterion 5 penalises any visible fault, including running out of time.
+  Work through these before you present, in order.</p>
+
+<ul class="pre">
+  <li class="hot"><b>Drive traffic through the endpoint at least an hour before you present.</b>
+    Usage tracking and inference logging both arrive on a delay. Forty real calls were made
+    during setup and <code>system.serving.endpoint_usage</code> and
+    <code>pdm_gateway_payload</code> were still empty minutes later. If you open the gateway
+    view cold it will be blank, which turns your best governance moment into a visible fault.</li>
+  <li class="hot"><b>Have the fallback ready and know when to reach for it.</b> The
+    <code>stub_*</code> tables still exist and the app can be pointed at them with a one line
+    config change. If a live panel fails, switch and say so plainly. A presenter who says
+    "that is the live feed misbehaving, here is the same view on captured data" reads as
+    competent; silence while clicking does not.</li>
+  <li><b>Confirm the analytics refresh is unpaused.</b> The five minute schedule is what makes
+    the flowsheet move. If it is paused the demo looks frozen and every freshness claim in
+    section 03 is wrong.</li>
+  <li><b>Decide who narrates each demo beat and rehearse the two handovers.</b> Whoever built
+    a layer answers for it. Fumbled handovers are the most common way a strong demo drops to
+    a 3.</li>
+  <li><b>Time the demo once, with a stopwatch.</b> Five minutes is short. Overrunning it
+    costs criterion 5 directly and eats the AI spend section, which is where a whole
+    criterion lives.</li>
+  <li><b>Agree who takes which question.</b> Business questions to whoever opened, spend and
+    governance questions to whoever narrated beat three, model questions to whoever trained
+    it.</li>
+  <li><b>Open the app, the gateway view and the deck in separate tabs, in order.</b> No
+    searching for a URL in front of the judges.</li>
+</ul>
+
+<footer>
+  Volta Industrial pitch &middot; run of show v1 &middot; 14 slides &middot; 15:30 plus questions
+</footer>
+
+</div>

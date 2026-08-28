@@ -886,11 +886,13 @@
         <text x="220" y="330" font-size="14" font-weight="600" fill="var(--text)">30 days</text>
         <text x="445" y="330" font-size="14" font-weight="600" fill="var(--text)">Phase 1</text>
         <text x="710" y="330" font-size="14" font-weight="600" fill="var(--text)">12 days</text>
-        <text x="950" y="330" font-size="14" font-weight="600" fill="var(--text)">Failure</text>
+        <text x="950" y="330" font-size="14" font-weight="600" fill="var(--text)" text-anchor="end">Failure</text>
 
-        <!-- Y-axis label -->
-        <text x="15" y="170" font-size="13" fill="var(--text-secondary)" text-anchor="end" font-weight="500">Increasing</text>
-        <text x="15" y="190" font-size="13" fill="var(--text-secondary)" text-anchor="end" font-weight="500">degradation</text>
+        <!-- Y-axis label. Rotated along the axis: an earlier version sat at x=15 with
+             text-anchor="end", which ran the text off the left edge of the viewBox and
+             clipped it to "ng" and "on". -->
+        <text transform="rotate(-90 26 170)" x="26" y="170" font-size="13"
+              fill="var(--text-secondary)" text-anchor="middle" font-weight="500">Increasing degradation</text>
 
         <!-- Legend -->
         <circle cx="100" cy="355" r="4" fill="var(--line-1)"/>

@@ -330,7 +330,7 @@
 <div class="row both">
   <div class="slot"><span class="sno">05</span><span class="time">0:45</span></div>
   <div>
-    <div class="head"><span class="title">Reference Implementation</span>
+    <div class="head"><span class="title">Reference Implementation on Ironbark Resources</span>
       <span class="chip both">Both</span></div>
     <p class="say">"One hundred and fifty one instrument tags, twenty five assets, twenty one
       point seven million readings in a single day, and a live mass balance closing to a
@@ -475,14 +475,14 @@
       use a language model for the detection job. Detection is a gradient boosted model on
       twelve numeric features. It scores twenty one million readings a day and it consumes
       zero tokens, because there is no language in the problem. Vibration is a number."</p>
-    <p class="say">"We do use a language model, in exactly one place: answering a person's
-      question on shift. That means your token spend tracks how often somebody asks
-      something, not how much your plant measures. Those two cost curves are completely
-      different, and picking the wrong one is how AI programmes get expensive."</p>
     <p class="beat"><b>Then the three controls, briefly:</b> a rate limit of two hundred and
       forty calls a minute enforced at the gateway, usage tracked per plant and per asset,
       and one hundred percent of inferences written to a table in their catalog.
       "Governance is not a policy document here, it is configuration on the endpoint."</p>
+    <p class="say">"We do use a language model, in exactly one place: answering a person's
+      question on shift. That means your token spend tracks how often somebody asks
+      something, not how much your plant measures. Those two cost curves are completely
+      different, and picking the wrong one is how AI programmes get expensive."</p>
     <p class="beat"><b>Close on their number, not ours:</b> "So the honest answer to what
       this costs at eight plants is that the detection layer scales with sensors and stays
       off tokens entirely, and we size the rest against your data volume in the pilot."</p>
